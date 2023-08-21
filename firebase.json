@@ -1,0 +1,134 @@
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "hosting": {
+    "public": "out",
+    "headers": [
+      {
+        "source": "**/*.@(jpg|jpeg|gif|png)",
+        "headers": [
+          {
+            "key": "Access-Control-Allow-Origin",
+            "value": "*"
+          }
+        ]
+      }
+    ],
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/eventBooking/**",
+        "destination": "/[eventId].html"
+      },
+      {
+        "source": "/bookings",
+        "destination": "/bookings.html"
+      },
+      {
+        "source": "/info",
+        "destination": "/info.html"
+      },
+      {
+        "source": "/users",
+        "destination": "/users.html"
+      },
+      {
+        "source": "/accounting",
+        "destination": "/accounting.html"
+      },
+      {
+        "source": "/crm",
+        "destination": "/crm.html"
+      },
+      {
+        "source": "/erp",
+        "destination": "/erp.html"
+      },
+      {
+        "source": "/events",
+        "destination": "/events.html"
+      },
+      {
+        "source": "/inventory",
+        "destination": "/inventory.html"
+      },
+      {
+        "source": "/display/**",
+        "destination": "/display/[id].html"
+      },
+      {
+        "source": "/templates/**",
+        "destination": "/templates/[name].html"
+      },
+      {
+        "source": "/myForm/**",
+        "destination": "/myForm/[id].html"
+      },
+      {
+        "source": "/terms",
+        "destination": "/terms.html"
+      },
+      {
+        "source": "/privacyPolicy",
+        "destination": "/privacyPolicy.html"
+      },
+      {
+        "source": "/login",
+        "destination": "/login.html"
+      },
+      {
+        "source": "/createForm",
+        "destination": "/createForm.html"
+      },
+      {
+        "source": "/data",
+        "destination": "/data.html"
+      },
+      {
+        "source": "/formats",
+        "destination": "/formats.html"
+      },
+      {
+        "source": "/forms",
+        "destination": "/forms.html"
+      },
+      {
+        "source": "/home",
+        "destination": "/home.html"
+      },
+      {
+        "source": "/payments",
+        "destination": "/payments.html"
+      },
+      {
+        "source": "/signup",
+        "destination": "/signup.html"
+      },
+      {
+        "source": "/support",
+        "destination": "/support.html"
+      },
+      {
+        "source": "/affiliate",
+        "destination": "/affiliate.html"
+      },
+      {
+        "source": "/deleteAccount",
+        "destination": "/deleteAccount.html"
+      },
+      {
+        "source": "/",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "storage": {
+    "rules": "storage.rules"
+  }
+}
