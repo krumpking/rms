@@ -12,8 +12,9 @@ import { addResInfo, getResInfo } from '../../api/infoApi';
 import { decrypt } from '../../utils/crypto';
 import { setDate } from 'date-fns';
 import { checkEmptyOrNull } from '../../utils/objectM';
+import { addCategory } from '../../api/menuApi';
 
-const AddMenuCategory = () => {
+const AddMenuItem = () => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const [webfrontname, setWebfrontname] = useState('');
@@ -39,79 +40,11 @@ const AddMenuCategory = () => {
     }
     setAdminId(decrypt(infoFromCookie, COOKIE_ID));
 
-    getInfo();
+    // getInfo();
   }, []);
 
-  const getInfo = () => {
-    getResInfo(adminId)
-      .then((r) => {
-        if (r !== null) {
-          r.forEach((el) => {
-            let val = el.data();
-            setWebfrontname(val.webfrontId);
-            setTitle(val.title);
-            setAbout(val.about);
-            setAddress(val.address);
-            setPhone(val.phone);
-            setEmail(val.email);
-            setDate(val.date);
-            setDateString(val.dateString);
-            setId(val.id);
-            setDocId(el.id);
-          });
-          setLoading(false);
-        }
-      })
-      .catch((e: any) => {
-        console.error(e);
-        setLoading(false);
-        toast.error('There was an error please try again');
-      });
-  };
-
-  const addInfo = () => {
-    let ident = '';
-    if (id === '') {
-      ident = createId();
-    } else {
-      ident = id;
-    }
-
-    let info: Iinfo = {
-      adminId: 'adminId',
-      webfrontId: webfrontname,
-      title: title,
-      about: about,
-      address: address,
-      phone: phone,
-      email: email,
-      date: new Date(),
-      dateString: new Date().toDateString(),
-      id: ident,
-      gallery: [],
-    };
-
-    if (checkEmptyOrNull(info)) {
-      toast.error('Ooops looks like you left out some information');
-    } else {
-      setLoading(true);
-      addResInfo(docId, info)
-        .then((v) => {
-          if (v == null) {
-            toast.error(
-              'Webfront name is already taken please try another one'
-            );
-          } else {
-            toast.success('Wohooo information successfully saved!');
-          }
-          setLoading(false);
-        })
-        .catch((e: any) => {
-          setLoading(false);
-          console.error(e);
-          toast.error('There was an error please try again');
-        });
-    }
+  const addCategoryItem = () => {
+    addCategory();
   };
 
   return (
@@ -321,4 +254,4 @@ const AddMenuCategory = () => {
   );
 };
 
-export default AddMenuCategory;
+export default AddMenuItem;
