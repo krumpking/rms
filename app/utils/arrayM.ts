@@ -17,10 +17,10 @@ export function findOccurrences(array: any[], value: any): number {
 }
 
 
-export function findOccurrencesProducts(array: any[], value: any): number {
+export function findOccurrencesObjectId(array: any[], id: any): number {
     let count = 0;
     for (let i = 0; i < array.length; i++) {
-        if (array[i].product === value) {
+        if (array[i].id === id) {
             count++;
         }
     }

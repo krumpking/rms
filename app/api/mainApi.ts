@@ -1,0 +1,103 @@
+import { addDoc, collection, deleteDoc, doc, getCountFromServer, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
+import { firestore, storage } from "../../firebase/clientApp";
+import { UploadResult, deleteObject, ref, uploadBytes } from "firebase/storage";
+
+
+//Add Document
+
+export const addDocument = async (collectionName: string, document: any) => {
+    // Create a query against the collection.
+
+    return addDoc(collection(firestore, collectionName), document);
+};
+
+
+
+// Upload File
+export const uploadFile = (path: string, file: File): Promise<UploadResult> => {
+    // Add your custom logic here, for example add a Token to the Headers
+    // Create a storage reference from our storage service
+
+    const storageRef = ref(storage, path);
+
+    // 'file' comes from the Blob or File API    
+    return uploadBytes(storageRef, file);
+};
+
+
+
+// Read Many Documents
+
+export const getDataFromDBOne = async (collectionName: string, fieldOne: string, checkOne: string) => {
+    const q = query(collection(firestore, collectionName), where(fieldOne, "==", checkOne));
+    const snapshot = await getCountFromServer(q);
+    if (snapshot.data().count > 0) {
+        const querySnapshot = await getDocs(q);
+        return querySnapshot;
+
+    } else {
+        return null;
+    }
+}
+
+export const getDataFromDBTwo = async (collectionName: string, fieldOne: string, checkOne: string, fieldTwo: string, checkTwo: string) => {
+    const q = query(collection(firestore, collectionName), where(fieldOne, "==", checkOne), where(fieldTwo, "==", checkTwo));
+    const snapshot = await getCountFromServer(q);
+    if (snapshot.data().count > 0) {
+        const querySnapshot = await getDocs(q);
+        return querySnapshot;
+
+    } else {
+        return null;
+    }
+}
+
+export const getDataFromDBThree = async (collectionName: string, fieldOne: string, checkOne: string, fieldTwo: string, checkTwo: string, fieldThree: string, checkThree: string) => {
+    const q = query(collection(firestore, collectionName), where(fieldOne, "==", checkOne), where(fieldTwo, "==", checkTwo), where(fieldThree, "==", checkThree));
+    const snapshot = await getCountFromServer(q);
+    if (snapshot.data().count > 0) {
+        const querySnapshot = await getDocs(q);
+        return querySnapshot;
+
+    } else {
+        return null;
+    }
+}
+
+
+
+// Read One Document
+export const getOneDocument = async (collectionName: string, id: string) => {
+    // Create a query against the collection.
+    const docRef = doc(firestore, collectionName, id);
+    const snapshot = await getDoc(docRef);
+
+    if (snapshot.exists()) {
+        return {
+            count: 1,
+            data:
+                snapshot
+        };
+    } else {
+        return null;
+    }
+}
+
+// Update
+export const updateDocument = async (collection: string, id: string, data: any) => {
+    return await updateDoc(doc(firestore, collection, id), data);
+}
+
+// Delete File
+export const deleteFile = async (url: string) => {
+    await deleteObject(ref(storage, url));
+}
+
+
+// Delete Document
+export const deleteDocument = async (collection: string, id: string) => {
+    await deleteDoc(doc(firestore, collection, id));
+}
+
+
+
