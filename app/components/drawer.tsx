@@ -3,16 +3,17 @@ import React, { FC } from "react";
 interface MyProps {
     children: any,
     isOpen: any,
-    setIsOpen: any
+    setIsOpen: any,
+    bg: string
 }
 
-const Drawer: FC<MyProps> = ({ children, isOpen, setIsOpen }) => {
+const Drawer: FC<MyProps> = ({ children, isOpen, setIsOpen, bg }) => {
     return (
         <main
             className={
                 " fixed overflow-hidden z-[100] bg-gray-900 bg-opacity-25 inset-0 transform ease-in-out " +
                 (isOpen
-                    ? " transition-opacity opacity-100 duration-500 translate-x-0  "
+                    ? " transition-opacity opacity-100 duration-500 translate-x-0 backdrop-blur-sm bg-white "
                     : " transition-all delay-500 opacity-0 translate-x-full  ")
             }
         >
@@ -25,7 +26,7 @@ const Drawer: FC<MyProps> = ({ children, isOpen, setIsOpen }) => {
                     (isOpen ? " translate-x-0 " : " translate-x-full ")
                 }
             >
-                <article className="relative w-screen max-w-lg pb-10 flex flex-col space-y-6 overflow-y-scroll h-full bg-[#8b0e06] rounded-[30px] items-center shadow-md px-8">
+                <article className={bg + " relative w-screen max-w-lg pb-10 flex flex-col space-y-6 overflow-y-scroll h-full  rounded-[30px] items-center shadow-md px-8"}>
                     {children}
                 </article>
             </section>

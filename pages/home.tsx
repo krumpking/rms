@@ -320,7 +320,7 @@ const Home = () => {
             /> */}
             <div>
 
-                <div className='flex flex-col lg:grid lg:grid-cols-12 '>
+                <div className='flex flex-col '>
 
                     <div className='lg:col-span-3' id="nav">
                         <ClientNav organisationName={'Vision Is Primary'} url={'home'} />

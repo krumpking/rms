@@ -8,6 +8,8 @@ import ClientNav from '../app/components/clientNav';
 import { Tab } from '@headlessui/react';
 import AddMenuCategory from '../app/components/menu/menuCategory';
 import AddMenuItem from '../app/components/menu/addMenuItem';
+import CreateMeal from '../app/components/menu/createMeal';
+import Meal from '../app/components/menu/meal';
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
@@ -23,7 +25,7 @@ const Menu = () => {
     'Create Category',
     'Add Menu Item',
     'Create Meal',
-    'Add Specials',
+    'Meals',
   ]);
 
   useEffect(() => {
@@ -33,7 +35,7 @@ const Menu = () => {
   return (
     <div>
       <div>
-        <div className="flex flex-col lg:grid lg:grid-cols-12 ">
+        <div className="flex flex-col ">
           <div className="lg:col-span-3" id="nav">
             <ClientNav organisationName={'FoodiesBooth'} url={'menu'} />
           </div>
@@ -79,6 +81,22 @@ const Menu = () => {
                     )}
                   >
                     <AddMenuItem />
+                  </Tab.Panel>
+                  <Tab.Panel
+                    className={classNames(
+                      'rounded-xl bg-white p-3',
+                      'ring-white  ring-offset-2 focus:outline-none focus:ring-2'
+                    )}
+                  >
+                    <CreateMeal />
+                  </Tab.Panel>
+                  <Tab.Panel
+                    className={classNames(
+                      'rounded-xl bg-white p-3',
+                      'ring-white  ring-offset-2 focus:outline-none focus:ring-2'
+                    )}
+                  >
+                    <Meal />
                   </Tab.Panel>
                 </Tab.Panels>
               </Tab.Group>

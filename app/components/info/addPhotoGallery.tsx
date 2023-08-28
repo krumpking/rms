@@ -15,12 +15,12 @@ import { addResInfo, getResInfo } from '../../api/infoApi';
 import imageCompression from 'browser-image-compression';
 import { getDownloadURL } from 'firebase/storage';
 import { Dialog, Transition } from '@headlessui/react';
-import uploadFile from '../../utils/uploadImage';
 import "react-image-gallery/styles/css/image-gallery.css";
 import { getUrl } from '../../utils/getImageUrl';
 import { Iinfo } from '../../types/infoTypes';
 import { print } from '../../utils/console';
 import ShowImageGalleries from '../showImageGallery';
+import { uploadFile } from '../../api/mainApi';
 
 
 const PhotoGallery = () => {

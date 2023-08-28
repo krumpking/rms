@@ -2,6 +2,11 @@ import { collection } from "firebase/firestore";
 import { firestore } from "../../firebase/clientApp";
 import { createId } from "../utils/stringM";
 
+
+
+
+export const AMDIN_FIELD = 'adminId';
+
 // Main
 export const API_ROUTE = 'https://meganb-backend.herokuapp.com' //'http://localhost:3146'//
 

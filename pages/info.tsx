@@ -178,7 +178,7 @@ const Support = () => {
 
     return (
         <div>
-            <div className='flex flex-col lg:grid lg:grid-cols-12'>
+            <div className='flex flex-col'>
 
                 <div className='lg:col-span-3'>
                     <ClientNav organisationName={'Vision Is Primary'} url={'info'} />
