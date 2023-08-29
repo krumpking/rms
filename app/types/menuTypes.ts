@@ -28,6 +28,7 @@ export type IMeal = {
     id: string,
     adminId: string,
     userId: string,
+    category: string,
     menuItems: IMenuItem[],
     title: string,
     description: string,

@@ -28,36 +28,36 @@ export const uploadFile = (path: string, file: File): Promise<UploadResult> => {
 
 // Read Many Documents
 
-export const getDataFromDBOne = async (collectionName: string, fieldOne: string, checkOne: string) => {
+export const getDataFromDBOne = async (collectionName: any, fieldOne: any, checkOne: any) => {
     const q = query(collection(firestore, collectionName), where(fieldOne, "==", checkOne));
     const snapshot = await getCountFromServer(q);
     if (snapshot.data().count > 0) {
         const querySnapshot = await getDocs(q);
-        return querySnapshot;
+        return { data: querySnapshot, count: snapshot.data().count };
 
     } else {
         return null;
     }
 }
 
-export const getDataFromDBTwo = async (collectionName: string, fieldOne: string, checkOne: string, fieldTwo: string, checkTwo: string) => {
+export const getDataFromDBTwo = async (collectionName: any, fieldOne: any, checkOne: any, fieldTwo: string, checkTwo: any) => {
     const q = query(collection(firestore, collectionName), where(fieldOne, "==", checkOne), where(fieldTwo, "==", checkTwo));
     const snapshot = await getCountFromServer(q);
     if (snapshot.data().count > 0) {
         const querySnapshot = await getDocs(q);
-        return querySnapshot;
+        return { data: querySnapshot, count: snapshot.data().count };
 
     } else {
         return null;
     }
 }
 
-export const getDataFromDBThree = async (collectionName: string, fieldOne: string, checkOne: string, fieldTwo: string, checkTwo: string, fieldThree: string, checkThree: string) => {
+export const getDataFromDBThree = async (collectionName: any, fieldOne: any, checkOne: any, fieldTwo: any, checkTwo: any, fieldThree: any, checkThree: any) => {
     const q = query(collection(firestore, collectionName), where(fieldOne, "==", checkOne), where(fieldTwo, "==", checkTwo), where(fieldThree, "==", checkThree));
     const snapshot = await getCountFromServer(q);
     if (snapshot.data().count > 0) {
         const querySnapshot = await getDocs(q);
-        return querySnapshot;
+        return { data: querySnapshot, count: snapshot.data().count };
 
     } else {
         return null;
@@ -67,7 +67,7 @@ export const getDataFromDBThree = async (collectionName: string, fieldOne: strin
 
 
 // Read One Document
-export const getOneDocument = async (collectionName: string, id: string) => {
+export const getOneDocument = async (collectionName: any, id: any) => {
     // Create a query against the collection.
     const docRef = doc(firestore, collectionName, id);
     const snapshot = await getDoc(docRef);

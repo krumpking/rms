@@ -61,7 +61,7 @@ const AddMenuItem = () => {
 
       if (v !== null) {
 
-        v.forEach(element => {
+        v.data.forEach(element => {
           let d = element.data();
 
           setCategories(categories => [...categories, {
@@ -94,7 +94,7 @@ const AddMenuItem = () => {
 
       if (v !== null) {
 
-        v.forEach(element => {
+        v.data.forEach(element => {
           let d = element.data();
           print(d);
           setMenuItems(menuItems => [...menuItems, {
@@ -569,21 +569,21 @@ const AddMenuItem = () => {
                       edit ? editMenuItem() : addMenuItem();
                     }}
                     className="
-                    font-bold
-                    w-full
-                    rounded-[25px]
-                    border-2
-                    border-[#8b0e06]
-                    border-primary
-                    py-3
-                    px-10
-                    bg-[#8b0e06]
-                    text-base 
-                    text-white
-                    cursor-pointer
-                    hover:bg-opacity-90
-                    transition
-                "
+                        font-bold
+                        w-full
+                        rounded-[25px]
+                        border-2
+                        border-[#8b0e06]
+                        border-primary
+                        py-3
+                        px-10
+                        bg-[#8b0e06]
+                        text-base 
+                        text-white
+                        cursor-pointer
+                        hover:bg-opacity-90
+                        transition
+                    "
                   >
                     {edit ? 'Update Menu Item' : 'Add Menu Item'}
                   </button>

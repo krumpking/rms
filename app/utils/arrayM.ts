@@ -269,4 +269,32 @@ function containsObject(obj: any, list: any[]) {
     return false;
 }
 
+export function searchStringInArray(members: any[], searchString: string): any[] {
+    // Iterate over the array of members.
+    const matches = [];
+    for (const member of members) {
+        // Check if the search string is present in any of the member properties.
+        for (const key in member) {
+            let k: string = member[key];
+
+            if (k === searchString) {
+                if (!containsObject(member, matches)) {
+                    matches.push(member);
+                }
+            } else if (typeof k == 'string') {
+                if (contains(k.toLowerCase(), searchString.toLowerCase())) {
+                    if (!containsObject(member, matches)) {
+                        matches.push(member);
+                    }
+
+                }
+            }
+        }
+    }
+
+
+    // Return the array of matches.
+    return matches;
+}
+
 
