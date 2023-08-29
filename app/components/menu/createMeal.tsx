@@ -15,7 +15,7 @@ import { addDocument, deleteDocument, deleteFile, getDataFromDBOne, updateDocume
 import { MEAL_ITEM_COLLECTION, MEAL_STORAGE_REF, MENU_CAT_COLLECTION, MENU_ITEM_COLLECTION, MENU_STORAGE_REF } from '../../constants/menuConstants';
 import { print } from '../../utils/console';
 import { Dialog, Transition } from '@headlessui/react';
-import { findOccurrences, findOccurrencesObjectId } from '../../utils/arrayM';
+import { findOccurrences, findOccurrencesObjectId, searchStringInArray } from '../../utils/arrayM';
 import { createId } from '../../utils/stringM';
 
 const CreateMeal = () => {
@@ -31,6 +31,7 @@ const CreateMeal = () => {
     const [price, setPrice] = useState(0);
     const [category, setCategory] = useState("");
     const [menuItems, setMenuItems] = useState<IMenuItem[]>([]);
+    const [menuItemsSto, setMenuItemsSto] = useState<IMenuItem[]>([]);
     const [edit, setEdit] = useState(false);
     const [editItem, setEditItem] = useState<any>({
         category: "",
@@ -58,11 +59,41 @@ const CreateMeal = () => {
         // setAdminId(decrypt(infoFromCookie, COOKIE_ID));
         setWebfrontId("webfrontId");
 
-
+        getCategories();
         getMenuItems();
     }, []);
 
+    const getCategories = () => {
 
+        getDataFromDBOne(MENU_CAT_COLLECTION, AMDIN_FIELD, adminId).then((v) => {
+
+            if (v !== null) {
+
+                v.data.forEach(element => {
+                    let d = element.data();
+
+                    setCategories(categories => [...categories, {
+                        id: element.id,
+                        adminId: d.adminId,
+                        userId: d.userId,
+                        pic: d.pic,
+                        category: d.category,
+                        date: d.date,
+                        dateString: d.dateString
+                    }]);
+
+                });
+
+
+
+            }
+            setLoading(false);
+
+        }).catch((e) => {
+            console.error(e);
+            setLoading(true);
+        });
+    }
 
 
     const getMenuItems = () => {
@@ -71,10 +102,24 @@ const CreateMeal = () => {
 
             if (v !== null) {
 
-                v.forEach(element => {
+                v.data.forEach(element => {
                     let d = element.data();
 
                     setMenuItems(menuItems => [...menuItems, {
+                        id: element.id,
+                        adminId: d.adminId,
+                        userId: d.userId,
+                        pic: d.pic,
+                        title: d.title,
+                        discount: d.discount,
+                        description: d.description,
+                        category: d.category,
+                        date: d.date,
+                        dateString: d.dateString,
+                        price: d.price
+                    }]);
+
+                    setMenuItemsSto(menuItems => [...menuItems, {
                         id: element.id,
                         adminId: d.adminId,
                         userId: d.userId,
@@ -167,6 +212,7 @@ const CreateMeal = () => {
                             original: name,
                             thumbnail: `thumbnail_${name}`
                         },
+                        category: category,
                         date: new Date(),
                         dateString: new Date().toDateString(),
                         userId: "id",
@@ -293,6 +339,41 @@ const CreateMeal = () => {
 
     const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
+    const handleKeyDown = (event: { key: string; }) => {
+
+        if (event.key === 'Enter') {
+            setMenuItems([]);
+            setLoading(true);
+            if (search !== '') {
+
+                let res: IMenuItem[] = searchStringInArray(menuItemsSto, search);
+                if (res.length > 0) {
+                    setTimeout(() => {
+                        setMenuItems(res);
+                        setLoading(false);
+                    }, 1500);
+                } else {
+                    toast.info(`${search} not found`);
+                    setTimeout(() => {
+                        setMenuItems(menuItemsSto);
+                        setLoading(false);
+                    }, 1500);
+
+                }
+            } else {
+
+                setTimeout(() => {
+                    setMenuItems(menuItemsSto);
+                    setLoading(false);
+                }, 1500);
+
+            }
+
+
+
+        }
+    };
+
 
 
 
@@ -329,7 +410,8 @@ const CreateMeal = () => {
                                         focus-visible:shadow-none
                                         focus:border-primary
                                         "
-                                    required
+
+                                    onKeyDown={handleKeyDown}
                                 />
                             </div>
 
@@ -460,6 +542,27 @@ const CreateMeal = () => {
                                         required
                                     />
                                 </div>
+                            </div>
+                            <div className="mb-6 w-full">
+                                <button className='font-bold rounded-[25px] border-2 border-[#8b0e06] bg-white px-4 py-3 w-full'
+                                    onClick={(e) => e.preventDefault()}>
+                                    <select value={category}
+                                        onChange={(e) => {
+                                            setCategory(e.target.value);
+                                        }}
+                                        className='bg-white w-full'
+                                        data-required="1"
+                                        required>
+                                        <option value="Chapter" hidden>
+                                            Select Meal Category
+                                        </option>
+                                        {categories.map(v => (
+                                            <option value={v.category} >
+                                                {v.category}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </button>
                             </div>
                             <div className='flex flex-row justify-between'>
                                 <div className="mb-6 w-full">

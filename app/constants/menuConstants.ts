@@ -19,5 +19,8 @@ export const MEAL_ITEM_COLLECTION = 'meal-items';
 export const MEAL_STORAGE_REF = 'meal-item';
 
 
+export const MENU_CAT_STORAGE_REF = 'menu-category';
+
+
 
 

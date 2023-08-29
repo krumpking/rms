@@ -16,11 +16,7 @@ function classNames(...classes: string[]) {
 }
 
 const Menu = () => {
-  const [phone, setPhone] = useState('');
-  const [accessCode, setAccessCode] = useState('');
-  const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
   const [tabs, setTabs] = useState([
     'Create Category',
     'Add Menu Item',

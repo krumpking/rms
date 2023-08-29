@@ -1,0 +1,16 @@
+export type IOrder = {
+    id: string,
+    adminId: string,
+    userId: string,
+    orderNo: number,
+    items: any[],
+    status: number,
+    statusCode: string,
+    totalCost: number,
+    deliveryMethod: any,
+    clientId: string,
+    customerName: string,
+    tableNo: string,
+    date: Date,
+    dateString: string,
+}

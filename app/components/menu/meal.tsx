@@ -59,7 +59,7 @@ const Meal = () => {
 
             if (v !== null) {
 
-                v.forEach(element => {
+                v.data.forEach(element => {
                     let d = element.data();
 
                     setMenuItems(menuItems => [...menuItems, {
@@ -98,7 +98,7 @@ const Meal = () => {
 
             if (v !== null) {
 
-                v.forEach(element => {
+                v.data.forEach(element => {
                     let d = element.data();
 
                     setMeals(meals => [...meals, {
