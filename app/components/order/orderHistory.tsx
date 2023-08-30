@@ -105,20 +105,6 @@ const OrderHistory = () => {
     }
 
 
-    const delivered = (d: any) => {
-        let order = {
-            status: 100,
-            statusCode: 'Delivered'
-        }
-        setOrders([]);
-        updateDocument(ORDER_COLLECTION, d.id, order).then((v) => {
-            getOrders();
-        }).catch((e: any) => {
-            getOrders();
-            console.error(e);
-            toast.error('There was an error please try again');
-        });
-    }
 
 
     const handleKeyDown = (event: { key: string; }) => {
@@ -208,13 +194,6 @@ const OrderHistory = () => {
                             {orders.map((v) => {
                                 return (
                                     <div className='flex flex-col shadow-xl rounded-[25px] p-8 w-[250px] '>
-                                        <div className='flex flex-row-reverse'>
-                                            <button onClick={() => { deleteItem(v.id) }}>
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6 m-1">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                            </button>
-                                        </div>
                                         <h1 className='font-bold text-xl text-[#8b0e06]'>Order No: {v.orderNo}</h1>
                                         <h1 className='font-bold text-sm'>Due: {v.totalCost}USD</h1>
                                         <h1 className='font-bold text-sm'>{v.customerName}</h1>
