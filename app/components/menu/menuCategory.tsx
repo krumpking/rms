@@ -53,7 +53,7 @@ const AddMenuCategory = () => {
 
       if (v !== null) {
 
-        v.forEach(element => {
+        v.data.forEach(element => {
           let d = element.data();
           setCategories(categories => [...categories, {
             id: element.id,
