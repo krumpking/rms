@@ -2,34 +2,39 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router';
-import { LIGHT_GRAY, URL_LOCK_ID } from '../../app/constants/constants';
-import Payment from '../../app/utils/paymentUtil';
-import ClientNav from '../../app/components/clientNav';
+import { LIGHT_GRAY, URL_LOCK_ID } from '../constants/constants';
+import Payment from '../utils/paymentUtil';
+import ClientNav from './clientNav';
 import ReactTable from 'react-table';
 
-import { IData, IDynamicObject } from '../../app/types/types';
+import { IData, IDynamicObject } from '../types/types';
 import { forEach } from 'lodash';
-import { decrypt, simpleDecrypt } from '../../app/utils/crypto';
-import Loader from '../../app/components/loader';
-import { getDate, getMonth, isBase64 } from '../../app/utils/stringM';
-import { downloadExcel } from '../../app/utils/excel';
+import { decrypt, simpleDecrypt } from '../utils/crypto';
+import Loader from './loader';
+import { getDate, getMonth, isBase64 } from '../utils/stringM';
+import { downloadExcel } from '../utils/excel';
 import { Dialog, Transition } from '@headlessui/react';
-import ReturnElements from '../../app/components/returnElements';
+import ReturnElements from './returnElements';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { Document, ImageRun, Packer, Paragraph, TextRun } from 'docx';
 import fs from 'fs';
 import { saveAs } from 'file-saver';
-import { getUrl } from '../../app/utils/getImageUrl';
+import { getUrl } from '../utils/getImageUrl';
 import { HexColorPicker } from 'react-colorful';
-import { getSpecificData } from '../../app/api/formApi';
+import { getSpecificData } from '../api/formApi';
 import { print } from '../utils/console';
+import { IConfirm } from '../types/confirmTypes';
+import { doc, updateDoc } from 'firebase/firestore';
+import Inventory from '../../pages/inventory';
+import AddInventory from './addInventory';
+import { UpdateInventory } from '../api/inventoryApi';
 
 // var object = {};
 // var array = [];
 // var arrayOfObjects = [{},{},{}]
 
-const AvailableSotck = () => {
+const ConfirmInventory = () => {
   const router = useRouter();
   const [label, setLabel] = useState<any[]>([
     'date',
@@ -41,15 +46,15 @@ const AvailableSotck = () => {
   const [data, setData] = useState<any[]>([
     {
       date: '26 June 2023',
-      category: 'Meat',
-      name: 'Fish',
+      category: 'Nike',
+      name: 'Ball',
       price: '500',
       number: '600',
     },
     {
       date: '26 June 2023',
-      category: 'Pizza',
-      name: 'Peperoni',
+      category: 'Nike',
+      name: 'Ball',
       price: '500',
       number: '600',
     },
@@ -106,28 +111,27 @@ const AvailableSotck = () => {
             <div>
               <button
                 onClick={() => {
+                  AddInventory();
                   setLoading(true);
-
-                  var exlD: any[] = [];
                 }}
                 className="
-                font-bold
-                w-ful
-                rounded-[25px]
-                border-2
-                border-[#8b0e06]
-                border-primary
-                py-3
-                px-10
-                bg-[#8b0e06]
-                text-base 
-                text-white
-                cursor-pointer
-                hover:bg-opacity-90
-                transition
+                                font-bold
+                                        w-ful
+                                        rounded-[25px]
+                                        border-2
+                                        border-[#8b0e06]
+                                        border-primary
+                                        py-3
+                                        px-10
+                                        bg-[#8b0e06]
+                                        text-base 
+                                        text-white
+                                        cursor-pointer
+                                        hover:bg-opacity-90
+                                        transition
                                     "
               >
-                Download Table as Excel File
+                Update
               </button>
             </div>
           </div>
@@ -139,4 +143,4 @@ const AvailableSotck = () => {
   );
 };
 
-export default AvailableSotck;
+export default ConfirmInventory;

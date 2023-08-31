@@ -10,7 +10,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import { print } from '../utils/console';
 import { useRouter } from 'next/router';
 
-const AddStock = () => {
+const AddInventory = () => {
   const [date, setDate] = useState('');
   const [category, setCategory] = useState('');
   const [name, setName] = useState('');
@@ -22,37 +22,32 @@ const AddStock = () => {
   const [products, setProducts] = useState('');
   const [Price, setPrice] = useState('');
   const [salesPerson, setSalesPerson] = useState('');
-  const router = useRouter()
-
+  const router = useRouter();
 
   useEffect(() => {
     let role = getCookie(PERSON_ROLE);
-    var infoFromCookie = "";
-    if (getCookie(ADMIN_ID) == "") {
+    var infoFromCookie = '';
+    if (getCookie(ADMIN_ID) == '') {
       infoFromCookie = getCookie(COOKIE_ID);
     } else {
       infoFromCookie = getCookie(ADMIN_ID);
     }
 
     if (typeof role !== 'undefined') {
-      if (role !== "") {
+      if (role !== '') {
         var id = decrypt(infoFromCookie, COOKIE_ID);
         var roleTitle = decrypt(role, id);
-        if (roleTitle !== "Admin") { // "Viewer" //"Editor"
+        if (roleTitle !== 'Admin') {
+          // "Viewer" //"Editor"
           router.push('/home');
-          toast.info("You do not have permission to access this page");
+          toast.info('You do not have permission to access this page');
         }
-
       }
     }
-
-
-
-  }, [])
-
+  }, []);
 
   const addClient = () => {
-    print("hello");
+    print('hello');
   };
 
   return (
@@ -63,7 +58,7 @@ const AddStock = () => {
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4">
-           <div className="mb-6">
+          <div className="mb-6">
             <input
               type="text"
               value={date}
@@ -72,19 +67,19 @@ const AddStock = () => {
                 setDate(e.target.value);
               }}
               className="
-                        w-full
-                        rounded-[25px]
-                        border-2
-                        border-[#fdc92f]
-                        py-3
-                        px-5
-                        bg-white
-                        text-base text-body-color
-                        placeholder-[#ACB6BE]
-                        outline-none
-                        focus-visible:shadow-none
-                        focus:border-primary
-                        "
+              w-full
+              rounded-[25px]
+              border-2
+              border-[#8b0e06]
+              py-3
+              px-5
+              bg-white
+              text-base text-body-color
+              placeholder-[#ACB6BE]
+              outline-none
+              focus-visible:shadow-none
+              focus:border-primary
+              "
             />
           </div>
           <div className="mb-6">
@@ -96,18 +91,18 @@ const AddStock = () => {
                 setCategory(e.target.value);
               }}
               className="
-                        w-full
-                        rounded-[25px]
-                        border-2
-                        border-[#fdc92f]
-                        py-3
-                        px-5
-                        bg-white
-                        text-base text-body-color
-                        placeholder-[#ACB6BE]
-                        outline-none
-                        focus-visible:shadow-none
-                        focus:border-primary
+              w-full
+              rounded-[25px]
+              border-2
+              border-[#8b0e06]
+              py-3
+              px-5
+              bg-white
+              text-base text-body-color
+              placeholder-[#ACB6BE]
+              outline-none
+              focus-visible:shadow-none
+              focus:border-primary
                         "
             />
           </div>
@@ -120,18 +115,18 @@ const AddStock = () => {
                 setName(e.target.value);
               }}
               className="
-                        w-full
-                        rounded-[25px]
-                        border-2
-                        border-[#fdc92f]
-                        py-3
-                        px-5
-                        bg-white
-                        text-base text-body-color
-                        placeholder-[#ACB6BE]
-                        outline-none
-                        focus-visible:shadow-none
-                        focus:border-primary
+              w-full
+              rounded-[25px]
+              border-2
+              border-[#8b0e06]
+              py-3
+              px-5
+              bg-white
+              text-base text-body-color
+              placeholder-[#ACB6BE]
+              outline-none
+              focus-visible:shadow-none
+              focus:border-primary
                         "
             />
           </div>
@@ -144,22 +139,21 @@ const AddStock = () => {
                 setNumber(e.target.value);
               }}
               className="
-                                    w-full
-                                    rounded-[25px]
-                                    border-2
-                                    border-[#fdc92f]
-                                    py-3
-                                    px-5
-                                    bg-white
-                                    text-base text-body-color
-                                    placeholder-[#ACB6BE]
-                                    outline-none
-                                    focus-visible:shadow-none
-                                    focus:border-primary
+              w-full
+              rounded-[25px]
+              border-2
+              border-[#8b0e06]
+              py-3
+              px-5
+              bg-white
+              text-base text-body-color
+              placeholder-[#ACB6BE]
+              outline-none
+              focus-visible:shadow-none
+              focus:border-primary
                                     "
             />
           </div>
-
 
           <div className="mb-6">
             <input
@@ -169,45 +163,43 @@ const AddStock = () => {
                 setPrice(e.target.value);
               }}
               className="
-                                    w-full
-                                    rounded-[25px]
-                                    border-2
-                                    border-[#fdc92f]
-                                    py-3
-                                    px-5
-                                    bg-white
-                                    text-base text-body-color
-                                    placeholder-[#ACB6BE]
-                                    outline-none
-                                    focus-visible:shadow-none
-                                    focus:border-primary
+              w-full
+              rounded-[25px]
+              border-2
+              border-[#8b0e06]
+              py-3
+              px-5
+              bg-white
+              text-base text-body-color
+              placeholder-[#ACB6BE]
+              outline-none
+              focus-visible:shadow-none
+              focus:border-primary
                                     "
             />
           </div>
 
-
-
           <div className="mb-6">
             <button
               onClick={() => {
-                AddStock();
+                AddInventory();
               }}
               className="
 
-                    font-bold
-                    w-full
-                    rounded-[25px]
-                    border-2
-                    border-[#fdc92f]
-                    border-primary
-                    py-3
-                    px-5
-                    bg-[#fdc92f]
-                    text-base
-                    text-[#7d5c00]
-                    cursor-pointer
-                    hover:bg-opacity-90
-                    transition
+              font-bold
+                                        w-ful
+                                        rounded-[25px]
+                                        border-2
+                                        border-[#8b0e06]
+                                        border-primary
+                                        py-3
+                                        px-10
+                                        bg-[#8b0e06]
+                                        text-base 
+                                        text-white
+                                        cursor-pointer
+                                        hover:bg-opacity-90
+                                        transition
                                     "
             >
               Add Stock
@@ -220,4 +212,4 @@ const AddStock = () => {
   );
 };
 
-export default AddStock;
+export default AddInventory;
