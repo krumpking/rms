@@ -6,11 +6,12 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router';
 import ClientNav from '../app/components/clientNav';
 import { Tab } from '@headlessui/react';
-import AddStock from '../app/components/addStock';
-import ConfirmStock from '../app/components/confirmStock';
+import AddStock from '../app/components/addInventory';
+import ConfirmStock from '../app/components/confirmInventory';
 import AvailableStock from '../app/components/availableStock';
 import Analytics from '../app/components/analytics';
-
+import AddInventory from '../app/components/addInventory';
+import ConfirmInventory from '../app/components/confirmInventory';
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
@@ -21,7 +22,7 @@ const Inventory = () => {
     'Add Stock',
     'Confirm Stock',
     'Available Stock',
-    'Analytics'
+    'Analytics',
   ]);
 
   useEffect(() => {
@@ -45,8 +46,8 @@ const Inventory = () => {
                   key={category}
                   className={({ selected }) =>
                     classNames(
-                      'w-full  py-2.5 text-sm font-medium leading-5 text-[#00947a] rounded-[25px]',
-                      'ring-white ring-opacity-60 ring-offset-2 ring-offset-[#00947a] focus:outline-none focus:ring-2',
+                      'w-full  py-2.5 text-sm font-medium leading-5 text-[#8b0e06] rounded-[25px]',
+                      'ring-white ring-opacity-60 ring-offset-2 ring-offset-[#8b0e06] focus:outline-none focus:ring-2',
                       selected
                         ? 'bg-white shadow'
                         : 'text-blue-100 hover:bg-white/[0.12] hover:text-white'
@@ -64,7 +65,7 @@ const Inventory = () => {
                   'ring-white ring-opacity-60 ring-offset-2 focus:outline-none focus:ring-2'
                 )}
               >
-                <AddStock />
+                <AddInventory />
               </Tab.Panel>
               <Tab.Panel
                 className={classNames(
@@ -72,9 +73,8 @@ const Inventory = () => {
                   'ring-white ring-opacity-60 ring-offset-2 focus:outline-none focus:ring-2'
                 )}
               >
-              
-              <ConfirmStock/>
-              </Tab.Panel> 
+                <ConfirmInventory />
+              </Tab.Panel>
 
               <Tab.Panel
                 className={classNames(
@@ -82,9 +82,8 @@ const Inventory = () => {
                   'ring-white ring-opacity-60 ring-offset-2 focus:outline-none focus:ring-2'
                 )}
               >
-              
-              <AvailableStock/>
-              </Tab.Panel> 
+                <AvailableStock />
+              </Tab.Panel>
             </Tab.Panels>
           </Tab.Group>
         </div>
