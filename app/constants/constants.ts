@@ -7,6 +7,8 @@ import { createId } from "../utils/stringM";
 
 export const AMDIN_FIELD = 'adminId';
 
+export const CURRENCIES = ['ZWL', 'USD'];
+
 // Main
 export const API_ROUTE = 'https://meganb-backend.herokuapp.com' //'http://localhost:3146'//
 
