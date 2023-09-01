@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react'
-import { ADMIN_ID, AMDIN_FIELD, COOKIE_ID, LIGHT_GRAY, PERSON_ROLE, PRIMARY_COLOR } from '../app/constants/constants';
+import { ADMIN_ID, AMDIN_FIELD, COOKIE_ID, CURRENCIES, LIGHT_GRAY, PERSON_ROLE, PRIMARY_COLOR } from '../app/constants/constants';
 import Loader from '../app/components/loader';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -11,13 +11,17 @@ import GenerateInvoice from '../app/components/generateInvoice.';
 import GenerateReceipt from '../app/components/generateReceipt';
 import { getCookie } from 'react-use-cookie';
 import { decrypt } from '../app/utils/crypto';
-import { getDataFromDBTwo } from '../app/api/mainApi';
+import { addDocument, getDataFromDBTwo } from '../app/api/mainApi';
 import { ORDER_COLLECTION } from '../app/constants/orderConstants';
 import { IOrder } from '../app/types/orderTypes';
 import { searchStringInArray } from '../app/utils/arrayM';
 import { toPng } from "html-to-image";
 import { jsPDF } from "jspdf";
 import { getResInfo } from '../app/api/infoApi';
+import { numberWithCommas } from '../app/utils/stringM';
+import { CASHBOOOK_COLLECTION } from '../app/constants/cashBookConstants';
+import { ITransaction } from '../app/types/cashbookTypes';
+import { print } from '../app/utils/console';
 
 
 function classNames(...classes: string[]) {
@@ -54,6 +58,12 @@ const Accounting = () => {
     const [address, setAddress] = useState("");
     const [phone, setPhone] = useState("");
     const [email, setEmail] = useState("");
+    const [currency, setCurrency] = useState("USD");
+    const [zwlRate, setZwlRate] = useState("");
+    const [categories, setCategories] = useState<string[]>(['cash', 'online', 'debit card', 'credit card', 'cheque']);
+    const [category, setCategory] = useState("");
+
+
 
     useEffect(() => {
         document.body.style.backgroundColor = LIGHT_GRAY;
@@ -149,7 +159,15 @@ const Accounting = () => {
     const handleKeyDown = (event: { key: string; }) => {
 
         if (event.key === 'Enter') {
-            searchFor();
+
+            if (currency === 'ZWL' && zwlRate !== '') {
+                toast.info('Curreny Updated');
+                update('ZWL');
+            } else {
+                searchFor();
+            }
+
+
         }
     };
 
@@ -200,8 +218,31 @@ const Accounting = () => {
         setSelectedOrder(v);
     }
 
-    function closeModal() {
-        setOpen(false);
+
+    const update = (to: string) => {
+        let d = selectedOrder;
+        let rate = 1;
+        if (currency === 'ZWL') {
+            rate = parseFloat(zwlRate);
+        }
+        let cost = to === 'USD' ? d.totalCost / rate : d.totalCost * rate;
+        let sOrder = {
+            id: d.id,
+            adminId: d.adminId,
+            clientId: d.clientId,
+            deliveryMethod: d.deliveryMethod,
+            orderNo: d.orderNo,
+            items: d.items,
+            status: d.status,
+            statusCode: d.statusCode,
+            userId: d.userId,
+            customerName: d.customerName,
+            tableNo: d.tableNo,
+            date: d.date,
+            dateString: d.dateString,
+            totalCost: cost
+        }
+        setSelectedOrder(sOrder);
     }
 
     const SaveAsPDFHandler = () => {
@@ -269,6 +310,31 @@ const Accounting = () => {
                     console.error("oops, something went wrong!", error);
                 });
         }
+
+        let transaction: ITransaction = {
+            id: "id",
+            adminId: adminId,
+            userId: "userId",
+            transactionType: "Sale",
+            currency: currency,
+            paymentMode: category,
+            title: `Order No ${selectedOrder.orderNo}`,
+            details: selectedOrder.id,
+            amount: selectedOrder.totalCost,
+            customer: selectedOrder.customerName,
+            date: new Date(),
+            dateString: new Date().toDateString(),
+            file: null
+        }
+
+
+
+        addDocument(CASHBOOOK_COLLECTION, transaction).then((r) => {
+            toast.success('Transaction Added');
+        }).catch((e) => {
+            toast.error('There was an error adding transaction, please try again');
+            console.error(e);
+        });
 
     };
 
@@ -352,6 +418,72 @@ const Accounting = () => {
 
                             </div>
                             <div className='col-span-3 flex flex-col p-4 '>
+                                <div className='flex flex-row mb-6'>
+                                    {
+                                        CURRENCIES.map((v) => (
+                                            <button
+                                                onClick={() => {
+                                                    if (selectedOrder.totalCost > 0) {
+
+                                                        if (currency === 'ZWL' && v === 'USD') {
+                                                            update('USD');
+                                                        }
+                                                        setCurrency(v);
+
+                                                    } else {
+                                                        toast.error('Ensure you select the order first');
+                                                    }
+
+                                                }}
+                                                className="
+                                                    font-bold
+                                                    w-full
+                                                    rounded-[25px]
+                                                    border-2
+                                                    border-[#8b0e06]
+                                                    border-primary
+                                                    py-3
+                                                    px-10
+                                                    bg-[#8b0e06]
+                                                    text-base 
+                                                    text-white
+                                                    cursor-pointer
+                                                    hover:bg-opacity-90
+                                                    transition
+                                                "
+                                            >
+                                                {v}
+                                            </button>
+                                        ))
+                                    }
+                                </div>
+                                <div className={currency === 'ZWL' ? 'mb-6' : 'hidden'}>
+                                    <input
+                                        type="string"
+                                        value={zwlRate}
+                                        placeholder={"Today's rate"}
+                                        onChange={(e) => {
+                                            setZwlRate(e.target.value);
+
+                                        }}
+                                        className="
+                                                w-full
+                                                rounded-[25px]
+                                                border-2
+                                                border-[#8b0e06]
+                                                py-3
+                                                px-5
+                                                bg-white
+                                                text-base text-body-color
+                                                placeholder-[#ACB6BE]
+                                                outline-none
+                                                focus-visible:shadow-none
+                                                focus:border-primary
+                                        "
+                                        onKeyDown={handleKeyDown}
+                                    />
+                                </div>
+
                                 <div className='mb-6'>
                                     <h1>
                                         Order No: {selectedOrder.orderNo}
@@ -378,9 +510,30 @@ const Accounting = () => {
                                         ))}
                                     </h1>
                                 </div>
+                                <div className="mb-6 w-full">
+                                    <button className='font-bold rounded-[25px] border-2 border-[#8b0e06] bg-white px-4 py-3 w-full'
+                                        onClick={(e) => e.preventDefault()}>
+                                        <select value={category}
+                                            onChange={(e) => {
+                                                setCategory(e.target.value);
+                                            }}
+                                            className='bg-white w-full'
+                                            data-required="1"
+                                            required>
+                                            <option value="Chapter" hidden>
+                                                Payment Method
+                                            </option>
+                                            {categories.map(v => (
+                                                <option value={v} >
+                                                    {v}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </button>
+                                </div>
                                 <div className='flex flex-row items-center text-center px-8 py-4 my-6 shadow-xl rounded-[25px]'>
                                     <h1 className="text-xl text-[#8b0e06]">
-                                        Total Cost: {selectedOrder.totalCost}USD
+                                        Total Cost: {numberWithCommas(selectedOrder.totalCost.toString())} {currency}
                                     </h1>
                                 </div>
 
