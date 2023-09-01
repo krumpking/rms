@@ -18,10 +18,11 @@ function classNames(...classes: string[]) {
 const Menu = () => {
   const [loading, setLoading] = useState(false);
   const [tabs, setTabs] = useState([
-    'Create Category',
-    'Add Menu Item',
-    'Create Meal',
     'Meals',
+    'Create Meal',
+    'Add Menu Item',
+    'Create Category',
+
   ]);
 
   useEffect(() => {
@@ -68,15 +69,7 @@ const Menu = () => {
                       'ring-white  ring-offset-2 focus:outline-none focus:ring-2'
                     )}
                   >
-                    <AddMenuCategory />
-                  </Tab.Panel>
-                  <Tab.Panel
-                    className={classNames(
-                      'rounded-xl bg-white p-3',
-                      'ring-white  ring-offset-2 focus:outline-none focus:ring-2'
-                    )}
-                  >
-                    <AddMenuItem />
+                    <Meal />
                   </Tab.Panel>
                   <Tab.Panel
                     className={classNames(
@@ -92,8 +85,19 @@ const Menu = () => {
                       'ring-white  ring-offset-2 focus:outline-none focus:ring-2'
                     )}
                   >
-                    <Meal />
+                    <AddMenuItem />
                   </Tab.Panel>
+                  <Tab.Panel
+                    className={classNames(
+                      'rounded-xl bg-white p-3',
+                      'ring-white  ring-offset-2 focus:outline-none focus:ring-2'
+                    )}
+                  >
+                    <AddMenuCategory />
+                  </Tab.Panel>
+
+
+
                 </Tab.Panels>
               </Tab.Group>
             </div>

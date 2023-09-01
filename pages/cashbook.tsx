@@ -6,16 +6,9 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router'
 import ClientNav from '../app/components/clientNav';
 import { Tab } from '@headlessui/react';
-import CreateMeal from '../app/components/menu/createMeal';
-import CreateOrder from '../app/components/order/createOrder';
-import OrderStatus from '../app/components/order/orderStatus';
-import OrderReady from '../app/components/order/readyOrders';
-import OrderHistory from '../app/components/order/orderHistory';
 import CBOverview from '../app/components/cashbook/cbOverview';
-import Sales from '../app/components/cashbook/sales';
-import Expenses from '../app/components/cashbook/purchases';
-import CBReport from '../app/components/cashbook/cashbookReport';
-
+import Sales from '../app/components/cashbook/cashIn';
+import Expenses from '../app/components/cashbook/cashOut';
 function classNames(...classes: string[]) {
     return classes.filter(Boolean).join(' ');
 }
@@ -25,8 +18,7 @@ const CashBook = () => {
     const [tabs, setTabs] = useState([
         'Overview',
         'Cash In',
-        'Cash Out',
-        'Report',
+        'Cash Out'
     ]);
 
 
@@ -47,9 +39,8 @@ const CashBook = () => {
             <div className='flex flex-col '>
 
                 <div className='lg:col-span-3' id="nav">
-                    <ClientNav organisationName={'FoodiesBooth'} url={'orders'} />
+                    <ClientNav organisationName={'FoodiesBooth'} url={'cashbook'} />
                 </div>
-
 
                 {loading ?
                     <div className='flex flex-col justify-center items-center w-full col-span-9'>
@@ -101,14 +92,6 @@ const CashBook = () => {
                                     )}
                                 >
                                     <Expenses />
-                                </Tab.Panel>
-                                <Tab.Panel
-                                    className={classNames(
-                                        'rounded-xl bg-white p-3',
-                                        'ring-white  ring-offset-2 focus:outline-none focus:ring-2'
-                                    )}
-                                >
-                                    <CBReport />
                                 </Tab.Panel>
                             </Tab.Panels>
                         </Tab.Group>

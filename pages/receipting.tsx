@@ -318,7 +318,7 @@ const Accounting = () => {
             transactionType: "Sale",
             currency: currency,
             paymentMode: category,
-            title: selectedOrder.orderNo.toString(),
+            title: `Order No ${selectedOrder.orderNo}`,
             details: selectedOrder.id,
             amount: selectedOrder.totalCost,
             customer: selectedOrder.customerName,
@@ -327,7 +327,7 @@ const Accounting = () => {
             file: null
         }
 
-        print(transaction);
+
 
         addDocument(CASHBOOOK_COLLECTION, transaction).then((r) => {
             toast.success('Transaction Added');
