@@ -27,7 +27,7 @@ import { print } from '../utils/console';
 import { IConfirm } from '../types/confirmTypes';
 import { doc, updateDoc } from 'firebase/firestore';
 import Inventory from '../../pages/inventory';
-import AddInventory from './addInventory';
+import AddInventory from './inventory/addStock';
 import { UpdateInventory } from '../api/inventoryApi';
 
 // var object = {};
