@@ -23,6 +23,7 @@ const AddInventory = () => {
   const router = useRouter();
   const [adminId, setAdminId] = useState('adminId');
   const [categories, setCategories] = useState<IStockCategory[]>([]);
+
   const [webfrontId, setWebfrontId] = useState("");
   const [title, setTitle] = useState("");
   const [files, setFiles] = useState<any[]>([]);
@@ -50,9 +51,24 @@ const AddInventory = () => {
     itemNumber: 0,
     date: new Date(),
     dateString: new Date().toDateString(),
-    dateOfUpdate: new Date().toDateString()
+    dateOfUpdate: new Date().toDateString(),
+    status: 'Pantry',
+    confirmed: false
   });
   const [labels, setLabels] = useState<string[]>(['TRANSACTION DATE', 'TITLE', 'DETAILS', 'TRANSACTION TYPE', 'NUMBER OF ITEMS']);
+  const [selectedTrans, setSelectedTrans] = useState({
+    id: "id",
+    adminId: "adminId",
+    userId: "userId",
+    transactionType: "Add",
+    category: "",
+    title: "",
+    details: "",
+    itemNumber: 0,
+    date: new Date(),
+    dateString: new Date().toDateString(),
+    dateOfUpdate: new Date().toDateString()
+  });
 
   useEffect(() => {
     document.body.style.backgroundColor = LIGHT_GRAY;
@@ -105,6 +121,9 @@ const AddInventory = () => {
 
   const getStockItems = () => {
 
+
+
+
     getDataFromDBOne(STOCK_ITEM_COLLECTION, AMDIN_FIELD, adminId).then((v) => {
 
       if (v !== null) {
@@ -122,7 +141,9 @@ const AddInventory = () => {
             itemNumber: d.itemNumber,
             date: d.date,
             dateString: d.dateString,
-            dateOfUpdate: d.dateOdUpdate
+            dateOfUpdate: d.dateOdUpdate,
+            status: 'Pantry',
+            confirmed: false
           }]);
 
         });
@@ -170,24 +191,24 @@ const AddInventory = () => {
 
 
 
-  const getReadyToUpdate = (v: IMenuItem) => {
+  const getReadyToUpdate = (v: IStockItem) => {
     setOpen(true);
-    setEditItem(v);
+    setStockItem(v);
     setEdit(true);
-    setTitle(v.title);
-    setDescription(v.description);
-    setPrice(v.price);
-    setCategory(v.category);
 
   }
 
 
   const editStockItem = async () => {
 
+
+
+    let newItem = { ...stockItem, dateOfUpdate: new Date().toDateString() }
+
     setOpen(false);
     setLoading(true);
     setStockItems([]);
-    updateDocument(STOCK_ITEM_COLLECTION, editItem.id, stockItem).then((v) => {
+    updateDocument(STOCK_ITEM_COLLECTION, stockItem.id, newItem).then((v) => {
       setFiles([]);
       getStockItems();
       setOpen(false);
@@ -227,7 +248,7 @@ const AddInventory = () => {
 
   return (
     <div>
-      <div className="bg-white rounded-[30px] p-4 ">
+      <div className="bg-white rounded-[30px] p-4 relative">
         {loading ? (
           <div className="w-full flex flex-col items-center content-center">
             <Loader />
@@ -247,7 +268,7 @@ const AddInventory = () => {
                   stockItems.map((value, index) => {
                     return (
                       <tr key={index}
-                        onClick={() => { setSelectedTrans(value); setOpen(true); }}
+                        onClick={() => { getReadyToUpdate(value) }}
                         className={'odd:bg-white even:bg-slate-50  hover:cursor-pointer hover:bg-[#8b0e06] hover:text-white'}>
                         <td className='text-left' >{value.dateString}</td>
                         <td className='text-left' >{value.title}</td>
@@ -261,51 +282,36 @@ const AddInventory = () => {
                 }
               </tbody>
             </table>
-            <div className='flex shadow-xl rounded-[25px] p-8 w-[250px]  items-center justify-center' onClick={() => { setOpen(true) }}>
-              <div className='flex flex-col items-center justify-center'>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" className="w-16 h-16">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
-                Add Menu Item
-              </div>
-            </div>
-            {menuItems.map((v) => {
-              return (
-                <div className='flex flex-col shadow-xl rounded-[25px] p-8 w-[250px] '>
-                  <div className='flex flex-row-reverse'>
-                    <button onClick={() => { deleteItem(v.id, v.pic) }}>
-
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6 m-1">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-
-
-                    </button>
-                    <button onClick={() => { getReadyToUpdate(v); }}>
-
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
-                      </svg>
-
-
-
-                    </button>
-
-                  </div>
-                  <ShowImage src={`/${webfrontId}/menu-item/${v.pic.thumbnail}`} alt={'Menu Item'} style={'rounded-[25px] h-20 w-full'} />
-                  <div className='flex flex-row justify-between'>
-                    <h1 className='font-bold text-sm'>{v.title}</h1>
-                    <h1 className='font-bold text-sm'>{v.price}USD</h1>
-                  </div>
-
-                </div>
-              )
-            })}
 
           </div>
         )}
       </div>
+      <div className='fixed bottom-10 left-0 right-10 z-10  flex flex-row-reverse'>
 
+        <button
+          onClick={() => {
+            setOpen(true);
+          }}
+          className="
+              font-bold
+              rounded-full
+              border-2
+              border-[#8b0e06]
+              border-primary
+              p-5
+              bg-[#8b0e06]
+              text-base 
+              text-white
+              cursor-pointer
+              hover:bg-opacity-90
+              transition
+          "
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+        </button>
+      </div>
       <Transition appear show={open} as={Fragment}>
         <Dialog
           as="div"
@@ -466,7 +472,7 @@ const AddInventory = () => {
                         transition
                     "
                   >
-                    {edit ? 'Update Menu Item' : 'Add Menu Item'}
+                    {edit ? 'Update Stock Item' : 'Add Stock Item'}
                   </button>
                 </div>
 

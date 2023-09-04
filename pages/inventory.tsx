@@ -7,12 +7,12 @@ import { useRouter } from 'next/router';
 import ClientNav from '../app/components/clientNav';
 import { Tab } from '@headlessui/react';
 import AddStock from '../app/components/inventory/addStock';
-import ConfirmStock from '../app/components/confirmInventory';
-import AvailableStock from '../app/components/availableStock';
+import AvailableStock from '../app/components/inventory/availableStock';
 import Analytics from '../app/components/analytics';
 import AddInventory from '../app/components/inventory/addStock';
-import ConfirmInventory from '../app/components/confirmInventory';
 import AddStockCategory from '../app/components/inventory/addStockCategory';
+import ConfirmStock from '../app/components/inventory/confirmStock';
+import StockOverview from '../app/components/inventory/stockOverview';
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
@@ -23,6 +23,7 @@ const Inventory = () => {
     'Overview',
     'Served',
     'In The Kitchen',
+    'Available Stock',
     'Confirm Stock',
     'Add Stock',
     'Add Category'
@@ -70,7 +71,7 @@ const Inventory = () => {
                   'ring-white ring-opacity-60 ring-offset-2 focus:outline-none focus:ring-2'
                 )}
               >
-                <AddInventory />
+                <StockOverview />
               </Tab.Panel>
               <Tab.Panel
                 className={classNames(
@@ -78,7 +79,15 @@ const Inventory = () => {
                   'ring-white ring-opacity-60 ring-offset-2 focus:outline-none focus:ring-2'
                 )}
               >
-                <ConfirmInventory />
+                <AvailableStock status='Served' />
+              </Tab.Panel>
+              <Tab.Panel
+                className={classNames(
+                  'rounded-xl bg-white p-3',
+                  'ring-white ring-opacity-60 ring-offset-2 focus:outline-none focus:ring-2'
+                )}
+              >
+                <AvailableStock status='Kitchen' />
               </Tab.Panel>
 
               <Tab.Panel
@@ -87,7 +96,7 @@ const Inventory = () => {
                   'ring-white ring-opacity-60 ring-offset-2 focus:outline-none focus:ring-2'
                 )}
               >
-                <AvailableStock />
+                <AvailableStock status='Pantry' />
               </Tab.Panel>
               <Tab.Panel
                 className={classNames(
@@ -95,7 +104,7 @@ const Inventory = () => {
                   'ring-white ring-opacity-60 ring-offset-2 focus:outline-none focus:ring-2'
                 )}
               >
-                <AvailableStock />
+                <ConfirmStock />
               </Tab.Panel>
               <Tab.Panel
                 className={classNames(

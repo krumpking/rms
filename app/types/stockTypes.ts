@@ -21,6 +21,8 @@ export type IStockItem = {
     itemNumber: number,
     date: Date,
     dateString: string,
-    dateOfUpdate: string
+    dateOfUpdate: string,
+    status: string
+    confirmed: boolean
 
 }
