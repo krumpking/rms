@@ -365,26 +365,26 @@ const AddInventory = () => {
                   })
                 }
               </tbody>
-              <tfoot>
-                {stockItemsTemp.length > 0 ? <div className='flex w-full'>
-                  <ReactPaginate
-                    pageClassName="border-2 border-[#8b0e06] px-2 py-1 rounded-full"
-                    previousLinkClassName="border-2 border-[#8b0e06] px-2 py-2 rounded-[25px] bg-[#8b0e06] text-white font-bold"
-                    nextLinkClassName="border-2 border-[#8b0e06] px-2 py-2 rounded-[25px] bg-[#8b0e06] text-white font-bold"
-                    breakLabel="..."
-                    breakClassName=""
-                    containerClassName="flex flex-row space-x-4 content-center items-center "
-                    activeClassName="bg-[#8b0e06] text-white"
-                    nextLabel="next"
-                    onPageChange={handlePageClick}
-                    pageRangeDisplayed={1}
-                    pageCount={pages}
-                    previousLabel="previous"
-                    renderOnZeroPageCount={() => null}
-                  />
-                </div> : <p></p>}
-              </tfoot>
             </table>
+            <div>
+              {stockItemsTemp.length > 0 ? <div className='flex w-full'>
+                <ReactPaginate
+                  pageClassName="border-2 border-[#8b0e06] px-2 py-1 rounded-full"
+                  previousLinkClassName="border-2 border-[#8b0e06] px-2 py-2 rounded-[25px] bg-[#8b0e06] text-white font-bold"
+                  nextLinkClassName="border-2 border-[#8b0e06] px-2 py-2 rounded-[25px] bg-[#8b0e06] text-white font-bold"
+                  breakLabel="..."
+                  breakClassName=""
+                  containerClassName="flex flex-row space-x-4 content-center items-center "
+                  activeClassName="bg-[#8b0e06] text-white"
+                  nextLabel="next"
+                  onPageChange={handlePageClick}
+                  pageRangeDisplayed={1}
+                  pageCount={pages}
+                  previousLabel="previous"
+                  renderOnZeroPageCount={() => null}
+                />
+              </div> : <p></p>}
+            </div>
 
           </div>
         )}

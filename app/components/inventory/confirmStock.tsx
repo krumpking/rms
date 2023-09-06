@@ -91,9 +91,6 @@ const AddInventory = () => {
 
     const getStockItems = () => {
 
-
-
-
         getDataFromDBTwo(STOCK_ITEM_COLLECTION, AMDIN_FIELD, adminId, 'confirmed', false).then((v) => {
 
             if (v !== null) {

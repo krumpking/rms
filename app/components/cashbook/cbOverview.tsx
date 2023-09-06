@@ -265,6 +265,14 @@ const CBOverview = () => {
         }
     };
 
+    const getAvail = (key: string) => {
+        if (key == 'USD') {
+            return totalRecUSD - totalSpentUSD;
+        } else {
+            return totalRecZWL - totalSpentZWL;
+        }
+    }
+
 
     return (
         <div>
@@ -274,7 +282,28 @@ const CBOverview = () => {
                 </div>
             ) : (
                 <div className="bg-white rounded-[30px] p-4 flex flex-col">
-                    <div className='flex flex-row space-x-4 mb-6'>
+                    <div className='grid grid-cols-2 shadow-lg p-8 rounded-[25px]'>
+
+                        <div className='grid grid-cols-2 border-r-2'>
+                            <div className='flex flex-col items-center'>
+                                <h1 className='text-md'>{getAvail('USD')} USD</h1>
+                                <h1>Available </h1>
+                            </div>
+
+
+                        </div>
+                        <div className='grid grid-cols-2'>
+
+                            <div className='flex flex-col items-center'>
+                                <h1 className='text-md'>{getAvail('ZWL')} ZWL</h1>
+                                <h1>Available</h1>
+                            </div>
+
+
+                        </div>
+
+                    </div>
+                    <div className='flex flex-row space-x-4 m-6'>
                         {cat.map((v) => (
                             <button
                                 onClick={() => {
@@ -385,35 +414,38 @@ const CBOverview = () => {
                                         onKeyDown={handleKeyDown}
                                     />
                                 </div>
-                                <table className="table  border-separate space-y-6 text-sm w-full">
-                                    <thead className="bg-[#8b0e06] text-white font-bold0">
-                                        <tr>
-                                            {labels.map((v: any, index) => (
-                                                <th key={v.label} className={`text-left`}>{v}</th>
-                                            ))}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {
-                                            transactions.slice(start, end).map((value, index) => {
-                                                return (
-                                                    <tr key={index}
-                                                        onClick={() => { setSelectedTrans(value); setOpen(true); }}
-                                                        className={'odd:bg-white even:bg-slate-50  hover:cursor-pointer hover:bg-[#8b0e06] hover:text-white'}>
-                                                        <td className='text-left' >{value.dateString}</td>
-                                                        <td className='text-left' >{value.title}</td>
-                                                        <td className='text-left' >{value.customer}</td>
-                                                        <td className='text-left col-span-3' >{value.paymentMode}</td>
-                                                        <td className='text-left' >{value.amount}</td>
-                                                        <td className='text-left' >{value.currency}</td>
+                                <div>
+                                    <table className="table  border-separate space-y-6 text-sm w-full">
+                                        <thead className="bg-[#8b0e06] text-white font-bold0">
+                                            <tr>
+                                                {labels.map((v: any, index) => (
+                                                    <th key={v.label} className={`text-left`}>{v}</th>
+                                                ))}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {
+                                                transactions.slice(start, end).map((value, index) => {
+                                                    return (
+                                                        <tr key={index}
+                                                            onClick={() => { setSelectedTrans(value); setOpen(true); }}
+                                                            className={'odd:bg-white even:bg-slate-50  hover:cursor-pointer hover:bg-[#8b0e06] hover:text-white'}>
+                                                            <td className='text-left' >{value.dateString}</td>
+                                                            <td className='text-left' >{value.title}</td>
+                                                            <td className='text-left' >{value.customer}</td>
+                                                            <td className='text-left col-span-3' >{value.paymentMode}</td>
+                                                            <td className='text-left' >{value.amount}</td>
+                                                            <td className='text-left' >{value.currency}</td>
 
 
-                                                    </tr>
-                                                )
-                                            })
-                                        }
-                                    </tbody>
-                                    <tfoot>
+                                                        </tr>
+                                                    )
+                                                })
+                                            }
+                                        </tbody>
+
+                                    </table>
+                                    <div>
                                         {transactions.length > 0 ? <div className='flex w-full'>
                                             <ReactPaginate
                                                 pageClassName="border-2 border-[#8b0e06] px-2 py-1 rounded-full"
@@ -431,8 +463,8 @@ const CBOverview = () => {
                                                 renderOnZeroPageCount={() => null}
                                             />
                                         </div> : <p></p>}
-                                    </tfoot>
-                                </table>
+                                    </div>
+                                </div>
                             </div>}
 
                     </div>
