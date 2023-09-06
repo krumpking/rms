@@ -258,7 +258,7 @@ function contains(haystack: string, needle: string): boolean {
 }
 
 
-function containsObject(obj: any, list: any[]) {
+export function containsObject(obj: any, list: any[]) {
     var i;
     for (i = 0; i < list.length; i++) {
         if (list[i] === obj) {

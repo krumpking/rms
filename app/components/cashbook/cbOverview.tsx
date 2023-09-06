@@ -14,6 +14,7 @@ import DateMethods from '../../utils/date';
 import { print } from '../../utils/console';
 import ShowImage from '../showImage';
 import OrderedItems from './orderedItems';
+import ReactPaginate from 'react-paginate';
 
 const CBOverview = () => {
     const [loading, setLoading] = useState(false);
@@ -34,6 +35,10 @@ const CBOverview = () => {
     const [selectedTrans, setSelectedTrans] = useState<any>();
     const [cat, setCat] = useState(['All time', 'Today', 'This Week', 'This Month', 'This Quarter', 'This Year'])
     const [webfrontId, setWebfrontId] = useState("webfrontId");
+    const [start, setStart] = useState(0);
+    const [end, setEnd] = useState(10);
+    const [pages, setPages] = useState(0);
+    const [count, setCount] = useState(0);
 
     useEffect(() => {
 
@@ -122,7 +127,14 @@ const CBOverview = () => {
                     setTotalSpentUSD(tSUSD);
                     setTotalSpentZWL(tSZWL);
 
-                })
+                });
+                var numOfPages = Math.floor(v.count / 10);
+                if (v.count % 10 > 0) {
+                    numOfPages++;
+                }
+                setPages(numOfPages);
+                setCount(v.count);
+
             }
         }).catch((e: any) => {
             console.error(e);
@@ -166,11 +178,7 @@ const CBOverview = () => {
     }
 
 
-    const getView = (v: ITransaction) => {
 
-        return <p>Hi</p>
-
-    }
 
     const filterResults = (v: string) => {
 
@@ -246,7 +254,16 @@ const CBOverview = () => {
 
     }
 
-
+    const handlePageClick = (event: { selected: number; }) => {
+        let val = event.selected + 1;
+        if (count / 10 + 1 === val) {
+            setStart(count - (count % 10));
+            setEnd(count);
+        } else {
+            setStart(Math.ceil((val * 10) - 10));
+            setEnd(val * 10);
+        }
+    };
 
 
     return (
@@ -378,7 +395,7 @@ const CBOverview = () => {
                                     </thead>
                                     <tbody>
                                         {
-                                            transactions.map((value, index) => {
+                                            transactions.slice(start, end).map((value, index) => {
                                                 return (
                                                     <tr key={index}
                                                         onClick={() => { setSelectedTrans(value); setOpen(true); }}
@@ -396,6 +413,25 @@ const CBOverview = () => {
                                             })
                                         }
                                     </tbody>
+                                    <tfoot>
+                                        {transactions.length > 0 ? <div className='flex w-full'>
+                                            <ReactPaginate
+                                                pageClassName="border-2 border-[#8b0e06] px-2 py-1 rounded-full"
+                                                previousLinkClassName="border-2 border-[#8b0e06] px-2 py-2 rounded-[25px] bg-[#8b0e06] text-white font-bold"
+                                                nextLinkClassName="border-2 border-[#8b0e06] px-2 py-2 rounded-[25px] bg-[#8b0e06] text-white font-bold"
+                                                breakLabel="..."
+                                                breakClassName=""
+                                                containerClassName="flex flex-row space-x-4 content-center items-center "
+                                                activeClassName="bg-[#8b0e06] text-white"
+                                                nextLabel="next"
+                                                onPageChange={handlePageClick}
+                                                pageRangeDisplayed={1}
+                                                pageCount={pages}
+                                                previousLabel="previous"
+                                                renderOnZeroPageCount={() => null}
+                                            />
+                                        </div> : <p></p>}
+                                    </tfoot>
                                 </table>
                             </div>}
 
