@@ -23,7 +23,7 @@ const Inventory = () => {
     'Overview',
     'Served',
     'In The Kitchen',
-    'Available Stock',
+    'In Pantry',
     'Confirm Stock',
     'Add Stock',
     'Add Category'

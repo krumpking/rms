@@ -14,7 +14,6 @@ export type IStockItem = {
     id: string,
     adminId: string,
     userId: string,
-    transactionType: string,
     category: string,
     title: string,
     details: any,

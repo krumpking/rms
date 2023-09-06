@@ -11,19 +11,20 @@ import { ICategory, IMenuItem } from '../../types/menuTypes';
 import ShowImage from '../showImage';
 import { useDropzone } from 'react-dropzone';
 import imageCompression from 'browser-image-compression';
-import { addDocument, deleteDocument, deleteFile, getDataFromDBOne, updateDocument, uploadFile } from '../../api/mainApi';
+import { addDocument, deleteDocument, deleteFile, getDataFromDBOne, getDataFromDBTwo, updateDocument, uploadFile } from '../../api/mainApi';
 import { MENU_CAT_COLLECTION, MENU_ITEM_COLLECTION, MENU_STORAGE_REF } from '../../constants/menuConstants';
 import { print } from '../../utils/console';
 import { Dialog, Transition } from '@headlessui/react';
 import { IStockCategory, IStockItem } from '../../types/stockTypes';
 import { STOCK_CATEGORY_REF, STOCK_ITEM_COLLECTION } from '../../constants/stockConstants';
+import ReactPaginate from 'react-paginate';
+import { searchStringInArray } from '../../utils/arrayM';
 
 const AddInventory = () => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const [adminId, setAdminId] = useState('adminId');
   const [categories, setCategories] = useState<IStockCategory[]>([]);
-
   const [webfrontId, setWebfrontId] = useState("");
   const [title, setTitle] = useState("");
   const [files, setFiles] = useState<any[]>([]);
@@ -32,6 +33,7 @@ const AddInventory = () => {
   const [price, setPrice] = useState(0);
   const [category, setCategory] = useState("");
   const [stockItems, setStockItems] = useState<IStockItem[]>([]);
+
   const [edit, setEdit] = useState(false);
   const [editItem, setEditItem] = useState<any>({
     category: "",
@@ -44,7 +46,6 @@ const AddInventory = () => {
     id: "id",
     adminId: "adminId",
     userId: "userId",
-    transactionType: "Add",
     category: "",
     title: "",
     details: "",
@@ -55,20 +56,13 @@ const AddInventory = () => {
     status: 'Pantry',
     confirmed: false
   });
-  const [labels, setLabels] = useState<string[]>(['TRANSACTION DATE', 'TITLE', 'DETAILS', 'TRANSACTION TYPE', 'NUMBER OF ITEMS']);
-  const [selectedTrans, setSelectedTrans] = useState({
-    id: "id",
-    adminId: "adminId",
-    userId: "userId",
-    transactionType: "Add",
-    category: "",
-    title: "",
-    details: "",
-    itemNumber: 0,
-    date: new Date(),
-    dateString: new Date().toDateString(),
-    dateOfUpdate: new Date().toDateString()
-  });
+  const [labels, setLabels] = useState<string[]>(['TRANSACTION DATE', 'TITLE', 'DETAILS', 'CATEGORY', 'NUMBER OF ITEMS']);
+  const [stockItemsTemp, setStockItemsTemp] = useState<IStockItem[]>([]);
+  const [count, setCount] = useState(0);
+  const [pages, setPages] = useState(0);
+  const [start, setStart] = useState(0);
+  const [end, setEnd] = useState(10);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     document.body.style.backgroundColor = LIGHT_GRAY;
@@ -124,7 +118,7 @@ const AddInventory = () => {
 
 
 
-    getDataFromDBOne(STOCK_ITEM_COLLECTION, AMDIN_FIELD, adminId).then((v) => {
+    getDataFromDBTwo(STOCK_ITEM_COLLECTION, AMDIN_FIELD, adminId, 'confirmed', false).then((v) => {
 
       if (v !== null) {
 
@@ -145,8 +139,30 @@ const AddInventory = () => {
             status: 'Pantry',
             confirmed: false
           }]);
+          setStockItemsTemp(stockItems => [...stockItems, {
+            id: element.id,
+            adminId: d.adminId,
+            userId: d.userId,
+            transactionType: d.transactionType,
+            category: d.category,
+            title: d.title,
+            details: d.details,
+            itemNumber: d.itemNumber,
+            date: d.date,
+            dateString: d.dateString,
+            dateOfUpdate: d.dateOdUpdate,
+            status: 'Pantry',
+            confirmed: false
+          }]);
 
         });
+        var numOfPages = Math.floor(v.count / 10);
+        if (v.count % 10 > 0) {
+          numOfPages++;
+        }
+        setPages(numOfPages);
+        setCount(v.count);
+
 
 
 
@@ -223,18 +239,16 @@ const AddInventory = () => {
   }
 
 
-  const deleteItem = (id: string, pic: any) => {
-    var result = confirm("Are you sure you want to delete?");
-    if (result) {
-      //Logic to delete the item
-      setLoading(true);
-      deleteDocument(STOCK_ITEM_COLLECTION, id).then(() => {
-        getStockItems();
-      }).catch((e: any) => {
-        console.error(e);
-      });
+  const handlePageClick = (event: { selected: number; }) => {
+    let val = event.selected + 1;
+    if (count / 10 + 1 === val) {
+      setStart(count - (count % 10));
+      setEnd(count);
+    } else {
+      setStart(Math.ceil((val * 10) - 10));
+      setEnd(val * 10);
     }
-  }
+  };
 
 
   const handleChange = (e: any) => {
@@ -243,6 +257,51 @@ const AddInventory = () => {
       [e.target.name]: e.target.value
     })
   }
+
+  const handleKeyDown = (event: { key: string; }) => {
+
+    if (event.key === 'Enter') {
+      searchFor();
+    }
+  };
+
+
+
+  const searchFor = () => {
+    setStockItemsTemp([]);
+
+    setLoading(true);
+    if (search !== '') {
+
+      let res: IStockItem[] = searchStringInArray(stockItems, search);
+
+      if (res.length > 0) {
+        setTimeout(() => {
+          setStockItemsTemp(res);
+          setLoading(false);
+        }, 1500);
+
+      } else {
+        toast.info(`${search} not found `);
+        setTimeout(() => {
+          setStockItemsTemp(stockItems);
+          setLoading(false);
+        }, 1500);
+
+
+      }
+
+
+    } else {
+
+      setTimeout(() => {
+        setStockItemsTemp(stockItems);
+        setLoading(false);
+      }, 1500);
+
+    }
+  }
+
 
 
 
@@ -255,6 +314,31 @@ const AddInventory = () => {
           </div>
         ) : (
           <div className="flex flex-col overflow-y-scroll max-h-[700px] w-full gap-4 p-4">
+            <div className=''>
+              <input
+                type="text"
+                value={search}
+                placeholder={"Search"}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                }}
+                className="
+                    w-full
+                    rounded-[25px]
+                    border-2
+                    border-[#8b0e06]
+                    py-3
+                    px-5
+                    bg-white
+                    text-base text-body-color
+                    placeholder-[#ACB6BE]
+                    outline-none
+                    focus-visible:shadow-none
+                    focus:border-primary
+                "
+                onKeyDown={handleKeyDown}
+              />
+            </div>
             <table className="table  border-separate space-y-6 text-sm w-full">
               <thead className="bg-[#8b0e06] text-white font-bold0">
                 <tr>
@@ -265,7 +349,7 @@ const AddInventory = () => {
               </thead>
               <tbody>
                 {
-                  stockItems.map((value, index) => {
+                  stockItemsTemp.slice(start, end).map((value, index) => {
                     return (
                       <tr key={index}
                         onClick={() => { getReadyToUpdate(value) }}
@@ -273,7 +357,7 @@ const AddInventory = () => {
                         <td className='text-left' >{value.dateString}</td>
                         <td className='text-left' >{value.title}</td>
                         <td className='text-left' >{value.details}</td>
-                        <td className='text-left col-span-3' >{value.transactionType}</td>
+                        <td className='text-left col-span-3' >{value.category}</td>
                         <td className='text-left' >{value.itemNumber}</td>
 
                       </tr>
@@ -281,6 +365,25 @@ const AddInventory = () => {
                   })
                 }
               </tbody>
+              <tfoot>
+                {stockItemsTemp.length > 0 ? <div className='flex w-full'>
+                  <ReactPaginate
+                    pageClassName="border-2 border-[#8b0e06] px-2 py-1 rounded-full"
+                    previousLinkClassName="border-2 border-[#8b0e06] px-2 py-2 rounded-[25px] bg-[#8b0e06] text-white font-bold"
+                    nextLinkClassName="border-2 border-[#8b0e06] px-2 py-2 rounded-[25px] bg-[#8b0e06] text-white font-bold"
+                    breakLabel="..."
+                    breakClassName=""
+                    containerClassName="flex flex-row space-x-4 content-center items-center "
+                    activeClassName="bg-[#8b0e06] text-white"
+                    nextLabel="next"
+                    onPageChange={handlePageClick}
+                    pageRangeDisplayed={1}
+                    pageCount={pages}
+                    previousLabel="previous"
+                    renderOnZeroPageCount={() => null}
+                  />
+                </div> : <p></p>}
+              </tfoot>
             </table>
 
           </div>

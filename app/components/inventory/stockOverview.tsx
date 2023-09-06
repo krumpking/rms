@@ -17,7 +17,8 @@ import { print } from '../../utils/console';
 import { Dialog, Transition } from '@headlessui/react';
 import { IStockCategory, IStockItem } from '../../types/stockTypes';
 import { STOCK_CATEGORY_REF, STOCK_ITEM_COLLECTION } from '../../constants/stockConstants';
-import { containsObject, findOccurrences, findOccurrencesObjectId } from '../../utils/arrayM';
+import { containsObject, findOccurrences, findOccurrencesObjectId, searchStringInArray } from '../../utils/arrayM';
+import ReactPaginate from 'react-paginate';
 
 
 
@@ -48,7 +49,6 @@ const StockOverview = () => {
         id: "id",
         adminId: "adminId",
         userId: "userId",
-        transactionType: "Add",
         category: "",
         title: "",
         details: "",
@@ -59,8 +59,14 @@ const StockOverview = () => {
         status: 'Pantry',
         confirmed: false
     });
-    const [labels, setLabels] = useState<string[]>(['TRANSACTION DATE', 'TITLE', 'DETAILS', 'TRANSACTION TYPE', 'NUMBER OF ITEMS']);
+    const [labels, setLabels] = useState<string[]>(['TRANSACTION DATE', 'TITLE', 'DETAILS', 'STATUS', 'NUMBER OF ITEMS']);
     const [selectedTrans, setSelectedTrans] = useState<IStockCategory[]>([]);
+    const [stockItemsTemp, setStockItemsTemp] = useState<IStockItem[]>([]);
+    const [count, setCount] = useState(0);
+    const [pages, setPages] = useState(0);
+    const [start, setStart] = useState(0);
+    const [end, setEnd] = useState(10);
+    const [search, setSearch] = useState("");
 
     useEffect(() => {
         document.body.style.backgroundColor = LIGHT_GRAY;
@@ -87,7 +93,7 @@ const StockOverview = () => {
 
 
 
-        getDataFromDBTwo(STOCK_ITEM_COLLECTION, AMDIN_FIELD, adminId, 'status', status).then((v) => {
+        getDataFromDBOne(STOCK_ITEM_COLLECTION, AMDIN_FIELD, adminId).then((v) => {
 
             if (v !== null) {
 
@@ -105,11 +111,33 @@ const StockOverview = () => {
                         date: d.date,
                         dateString: d.dateString,
                         dateOfUpdate: d.dateOdUpdate,
-                        status: 'Pantry',
+                        status: d.status,
                         confirmed: d.confirmed
                     }]);
 
+                    setStockItemsTemp(stockItems => [...stockItems, {
+                        id: element.id,
+                        adminId: d.adminId,
+                        userId: d.userId,
+                        transactionType: d.transactionType,
+                        category: d.category,
+                        title: d.title,
+                        details: d.details,
+                        itemNumber: d.itemNumber,
+                        date: d.date,
+                        dateString: d.dateString,
+                        dateOfUpdate: d.dateOdUpdate,
+                        status: d.status,
+                        confirmed: false
+                    }]);
+
                 });
+                var numOfPages = Math.floor(v.count / 10);
+                if (v.count % 10 > 0) {
+                    numOfPages++;
+                }
+                setPages(numOfPages);
+                setCount(v.count);
 
 
 
@@ -134,61 +162,68 @@ const StockOverview = () => {
 
     }
 
-    const editArray = (v: IStockItem) => {
-
-
-        let updateStatus = 'Pantry';
-        switch (status) {
-            case 'Pantry':
-                updateStatus = 'Kitchen';
-                break;
-            case 'Kitchen':
-                updateStatus = 'Served';
-                break;
-                break;
-
-            default:
-                updateStatus = 'Pantry';
-                break;
-        }
-
-        if (containsObject(v, selectedTrans)) {
-            let newArray: IStockCategory[] = [];
-            selectedTrans.forEach((el) => {
-                if (el.id !== v.id) {
-                    newArray.push(el);
-                }
-            });
-            setSelectedTrans(newArray);
+    const handlePageClick = (event: { selected: number; }) => {
+        let val = event.selected + 1;
+        if (count / 10 + 1 === val) {
+            setStart(count - (count % 10));
+            setEnd(count);
         } else {
-            let newItem = { ...v, status: updateStatus, dateOfUpdate: new Date().toDateString() }
-            setSelectedTrans([...selectedTrans, newItem]);
+            setStart(Math.ceil((val * 10) - 10));
+            setEnd(val * 10);
         }
+    };
 
-    }
+    const handleKeyDown = (event: { key: string; }) => {
 
+        if (event.key === 'Enter') {
+            searchFor();
+        }
+    };
 
-
-
-    const sendStockItems = async () => {
-
+    const searchFor = () => {
+        setStockItemsTemp([]);
 
         setLoading(true);
-        selectedTrans.forEach((el) => {
-            //Logic to delete the item           
-            updateDocument(STOCK_ITEM_COLLECTION, el.id, el).then((v) => {
-            }).catch((e: any) => {
-                console.error(e);
-                toast.error('There was an error please try again');
-            });
+        if (search !== '') {
+
+            let res: IStockItem[] = searchStringInArray(stockItems, search);
+
+            if (res.length > 0) {
+                setTimeout(() => {
+                    setStockItemsTemp(res);
+                    setLoading(false);
+                }, 1500);
+
+            } else {
+                toast.info(`${search} not found `);
+                setTimeout(() => {
+                    setStockItemsTemp(stockItems);
+                    setLoading(false);
+                }, 1500);
+
+
+            }
+
+
+        } else {
+
             setTimeout(() => {
+                setStockItemsTemp(stockItems);
                 setLoading(false);
-            }, 2000);
+            }, 1500);
 
-        });
-
-
+        }
     }
+
+
+
+
+
+
+    const getItems = (status: string) => {
+        return stockItems.filter((item) => item.status === status).length;
+    }
+
 
 
 
@@ -205,11 +240,54 @@ const StockOverview = () => {
                     </div>
                 ) : (
                     <div className="flex flex-col overflow-y-scroll max-h-[700px] w-full gap-4 p-4">
+                        <div className='grid grid-cols-4 shadow-lg p-8 rounded-[25px]'>
+                            <div className='flex flex-col items-center border-r-2'>
+                                <h1 className='text-2xl'>{stockItems.length}</h1>
+                                <h1>Stock Items</h1>
+                            </div>
+                            <div className='flex flex-col items-center border-r-2'>
+                                <h1 className='text-md'>{getItems('Served')}</h1>
+                                <h1>Items Served</h1>
+                            </div>
+                            <div className='flex flex-col items-center border-r-2'>
+                                <h1 className='text-md'>{getItems('Kitchen')}</h1>
+                                <h1>Items in the Kitchen</h1>
+                            </div>
+                            <div className='flex flex-col items-center'>
+                                <h1 className='text-md'>{getItems('Pantry')}</h1>
+                                <h1>Items in the Pantry</h1>
+                            </div>
+
+                        </div>
+                        <div className=''>
+                            <input
+                                type="text"
+                                value={search}
+                                placeholder={"Search"}
+                                onChange={(e) => {
+                                    setSearch(e.target.value);
+                                }}
+                                className="
+                                    w-full
+                                    rounded-[25px]
+                                    border-2
+                                    border-[#8b0e06]
+                                    py-3
+                                    px-5
+                                    bg-white
+                                    text-base text-body-color
+                                    placeholder-[#ACB6BE]
+                                    outline-none
+                                    focus-visible:shadow-none
+                                    focus:border-primary
+                                "
+                                onKeyDown={handleKeyDown}
+                            />
+                        </div>
                         <table className="table  border-separate space-y-6 text-sm w-full">
                             <thead className="bg-[#8b0e06] text-white font-bold0">
 
                                 <tr>
-                                    <th></th>
                                     {labels.map((v: any, index) => (
                                         <th key={v.label} className={`text-left`}>{v}</th>
                                     ))}
@@ -217,24 +295,14 @@ const StockOverview = () => {
                             </thead>
                             <tbody>
                                 {
-                                    stockItems.map((value, index) => {
+                                    stockItemsTemp.map((value, index) => {
                                         return (
                                             <tr key={index}
-                                                onClick={() => { getReadyToUpdate(value) }}
                                                 className={'odd:bg-white even:bg-slate-50  hover:cursor-pointer hover:bg-[#8b0e06] hover:text-white'}>
-                                                <td>
-                                                    <input
-                                                        type="checkbox"
-                                                        id={value.id}
-                                                        name="item"
-                                                        value="Item"
-                                                        onChange={() => { editArray(value); }}
-                                                        className='accent-[#8b0e06]' />
-                                                </td>
                                                 <td className='text-left' >{value.dateString}</td>
                                                 <td className='text-left' >{value.title}</td>
                                                 <td className='text-left' >{value.details}</td>
-                                                <td className='text-left col-span-3' >{value.transactionType}</td>
+                                                <td className='text-left col-span-3' >{value.status}</td>
                                                 <td className='text-left' >{value.itemNumber}</td>
 
                                             </tr>
@@ -242,38 +310,32 @@ const StockOverview = () => {
                                     })
                                 }
                             </tbody>
+                            <tfoot>
+                                {stockItemsTemp.length > 0 ? <div className='flex w-full'>
+                                    <ReactPaginate
+                                        pageClassName="border-2 border-[#8b0e06] px-2 py-1 rounded-full"
+                                        previousLinkClassName="border-2 border-[#8b0e06] px-2 py-2 rounded-[25px] bg-[#8b0e06] text-white font-bold"
+                                        nextLinkClassName="border-2 border-[#8b0e06] px-2 py-2 rounded-[25px] bg-[#8b0e06] text-white font-bold"
+                                        breakLabel="..."
+                                        breakClassName=""
+                                        containerClassName="flex flex-row space-x-4 content-center items-center "
+                                        activeClassName="bg-[#8b0e06] text-white"
+                                        nextLabel="next"
+                                        onPageChange={handlePageClick}
+                                        pageRangeDisplayed={1}
+                                        pageCount={pages}
+                                        previousLabel="previous"
+                                        renderOnZeroPageCount={() => null}
+                                    />
+                                </div> : <p></p>}
+                            </tfoot>
                         </table>
 
                     </div>
                 )}
             </div>
-            <div className='fixed bottom-10 left-0 right-10 z-10  flex flex-row-reverse'>
 
-                <button
-                    onClick={() => {
-                        sendStockItems();
-                    }}
-                    className="
-              font-bold
-              rounded-full
-              border-2
-              border-[#8b0e06]
-              border-primary
-              p-5
-              bg-[#8b0e06]
-              text-base 
-              text-white
-              cursor-pointer
-              hover:bg-opacity-90
-              transition
-          "
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-                    </svg>
 
-                </button>
-            </div>
 
 
             <ToastContainer position="top-right" autoClose={5000} />
