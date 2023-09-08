@@ -4,17 +4,17 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router'
 import { getCookie } from 'react-use-cookie';
 import { Dialog, Menu, Transition } from '@headlessui/react';
-import { IClient } from '../types/userTypes';
-import { ADMIN_ID, COOKIE_ID, LIGHT_GRAY, PERSON_ROLE } from '../constants/constants';
-import ClientNav from './clientNav';
-import Loader from './loader';
-import { addTasksToDB, getAllClientsToDB, updateClientToDB } from '../api/crmApi';
-import { print } from '../utils/console';
-import { searchStringInMembers } from '../utils/stringM';
-import DateMethods from '../utils/date';
-import { decrypt, encrypt } from '../utils/crypto';
+import { IClient } from '../../types/userTypes';
+import { ADMIN_ID, COOKIE_ID, LIGHT_GRAY, PERSON_ROLE } from '../../constants/constants';
+import ClientNav from '../clientNav';
+import Loader from '../loader';
+import { addTasksToDB, getAllClientsToDB, updateClientToDB } from '../../api/crmApi';
+import { print } from '../../utils/console';
+import { searchStringInMembers } from '../../utils/stringM';
+import DateMethods from '../../utils/date';
+import { decrypt, encrypt } from '../../utils/crypto';
 import DataSummary from './dataSummary';
-import Pill from './pill';
+import Pill from '../pill';
 import { addDays } from 'date-fns';
 
 

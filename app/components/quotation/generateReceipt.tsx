@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import Loader from './loader';
+import Loader from '../loader';
 import { ToastContainer, toast } from 'react-toastify';
-import ReceiptForm from './quotation/receiptForm';
+import ReceiptForm from './receiptForm';
 
 
 

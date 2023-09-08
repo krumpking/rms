@@ -13,8 +13,9 @@ import { searchStringInArray } from '../../utils/arrayM';
 import DateMethods from '../../utils/date';
 import { print } from '../../utils/console';
 import ShowImage from '../showImage';
-import OrderedItems from './orderedItems';
+import OrderedItems from '../order/orderedItems';
 import ReactPaginate from 'react-paginate';
+import AppAccess from '../accessLevel';
 
 const CBOverview = () => {
     const [loading, setLoading] = useState(false);
@@ -39,6 +40,10 @@ const CBOverview = () => {
     const [end, setEnd] = useState(10);
     const [pages, setPages] = useState(0);
     const [count, setCount] = useState(0);
+    const [accessArray, setAccessArray] = useState<any[]>([
+        'menu', 'orders', 'move-from-pantry', 'move-from-kitchen', 'cash-in',
+        'cash-out', 'cash-report', 'add-stock', 'confirm-stock', 'move-to-served', 'add-reservation', 'available-reservations',
+        'staff-scheduling', 'website', 'payments']);
 
     useEffect(() => {
 
@@ -275,41 +280,42 @@ const CBOverview = () => {
 
 
     return (
-        <div>
-            {loading ? (
-                <div className="flex flex-col items-center content-center">
-                    <Loader />
-                </div>
-            ) : (
-                <div className="bg-white rounded-[30px] p-4 flex flex-col">
-                    <div className='grid grid-cols-2 shadow-lg p-8 rounded-[25px]'>
-
-                        <div className='grid grid-cols-2 border-r-2'>
-                            <div className='flex flex-col items-center'>
-                                <h1 className='text-md'>{getAvail('USD')} USD</h1>
-                                <h1>Available </h1>
-                            </div>
-
-
-                        </div>
-                        <div className='grid grid-cols-2'>
-
-                            <div className='flex flex-col items-center'>
-                                <h1 className='text-md'>{getAvail('ZWL')} ZWL</h1>
-                                <h1>Available</h1>
-                            </div>
-
-
-                        </div>
-
+        <AppAccess access={accessArray} component={'cash-report'}>
+            <div>
+                {loading ? (
+                    <div className="flex flex-col items-center content-center">
+                        <Loader />
                     </div>
-                    <div className='flex flex-row space-x-4 m-6'>
-                        {cat.map((v) => (
-                            <button
-                                onClick={() => {
-                                    filterResults(v);
-                                }}
-                                className="
+                ) : (
+                    <div className="bg-white rounded-[30px] p-4 flex flex-col">
+                        <div className='grid grid-cols-2 shadow-lg p-8 rounded-[25px]'>
+
+                            <div className='grid grid-cols-2 border-r-2'>
+                                <div className='flex flex-col items-center'>
+                                    <h1 className='text-md'>{getAvail('USD')} USD</h1>
+                                    <h1>Available </h1>
+                                </div>
+
+
+                            </div>
+                            <div className='grid grid-cols-2'>
+
+                                <div className='flex flex-col items-center'>
+                                    <h1 className='text-md'>{getAvail('ZWL')} ZWL</h1>
+                                    <h1>Available</h1>
+                                </div>
+
+
+                            </div>
+
+                        </div>
+                        <div className='flex flex-row space-x-4 m-6'>
+                            {cat.map((v) => (
+                                <button
+                                    onClick={() => {
+                                        filterResults(v);
+                                    }}
+                                    className="
                                         font-bold
                                         w-full
                                         rounded-[25px]
@@ -325,78 +331,78 @@ const CBOverview = () => {
                                         hover:bg-opacity-90
                                         transition
                                     "
-                            >
-                                {v}
-                            </button>
-                        ))}
-                    </div>
-                    <div className='grid grid-cols-4 shadow-lg p-8 rounded-[25px]'>
-                        <div className='flex flex-col items-center border-r-2'>
-                            <h1 className='text-2xl'>{transactions.length}</h1>
-                            <h1>Transactions</h1>
-                        </div>
-                        <div className='grid grid-cols-2 border-r-2'>
-                            <div className='flex flex-col items-center'>
-                                <h1 className='text-md'>{totalUSD}</h1>
-                                <h1>USD Transactions</h1>
-                            </div>
-                            <div className='flex flex-col items-center'>
-                                <h1 className='text-md'>{totalZWL}</h1>
-                                <h1>ZWL Transactions</h1>
-                            </div>
-
-                        </div>
-                        <div className='grid grid-cols-2 border-r-2'>
-                            <div className='flex flex-col items-center'>
-                                <h1 className='text-md'>{totalRecUSD}</h1>
-                                <h1>USD Received</h1>
-                            </div>
-                            <div className='flex flex-col items-center'>
-                                <h1 className='text-md'>{totalRecZWL}</h1>
-                                <h1>ZWL Received</h1>
-                            </div>
-
-
-                        </div>
-                        <div className='grid grid-cols-2'>
-
-                            <div className='flex flex-col items-center'>
-                                <h1 className='text-md'>{totalSpentUSD}</h1>
-                                <h1>USD Spent</h1>
-                            </div>
-                            <div className='flex flex-col items-center'>
-                                <h1 className='text-md'>{totalSpentZWL}</h1>
-                                <h1>ZWL Spent</h1>
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        {open ?
-
-                            <div className='flex flex-col items-center m-4 shadow-2xl rounded-md border-4 border-[#8b0e06] font-bold max-h-[700px] overflow-y-scroll'>
-                                <button className='bg-[#8b0e06] text-center p-4 w-full'
-                                    onClick={() => {
-                                        setOpen(false);
-                                    }}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6 text-white">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75" />
-                                    </svg>
-
+                                >
+                                    {v}
                                 </button>
-
-                                {selectedTrans.file === null ? <p></p> : <ShowImage src={`/${webfrontId}/${CASHBOOOK_STORAGE_REF}/${selectedTrans.file.thumbnail}`} alt={'Payment File'} style={'w-full h-64'} />}
-                                {selectedTrans.transactionType === "Sale" ? <OrderedItems id={selectedTrans.details} /> : <p>{selectedTrans.details}</p>}
+                            ))}
+                        </div>
+                        <div className='grid grid-cols-4 shadow-lg p-8 rounded-[25px]'>
+                            <div className='flex flex-col items-center border-r-2'>
+                                <h1 className='text-2xl'>{transactions.length}</h1>
+                                <h1>Transactions</h1>
                             </div>
-                            : <div className="overflow-auto lg:overflow-visible h-screen shadow-lg p-8 rounded-[25px]">
-                                <div className='mb-6'>
-                                    <input
-                                        type="text"
-                                        value={search}
-                                        placeholder={"Search"}
-                                        onChange={(e) => {
-                                            setSearch(e.target.value);
-                                        }}
-                                        className="
+                            <div className='grid grid-cols-2 border-r-2'>
+                                <div className='flex flex-col items-center'>
+                                    <h1 className='text-md'>{totalUSD}</h1>
+                                    <h1>USD Transactions</h1>
+                                </div>
+                                <div className='flex flex-col items-center'>
+                                    <h1 className='text-md'>{totalZWL}</h1>
+                                    <h1>ZWL Transactions</h1>
+                                </div>
+
+                            </div>
+                            <div className='grid grid-cols-2 border-r-2'>
+                                <div className='flex flex-col items-center'>
+                                    <h1 className='text-md'>{totalRecUSD}</h1>
+                                    <h1>USD Received</h1>
+                                </div>
+                                <div className='flex flex-col items-center'>
+                                    <h1 className='text-md'>{totalRecZWL}</h1>
+                                    <h1>ZWL Received</h1>
+                                </div>
+
+
+                            </div>
+                            <div className='grid grid-cols-2'>
+
+                                <div className='flex flex-col items-center'>
+                                    <h1 className='text-md'>{totalSpentUSD}</h1>
+                                    <h1>USD Spent</h1>
+                                </div>
+                                <div className='flex flex-col items-center'>
+                                    <h1 className='text-md'>{totalSpentZWL}</h1>
+                                    <h1>ZWL Spent</h1>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            {open ?
+
+                                <div className='flex flex-col items-center m-4 shadow-2xl rounded-md border-4 border-[#8b0e06] font-bold max-h-[700px] overflow-y-scroll'>
+                                    <button className='bg-[#8b0e06] text-center p-4 w-full'
+                                        onClick={() => {
+                                            setOpen(false);
+                                        }}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6 text-white">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75" />
+                                        </svg>
+
+                                    </button>
+
+                                    {selectedTrans.file === null ? <p></p> : <ShowImage src={`/${webfrontId}/${CASHBOOOK_STORAGE_REF}/${selectedTrans.file.thumbnail}`} alt={'Payment File'} style={'w-full h-64'} />}
+                                    {selectedTrans.transactionType === "Sale" ? <OrderedItems id={selectedTrans.details} /> : <p>{selectedTrans.details}</p>}
+                                </div>
+                                : <div className="overflow-auto lg:overflow-visible h-screen shadow-lg p-8 rounded-[25px]">
+                                    <div className='mb-6'>
+                                        <input
+                                            type="text"
+                                            value={search}
+                                            placeholder={"Search"}
+                                            onChange={(e) => {
+                                                setSearch(e.target.value);
+                                            }}
+                                            className="
                                         w-full
                                         rounded-[25px]
                                         border-2
@@ -411,72 +417,74 @@ const CBOverview = () => {
                                         focus:border-primary
                                         "
 
-                                        onKeyDown={handleKeyDown}
-                                    />
-                                </div>
-                                <div>
-                                    <table className="table  border-separate space-y-6 text-sm w-full">
-                                        <thead className="bg-[#8b0e06] text-white font-bold0">
-                                            <tr>
-                                                {labels.map((v: any, index) => (
-                                                    <th key={v.label} className={`text-left`}>{v}</th>
-                                                ))}
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {
-                                                transactions.slice(start, end).map((value, index) => {
-                                                    return (
-                                                        <tr key={index}
-                                                            onClick={() => { setSelectedTrans(value); setOpen(true); }}
-                                                            className={'odd:bg-white even:bg-slate-50  hover:cursor-pointer hover:bg-[#8b0e06] hover:text-white'}>
-                                                            <td className='text-left' >{value.dateString}</td>
-                                                            <td className='text-left' >{value.title}</td>
-                                                            <td className='text-left' >{value.customer}</td>
-                                                            <td className='text-left col-span-3' >{value.paymentMode}</td>
-                                                            <td className='text-left' >{value.amount}</td>
-                                                            <td className='text-left' >{value.currency}</td>
-
-
-                                                        </tr>
-                                                    )
-                                                })
-                                            }
-                                        </tbody>
-
-                                    </table>
-                                    <div>
-                                        {transactions.length > 0 ? <div className='flex w-full'>
-                                            <ReactPaginate
-                                                pageClassName="border-2 border-[#8b0e06] px-2 py-1 rounded-full"
-                                                previousLinkClassName="border-2 border-[#8b0e06] px-2 py-2 rounded-[25px] bg-[#8b0e06] text-white font-bold"
-                                                nextLinkClassName="border-2 border-[#8b0e06] px-2 py-2 rounded-[25px] bg-[#8b0e06] text-white font-bold"
-                                                breakLabel="..."
-                                                breakClassName=""
-                                                containerClassName="flex flex-row space-x-4 content-center items-center "
-                                                activeClassName="bg-[#8b0e06] text-white"
-                                                nextLabel="next"
-                                                onPageChange={handlePageClick}
-                                                pageRangeDisplayed={1}
-                                                pageCount={pages}
-                                                previousLabel="previous"
-                                                renderOnZeroPageCount={() => null}
-                                            />
-                                        </div> : <p></p>}
+                                            onKeyDown={handleKeyDown}
+                                        />
                                     </div>
-                                </div>
-                            </div>}
+                                    <div>
+                                        <table className="table  border-separate space-y-6 text-sm w-full">
+                                            <thead className="bg-[#8b0e06] text-white font-bold0">
+                                                <tr>
+                                                    {labels.map((v: any, index) => (
+                                                        <th key={v.label} className={`text-left`}>{v}</th>
+                                                    ))}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {
+                                                    transactions.slice(start, end).map((value, index) => {
+                                                        return (
+                                                            <tr key={index}
+                                                                onClick={() => { setSelectedTrans(value); setOpen(true); }}
+                                                                className={'odd:bg-white even:bg-slate-50  hover:cursor-pointer hover:bg-[#8b0e06] hover:text-white'}>
+                                                                <td className='text-left' >{value.dateString}</td>
+                                                                <td className='text-left' >{value.title}</td>
+                                                                <td className='text-left' >{value.customer}</td>
+                                                                <td className='text-left col-span-3' >{value.paymentMode}</td>
+                                                                <td className='text-left' >{value.amount}</td>
+                                                                <td className='text-left' >{value.currency}</td>
+
+
+                                                            </tr>
+                                                        )
+                                                    })
+                                                }
+                                            </tbody>
+
+                                        </table>
+                                        <div>
+                                            {transactions.length > 0 ? <div className='flex w-full'>
+                                                <ReactPaginate
+                                                    pageClassName="border-2 border-[#8b0e06] px-2 py-1 rounded-full"
+                                                    previousLinkClassName="border-2 border-[#8b0e06] px-2 py-2 rounded-[25px] bg-[#8b0e06] text-white font-bold"
+                                                    nextLinkClassName="border-2 border-[#8b0e06] px-2 py-2 rounded-[25px] bg-[#8b0e06] text-white font-bold"
+                                                    breakLabel="..."
+                                                    breakClassName=""
+                                                    containerClassName="flex flex-row space-x-4 content-center items-center "
+                                                    activeClassName="bg-[#8b0e06] text-white"
+                                                    nextLabel="next"
+                                                    onPageChange={handlePageClick}
+                                                    pageRangeDisplayed={1}
+                                                    pageCount={pages}
+                                                    previousLabel="previous"
+                                                    renderOnZeroPageCount={() => null}
+                                                />
+                                            </div> : <p></p>}
+                                        </div>
+                                    </div>
+                                </div>}
+
+                        </div>
+
+
+
 
                     </div>
+                )
+                }
+                <ToastContainer position="top-right" autoClose={5000} />
+            </div >
+        </AppAccess>
 
-
-
-
-                </div>
-            )
-            }
-            <ToastContainer position="top-right" autoClose={5000} />
-        </div >
     );
 };
 

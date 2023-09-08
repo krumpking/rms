@@ -13,6 +13,7 @@ import { addResInfo, getResInfo } from '../../api/infoApi';
 import { decrypt } from '../../utils/crypto';
 import { setDate } from 'date-fns';
 import { checkEmptyOrNull } from '../../utils/objectM';
+import AppAccess from '../accessLevel';
 
 
 
@@ -31,9 +32,10 @@ const GeneralInfo = () => {
     const [dateString, setDateString] = useState("");
     const [id, setId] = useState("");
     const [docId, setDocId] = useState("");
-
-
-
+    const [accessArray, setAccessArray] = useState<any[]>([
+        'menu', 'orders', 'move-from-pantry', 'move-from-kitchen', 'cash-in',
+        'cash-out', 'cash-report', 'add-stock', 'confirm-stock', 'move-to-served', 'add-reservation', 'available-reservations',
+        'staff-scheduling', 'website', 'payments']);
 
 
     useEffect(() => {
@@ -85,9 +87,6 @@ const GeneralInfo = () => {
     }
 
 
-
-
-
     const addInfo = () => {
 
         let ident = "";
@@ -135,34 +134,34 @@ const GeneralInfo = () => {
     }
 
 
-
     return (
-        <div>
+        <AppAccess access={accessArray} component={'website'}>
+            <div>
 
-            <div className='bg-white rounded-[30px] p-4  overflow-y-scroll'>
-                {loading ?
-                    <div className='w-full flex flex-col items-center content-center'>
-                        <Loader />
+                <div className='bg-white rounded-[30px] p-4  overflow-y-scroll'>
+                    {loading ?
+                        <div className='w-full flex flex-col items-center content-center'>
+                            <Loader />
 
-                    </div>
-                    :
-
-
+                        </div>
+                        :
 
 
-                    <div className='grid grid-cols-1 lg:grid-cols-2'>
 
-                        <div className='flex flex-col items-center space-y-2 w-full'>
-                            <p className='text-center text-xs text-gray-300 mb-4 font-bold'>Update Your Info</p>
-                            <div className="mb-6">
-                                <input
-                                    type="text"
-                                    value={webfrontname}
-                                    placeholder={"Webfront Name"}
-                                    onChange={(e) => {
-                                        setWebfrontname(e.target.value);
-                                    }}
-                                    className="
+
+                        <div className='grid grid-cols-1 lg:grid-cols-2'>
+
+                            <div className='flex flex-col items-center space-y-2 w-full'>
+                                <p className='text-center text-xs text-gray-300 mb-4 font-bold'>Update Your Info</p>
+                                <div className="mb-6">
+                                    <input
+                                        type="text"
+                                        value={webfrontname}
+                                        placeholder={"Webfront Name"}
+                                        onChange={(e) => {
+                                            setWebfrontname(e.target.value);
+                                        }}
+                                        className="
                                         w-full
                                         rounded-[25px]
                                         border-2
@@ -176,18 +175,18 @@ const GeneralInfo = () => {
                                         focus-visible:shadow-none
                                         focus:border-primary
                                         "
-                                    required
-                                />
-                            </div>
-                            <div className="mb-6">
-                                <input
-                                    type="text"
-                                    value={title}
-                                    placeholder={"Title"}
-                                    onChange={(e) => {
-                                        setTitle(e.target.value);
-                                    }}
-                                    className="
+                                        required
+                                    />
+                                </div>
+                                <div className="mb-6">
+                                    <input
+                                        type="text"
+                                        value={title}
+                                        placeholder={"Title"}
+                                        onChange={(e) => {
+                                            setTitle(e.target.value);
+                                        }}
+                                        className="
                                         w-full
                                         rounded-[25px]
                                         border-2
@@ -201,18 +200,18 @@ const GeneralInfo = () => {
                                         focus-visible:shadow-none
                                         focus:border-primary
                                         "
-                                    required
-                                />
-                            </div>
-                            <div className="mb-6">
-                                <textarea
+                                        required
+                                    />
+                                </div>
+                                <div className="mb-6">
+                                    <textarea
 
-                                    value={about}
-                                    placeholder={"Tell us your story"}
-                                    onChange={(e) => {
-                                        setAbout(e.target.value);
-                                    }}
-                                    className="
+                                        value={about}
+                                        placeholder={"Tell us your story"}
+                                        onChange={(e) => {
+                                            setAbout(e.target.value);
+                                        }}
+                                        className="
                                         w-full
                                         h-48
                                         rounded-[25px]
@@ -227,18 +226,18 @@ const GeneralInfo = () => {
                                         focus-visible:shadow-none
                                         focus:border-primary
                                         "
-                                    required
-                                />
-                            </div>
-                            <div className="mb-6">
-                                <input
-                                    type="text"
-                                    value={address}
-                                    placeholder={"Address"}
-                                    onChange={(e) => {
-                                        setAddress(e.target.value);
-                                    }}
-                                    className="
+                                        required
+                                    />
+                                </div>
+                                <div className="mb-6">
+                                    <input
+                                        type="text"
+                                        value={address}
+                                        placeholder={"Address"}
+                                        onChange={(e) => {
+                                            setAddress(e.target.value);
+                                        }}
+                                        className="
                                         w-full
                                         rounded-[25px]
                                         border-2
@@ -252,18 +251,18 @@ const GeneralInfo = () => {
                                         focus-visible:shadow-none
                                         focus:border-primary
                                         "
-                                    required
-                                />
-                            </div>
-                            <div className="mb-6">
-                                <input
-                                    type="text"
-                                    value={email}
-                                    placeholder={"Main email"}
-                                    onChange={(e) => {
-                                        setEmail(e.target.value);
-                                    }}
-                                    className="
+                                        required
+                                    />
+                                </div>
+                                <div className="mb-6">
+                                    <input
+                                        type="text"
+                                        value={email}
+                                        placeholder={"Main email"}
+                                        onChange={(e) => {
+                                            setEmail(e.target.value);
+                                        }}
+                                        className="
                                         w-full
                                         rounded-[25px]
                                         border-2
@@ -277,18 +276,18 @@ const GeneralInfo = () => {
                                         focus-visible:shadow-none
                                         focus:border-primary
                                         "
-                                    required
-                                />
-                            </div>
-                            <div className="mb-6">
-                                <input
-                                    type="text"
-                                    value={phone}
-                                    placeholder={"Main Phone"}
-                                    onChange={(e) => {
-                                        setPhone(e.target.value);
-                                    }}
-                                    className="
+                                        required
+                                    />
+                                </div>
+                                <div className="mb-6">
+                                    <input
+                                        type="text"
+                                        value={phone}
+                                        placeholder={"Main Phone"}
+                                        onChange={(e) => {
+                                            setPhone(e.target.value);
+                                        }}
+                                        className="
                                         w-full
                                         rounded-[25px]
                                         border-2
@@ -302,12 +301,12 @@ const GeneralInfo = () => {
                                         focus-visible:shadow-none
                                         focus:border-primary
                                         "
-                                    required
-                                />
-                            </div>
-                            <button
-                                onClick={() => { addInfo() }}
-                                className="
+                                        required
+                                    />
+                                </div>
+                                <button
+                                    onClick={() => { addInfo() }}
+                                    className="
                                         font-bold
                                         w-ful
                                         rounded-[25px]
@@ -323,32 +322,34 @@ const GeneralInfo = () => {
                                         hover:bg-opacity-90
                                         transition
                                     ">
-                                Add Organization Info
-                            </button>
+                                    Add Organization Info
+                                </button>
 
-                        </div>
-                        <div className='flex flex-col items-center space-y-2 w-fullre'>
-                            <p className='text-center text-xs text-gray-300 mb-4 font-bold'>Your Info</p>
-                            <h1 className='mb-6'>{webfrontname}</h1>
-                            <h1 className='mb-6'>{title}</h1>
-                            <p className='mb-6'>{about}</p>
-                            <h1 className='mb-6'>{address}</h1>
-                            <h1 className='mb-6'>{phone}</h1>
-                            <h1 className='mb-6'>{email}</h1>
+                            </div>
+                            <div className='flex flex-col items-center space-y-2 w-fullre'>
+                                <p className='text-center text-xs text-gray-300 mb-4 font-bold'>Your Info</p>
+                                <h1 className='mb-6'>{webfrontname}</h1>
+                                <h1 className='mb-6'>{title}</h1>
+                                <p className='mb-6'>{about}</p>
+                                <h1 className='mb-6'>{address}</h1>
+                                <h1 className='mb-6'>{phone}</h1>
+                                <h1 className='mb-6'>{email}</h1>
 
-                        </div>
-                    </div>}
+                            </div>
+                        </div>}
+                </div>
+
+
+
+
+
+
+                <ToastContainer
+                    position="top-right"
+                    autoClose={5000} />
             </div>
+        </AppAccess>
 
-
-
-
-
-
-            <ToastContainer
-                position="top-right"
-                autoClose={5000} />
-        </div>
 
     )
 };

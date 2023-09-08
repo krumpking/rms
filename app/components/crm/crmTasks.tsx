@@ -3,13 +3,13 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router'
 import { getCookie } from 'react-use-cookie';
-import { IClient } from '../types/userTypes';
-import { ADMIN_ID, COOKIE_ID, LIGHT_GRAY } from '../constants/constants';
-import Loader from './loader';
-import { getAllTasksToDB, updateClientToDB } from '../api/crmApi';
-import { decrypt, encrypt } from '../utils/crypto';
-import TaskAccordion from './taskAccordian';
-import { ITask } from '../types/taskTypes';
+import { IClient } from '../../types/userTypes';
+import { ADMIN_ID, COOKIE_ID, LIGHT_GRAY } from '../../constants/constants';
+import Loader from '../loader';
+import { getAllTasksToDB, updateClientToDB } from '../../api/crmApi';
+import { decrypt, encrypt } from '../../utils/crypto';
+import TaskAccordion from '../taskAccordian';
+import { ITask } from '../../types/taskTypes';
 
 
 

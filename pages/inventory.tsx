@@ -8,7 +8,6 @@ import ClientNav from '../app/components/clientNav';
 import { Tab } from '@headlessui/react';
 import AddStock from '../app/components/inventory/addStock';
 import AvailableStock from '../app/components/inventory/availableStock';
-import Analytics from '../app/components/analytics';
 import AddInventory from '../app/components/inventory/addStock';
 import AddStockCategory from '../app/components/inventory/addStockCategory';
 import ConfirmStock from '../app/components/inventory/confirmStock';

@@ -2,10 +2,10 @@ import React, { Fragment, useEffect, useState } from 'react'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router'
-import { ADMIN_ID, COOKIE_ID, LIGHT_GRAY, PERSON_ROLE, URL_LOCK_ID } from '../../app/constants/constants';
-import Payment from '../../app/utils/paymentUtil';
-import { decrypt } from '../../app/utils/crypto';
-import Loader from '../../app/components/loader';
+import { ADMIN_ID, COOKIE_ID, LIGHT_GRAY, PERSON_ROLE, URL_LOCK_ID } from '../../constants/constants';
+import Payment from '../../utils/paymentUtil';
+import { decrypt } from '../../utils/crypto';
+import Loader from '../loader';
 import { getCookie } from 'react-use-cookie';
 import { Tab } from '@headlessui/react';
 import CRMReportTemplate from './crmReportTemplate';

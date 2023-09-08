@@ -6,10 +6,10 @@ import 'react-toastify/dist/ReactToastify.css';
 import ClientNav from '../app/components/clientNav';
 import { Tab } from '@headlessui/react';
 import AddClient from '../app/components/addClients';
-import ClientProfile from '../app/components/clientProfiles';
-import CRMTasks from '../app/components/crmTasks';
+import ClientProfile from '../app/components/crm/clientProfiles';
+import CRMTasks from '../app/components/crm/crmTasks';
 import ClientJourney from '../app/components/clientJourney';
-import CRMReport from '../app/components/crmReport';
+import CRMReport from '../app/components/crm/crmReport';
 
 function classNames(...classes: string[]) {
     return classes.filter(Boolean).join(' ')

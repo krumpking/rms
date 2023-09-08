@@ -19,6 +19,7 @@ import { IStockCategory, IStockItem } from '../../types/stockTypes';
 import { STOCK_CATEGORY_REF, STOCK_ITEM_COLLECTION } from '../../constants/stockConstants';
 import { containsObject, findOccurrences, findOccurrencesObjectId, searchStringInArray } from '../../utils/arrayM';
 import ReactPaginate from 'react-paginate';
+import AppAccess from '../accessLevel';
 
 
 
@@ -67,6 +68,10 @@ const StockOverview = () => {
     const [start, setStart] = useState(0);
     const [end, setEnd] = useState(10);
     const [search, setSearch] = useState("");
+    const [accessArray, setAccessArray] = useState<any[]>([
+        'menu', 'orders', 'move-from-pantry', 'move-from-kitchen', 'cash-in',
+        'cash-out', 'cash-report', 'add-stock', 'confirm-stock', 'move-to-served', 'add-reservation', 'available-reservations',
+        'staff-scheduling', 'website', 'payments', 'stock-overview']);
 
     useEffect(() => {
         document.body.style.backgroundColor = LIGHT_GRAY;
@@ -83,10 +88,6 @@ const StockOverview = () => {
 
         getStockItems();
     }, []);
-
-
-
-
 
     const getStockItems = () => {
 
@@ -151,10 +152,6 @@ const StockOverview = () => {
     }
 
 
-
-
-
-
     const getReadyToUpdate = (v: IStockItem) => {
         setOpen(true);
         setStockItem(v);
@@ -216,58 +213,49 @@ const StockOverview = () => {
     }
 
 
-
-
-
-
     const getItems = (status: string) => {
         return stockItems.filter((item) => item.status === status).length;
     }
 
 
-
-
-
-
-
-
     return (
-        <div>
-            <div className="bg-white rounded-[30px] p-4 ">
-                {loading ? (
-                    <div className="w-full flex flex-col items-center content-center">
-                        <Loader />
-                    </div>
-                ) : (
-                    <div className="flex flex-col overflow-y-scroll max-h-[700px] w-full gap-4 p-4">
-                        <div className='grid grid-cols-4 shadow-lg p-8 rounded-[25px]'>
-                            <div className='flex flex-col items-center border-r-2'>
-                                <h1 className='text-2xl'>{stockItems.length}</h1>
-                                <h1>Stock Items</h1>
-                            </div>
-                            <div className='flex flex-col items-center border-r-2'>
-                                <h1 className='text-md'>{getItems('Served')}</h1>
-                                <h1>Items Served</h1>
-                            </div>
-                            <div className='flex flex-col items-center border-r-2'>
-                                <h1 className='text-md'>{getItems('Kitchen')}</h1>
-                                <h1>Items in the Kitchen</h1>
-                            </div>
-                            <div className='flex flex-col items-center'>
-                                <h1 className='text-md'>{getItems('Pantry')}</h1>
-                                <h1>Items in the Pantry</h1>
-                            </div>
-
+        <AppAccess access={accessArray} component={'stock-overview'}>
+            <div>
+                <div className="bg-white rounded-[30px] p-4 ">
+                    {loading ? (
+                        <div className="w-full flex flex-col items-center content-center">
+                            <Loader />
                         </div>
-                        <div className=''>
-                            <input
-                                type="text"
-                                value={search}
-                                placeholder={"Search"}
-                                onChange={(e) => {
-                                    setSearch(e.target.value);
-                                }}
-                                className="
+                    ) : (
+                        <div className="flex flex-col overflow-y-scroll max-h-[700px] w-full gap-4 p-4">
+                            <div className='grid grid-cols-4 shadow-lg p-8 rounded-[25px]'>
+                                <div className='flex flex-col items-center border-r-2'>
+                                    <h1 className='text-2xl'>{stockItems.length}</h1>
+                                    <h1>Stock Items</h1>
+                                </div>
+                                <div className='flex flex-col items-center border-r-2'>
+                                    <h1 className='text-md'>{getItems('Served')}</h1>
+                                    <h1>Items Served</h1>
+                                </div>
+                                <div className='flex flex-col items-center border-r-2'>
+                                    <h1 className='text-md'>{getItems('Kitchen')}</h1>
+                                    <h1>Items in the Kitchen</h1>
+                                </div>
+                                <div className='flex flex-col items-center'>
+                                    <h1 className='text-md'>{getItems('Pantry')}</h1>
+                                    <h1>Items in the Pantry</h1>
+                                </div>
+
+                            </div>
+                            <div className=''>
+                                <input
+                                    type="text"
+                                    value={search}
+                                    placeholder={"Search"}
+                                    onChange={(e) => {
+                                        setSearch(e.target.value);
+                                    }}
+                                    className="
                                     w-full
                                     rounded-[25px]
                                     border-2
@@ -281,65 +269,67 @@ const StockOverview = () => {
                                     focus-visible:shadow-none
                                     focus:border-primary
                                 "
-                                onKeyDown={handleKeyDown}
-                            />
+                                    onKeyDown={handleKeyDown}
+                                />
+                            </div>
+                            <table className="table  border-separate space-y-6 text-sm w-full">
+                                <thead className="bg-[#8b0e06] text-white font-bold0">
+
+                                    <tr>
+                                        {labels.map((v: any, index) => (
+                                            <th key={v.label} className={`text-left`}>{v}</th>
+                                        ))}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {
+                                        stockItemsTemp.map((value, index) => {
+                                            return (
+                                                <tr key={index}
+                                                    className={'odd:bg-white even:bg-slate-50  hover:cursor-pointer hover:bg-[#8b0e06] hover:text-white'}>
+                                                    <td className='text-left' >{value.dateString}</td>
+                                                    <td className='text-left' >{value.title}</td>
+                                                    <td className='text-left' >{value.details}</td>
+                                                    <td className='text-left col-span-3' >{value.status}</td>
+                                                    <td className='text-left' >{value.itemNumber}</td>
+
+                                                </tr>
+                                            )
+                                        })
+                                    }
+                                </tbody>
+                                <tfoot>
+                                    {stockItemsTemp.length > 0 ? <div className='flex w-full'>
+                                        <ReactPaginate
+                                            pageClassName="border-2 border-[#8b0e06] px-2 py-1 rounded-full"
+                                            previousLinkClassName="border-2 border-[#8b0e06] px-2 py-2 rounded-[25px] bg-[#8b0e06] text-white font-bold"
+                                            nextLinkClassName="border-2 border-[#8b0e06] px-2 py-2 rounded-[25px] bg-[#8b0e06] text-white font-bold"
+                                            breakLabel="..."
+                                            breakClassName=""
+                                            containerClassName="flex flex-row space-x-4 content-center items-center "
+                                            activeClassName="bg-[#8b0e06] text-white"
+                                            nextLabel="next"
+                                            onPageChange={handlePageClick}
+                                            pageRangeDisplayed={1}
+                                            pageCount={pages}
+                                            previousLabel="previous"
+                                            renderOnZeroPageCount={() => null}
+                                        />
+                                    </div> : <p></p>}
+                                </tfoot>
+                            </table>
+
                         </div>
-                        <table className="table  border-separate space-y-6 text-sm w-full">
-                            <thead className="bg-[#8b0e06] text-white font-bold0">
+                    )}
+                </div>
 
-                                <tr>
-                                    {labels.map((v: any, index) => (
-                                        <th key={v.label} className={`text-left`}>{v}</th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {
-                                    stockItemsTemp.map((value, index) => {
-                                        return (
-                                            <tr key={index}
-                                                className={'odd:bg-white even:bg-slate-50  hover:cursor-pointer hover:bg-[#8b0e06] hover:text-white'}>
-                                                <td className='text-left' >{value.dateString}</td>
-                                                <td className='text-left' >{value.title}</td>
-                                                <td className='text-left' >{value.details}</td>
-                                                <td className='text-left col-span-3' >{value.status}</td>
-                                                <td className='text-left' >{value.itemNumber}</td>
 
-                                            </tr>
-                                        )
-                                    })
-                                }
-                            </tbody>
-                            <tfoot>
-                                {stockItemsTemp.length > 0 ? <div className='flex w-full'>
-                                    <ReactPaginate
-                                        pageClassName="border-2 border-[#8b0e06] px-2 py-1 rounded-full"
-                                        previousLinkClassName="border-2 border-[#8b0e06] px-2 py-2 rounded-[25px] bg-[#8b0e06] text-white font-bold"
-                                        nextLinkClassName="border-2 border-[#8b0e06] px-2 py-2 rounded-[25px] bg-[#8b0e06] text-white font-bold"
-                                        breakLabel="..."
-                                        breakClassName=""
-                                        containerClassName="flex flex-row space-x-4 content-center items-center "
-                                        activeClassName="bg-[#8b0e06] text-white"
-                                        nextLabel="next"
-                                        onPageChange={handlePageClick}
-                                        pageRangeDisplayed={1}
-                                        pageCount={pages}
-                                        previousLabel="previous"
-                                        renderOnZeroPageCount={() => null}
-                                    />
-                                </div> : <p></p>}
-                            </tfoot>
-                        </table>
 
-                    </div>
-                )}
+
+                <ToastContainer position="top-right" autoClose={5000} />
             </div>
+        </AppAccess>
 
-
-
-
-            <ToastContainer position="top-right" autoClose={5000} />
-        </div>
     );
 };
 
