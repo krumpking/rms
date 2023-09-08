@@ -60,7 +60,7 @@ const ManageUsers = () => {
     const [accessArray, setAccessArray] = useState<any[]>([
         'menu', 'orders', 'move-from-pantry', 'move-from-kitchen', 'cash-in',
         'cash-out', 'cash-report', 'add-stock', 'confirm-stock', 'move-to-served', 'add-reservation', 'available-reservations',
-        'staff-scheduling', 'website', 'payments', 'stock-overview', 'admin', 'receipting']);
+        'staff-scheduling', 'approve-schedule', 'website', 'payments', 'stock-overview', 'admin', 'receipting']);
 
     useEffect(() => {
         document.body.style.backgroundColor = LIGHT_GRAY;

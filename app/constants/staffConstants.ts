@@ -1,0 +1,1 @@
+export const SHIFT_COLLECTION = 'shifts';

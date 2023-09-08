@@ -19,6 +19,13 @@ import { print } from '../app/utils/console';
 import Joyride from 'react-joyride';
 import Script from 'next/script';
 import AppAccess from '../app/components/accessLevel';
+import { Tab } from '@headlessui/react';
+import AddSchedule from '../app/components/staff/addSchedule';
+
+
+function classNames(...classes: string[]) {
+    return classes.filter(Boolean).join(' ');
+}
 
 
 const Staff = () => {
@@ -116,10 +123,13 @@ const Staff = () => {
 
 
     ])
-    const [accessArray, setAccessArray] = useState<any[]>([
-        'menu', 'orders', 'move-from-pantry', 'move-from-kitchen', 'cash-in',
-        'cash-out', 'cash-report', 'add-stock', 'confirm-stock', 'move-to-served', 'add-reservation', 'available-reservations',
-        'staff-scheduling', 'staff-timesheets', 'website', 'payments', 'stock-overview', 'receipting',]);
+    const [tabs, setTabs] = useState([
+        'Shifts',
+        'Schedule Shifts',
+        'Confirm Shifts',
+        'Logs',
+
+    ]);
 
 
 
@@ -175,7 +185,7 @@ const Staff = () => {
 
         < div >
 
-            <div className='flex flex-col lg:grid lg:grid-cols-12 '>
+            <div className='flex flex-col '>
 
                 <div className='lg:col-span-3' id="nav">
                     <ClientNav organisationName={'FoodiesBooth'} url={'staff'} />
@@ -189,7 +199,60 @@ const Staff = () => {
 
                     :
                     <div className='bg-white col-span-8 my-8 rounded-[30px] flex flex-col p-8'>
+                        <Tab.Group>
+                            <Tab.List className="flex space-x-4 rounded-[25px] bg-[#f3f3f3] p-1 overflow-x-auto whitespace-nowrap">
+                                {tabs.map((category) => (
+                                    <Tab
+                                        key={category}
+                                        className={({ selected }) =>
+                                            classNames(
+                                                'w-full  py-2.5 text-sm font-medium leading-5 text-black rounded-[25px]',
+                                                'ring-white m-1',
+                                                selected
+                                                    ? 'bg-white shadow-md focus:outline-none te'
+                                                    : 'text-black hover:bg-white/[0.12] hover:text-white focus:outline-none'
+                                            )
+                                        }
+                                    >
+                                        {category}
+                                    </Tab>
+                                ))}
+                            </Tab.List>
+                            <Tab.Panels className="mt-2 ">
+                                <Tab.Panel
+                                    className={classNames(
+                                        'rounded-xl bg-white p-3',
+                                        'ring-white  ring-offset-2 focus:outline-none focus:ring-2'
+                                    )}
+                                >
 
+                                </Tab.Panel>
+                                <Tab.Panel
+                                    className={classNames(
+                                        'rounded-xl bg-white p-3',
+                                        'ring-white  ring-offset-2 focus:outline-none focus:ring-2'
+                                    )}
+                                >
+                                    <AddSchedule />
+                                </Tab.Panel>
+                                <Tab.Panel
+                                    className={classNames(
+                                        'rounded-xl bg-white p-3',
+                                        'ring-white  ring-offset-2 focus:outline-none focus:ring-2'
+                                    )}
+                                >
+
+                                </Tab.Panel>
+                                <Tab.Panel
+                                    className={classNames(
+                                        'rounded-xl bg-white p-3',
+                                        'ring-white  ring-offset-2 focus:outline-none focus:ring-2'
+                                    )}
+                                >
+
+                                </Tab.Panel>
+                            </Tab.Panels>
+                        </Tab.Group>
 
                     </div>}
 

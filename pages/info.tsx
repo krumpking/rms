@@ -198,7 +198,7 @@ const Support = () => {
                                             'ring-white  m-1',
                                             selected
                                                 ? 'bg-white shadow-md focus:outline-none'
-                                                : 'text-blue-100 hover:bg-white/[0.12] hover:text-white'
+                                                : 'text-black hover:bg-white/[0.12] hover:text-white'
                                         )
                                     }
                                 >
