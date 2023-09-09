@@ -2,16 +2,16 @@ import React, { FC, Fragment, useEffect, useState } from 'react'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router'
-import { ADMIN_ID, COOKIE_ID, LIGHT_GRAY, PERSON_ROLE, URL_LOCK_ID } from '../constants/constants';
-import Payment from '../utils/paymentUtil';
-import { decrypt } from '../utils/crypto';
-import Loader from './loader';
-import { numberWithCommas, searchStringInMembers } from '../utils/stringM';
-import { getAllClientsByDate, getAllClientsToDB } from '../api/crmApi';
+import { ADMIN_ID, COOKIE_ID, LIGHT_GRAY, PERSON_ROLE, URL_LOCK_ID } from '../../constants/constants';
+import Payment from '../../utils/paymentUtil';
+import { decrypt } from '../../utils/crypto';
+import Loader from '../loader';
+import { numberWithCommas, searchStringInMembers } from '../../utils/stringM';
+import { getAllClientsByDate, getAllClientsToDB } from '../../api/crmApi';
 import { getCookie } from 'react-use-cookie';
-import { IClient } from '../types/userTypes';
-import DateMethods from '../utils/date';
-import { print } from '../utils/console';
+import { IClient } from '../../types/userTypes';
+import DateMethods from '../../utils/date';
+import { print } from '../../utils/console';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -23,9 +23,9 @@ import {
     ArcElement,
 } from 'chart.js';
 import { Bar, Pie } from 'react-chartjs-2';
-import { randomRGBAColor } from '../utils/colorM';
-import { addTotalValue, findOccurrences, findOccurrencesProducts, getProductsRepMapFromArray, getSalesRepMapFromArray, highest, highestProduct } from '../utils/arrayM';
-import ReportHighlight from './reportHighlights';
+import { randomRGBAColor } from '../../utils/colorM';
+import { addTotalValue, findOccurrences, findOccurrencesProducts, getProductsRepMapFromArray, getSalesRepMapFromArray, highest, highestProduct } from '../../utils/arrayM';
+import ReportHighlight from '../reportHighlights';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { toPng } from 'html-to-image';
 import jsPDF from 'jspdf';

@@ -1,6 +1,6 @@
 
 import { firestore } from "../../firebase/clientApp";
-import { USERS_DB_REF } from "../constants/users";
+import { USERS_DB_REF } from "../constants/userConstants";
 import { IUser } from "../types/userTypes";
 import { addDoc, collection, getCountFromServer, getDocs, query, where } from "firebase/firestore";
 import { deleteDocument } from "./adminApi";

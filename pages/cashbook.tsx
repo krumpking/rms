@@ -9,6 +9,9 @@ import { Tab } from '@headlessui/react';
 import CBOverview from '../app/components/cashbook/cbOverview';
 import Sales from '../app/components/cashbook/cashIn';
 import Expenses from '../app/components/cashbook/cashOut';
+
+
+
 function classNames(...classes: string[]) {
     return classes.filter(Boolean).join(' ');
 }
@@ -60,7 +63,7 @@ const CashBook = () => {
                                                 'ring-white m-1',
                                                 selected
                                                     ? 'bg-white shadow-md focus:outline-none'
-                                                    : 'text-blue-100 hover:bg-white/[0.12] hover:text-white focus:outline-none'
+                                                    : 'text-black hover:bg-white/[0.12] hover:text-white focus:outline-none'
                                             )
                                         }
                                     >

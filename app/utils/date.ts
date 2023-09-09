@@ -29,6 +29,7 @@ export default class DateMethods {
             case 12:
                 return "December";
             default:
+                return "December";
                 break;
         }
     };
@@ -65,6 +66,11 @@ export default class DateMethods {
 
         });
         return sortedObjects;
+    }
+
+
+    static getHoursBetweenDates(date1: Date, date2: Date) {
+        return Math.abs(date1.getTime() - date2.getTime()) / 36e6
     }
 
 

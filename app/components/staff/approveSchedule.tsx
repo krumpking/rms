@@ -20,48 +20,40 @@ import { STOCK_CATEGORY_REF, STOCK_ITEM_COLLECTION } from '../../constants/stock
 import { containsObject, findOccurrences, findOccurrencesObjectId, searchStringInArray } from '../../utils/arrayM';
 import ReactPaginate from 'react-paginate';
 import AppAccess from '../accessLevel';
+import { IShift } from '../../types/staffTypes';
+import { SHIFT_COLLECTION } from '../../constants/staffConstants';
 
 
 
 
-const ConfirmInventory = () => {
+const ConfirmSchedule = () => {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    const [adminId, setAdminId] = useState('adminId');
-    const [categories, setCategories] = useState<IStockCategory[]>([]);
-
+    const [adminId, setAdminId] = useState('');
     const [webfrontId, setWebfrontId] = useState("");
-    const [title, setTitle] = useState("");
-    const [files, setFiles] = useState<any[]>([]);
-    const [docId, setDocId] = useState("");
-    const [description, setDescription] = useState("");
-    const [price, setPrice] = useState(0);
-    const [category, setCategory] = useState("");
-    const [stockItems, setStockItems] = useState<IStockItem[]>([]);
+    const [shifts, setShifts] = useState<IShift[]>([]);
+    const [shiftsTemp, setShiftsTemp] = useState<IShift[]>([]);
     const [edit, setEdit] = useState(false);
-    const [editItem, setEditItem] = useState<any>({
-        category: "",
-        title: "",
-        description: "",
-        price: 0
-    });
-    const [open, setOpen] = useState(false);
-    const [stockItem, setStockItem] = useState<IStockItem>({
-        id: "id",
-        adminId: "adminId",
-        userId: "userId",
-        category: "",
-        title: "",
-        details: "",
-        itemNumber: 0,
+    const [shift, setShift] = useState<IShift>({
+        id: "",
+        adminId: "",
+        userId: "",
+        user: {
+            name: ""
+        },
         date: new Date(),
         dateString: new Date().toDateString(),
-        dateOfUpdate: new Date().toDateString(),
-        status: 'Pantry',
+        startDate: new Date().toDateString(),
+        endDate: new Date().toDateString(),
+        dateOfUpdate: new Date(),
+        startTime: "",
+        endTime: "",
+        role: "",
         confirmed: false
     });
-    const [labels, setLabels] = useState<string[]>(['TRANSACTION DATE', 'TITLE', 'DETAILS', 'CATEGORY', 'NUMBER OF ITEMS']);
-    const [selectedTrans, setSelectedTrans] = useState<IStockCategory[]>([]);
+    const [open, setOpen] = useState(false);
+    const [labels, setLabels] = useState<string[]>(['STAFF MEMBER', 'START DATE', 'END DATE', 'START TIME', 'END TIME', 'ROLE']);
+    const [selectedTrans, setSelectedTrans] = useState<IShift[]>([]);
     const [stockItemsTemp, setStockItemsTemp] = useState<IStockItem[]>([]);
     const [count, setCount] = useState(0);
     const [pages, setPages] = useState(0);
@@ -71,7 +63,7 @@ const ConfirmInventory = () => {
     const [accessArray, setAccessArray] = useState<any[]>([
         'menu', 'orders', 'move-from-pantry', 'move-from-kitchen', 'cash-in',
         'cash-out', 'cash-report', 'add-stock', 'confirm-stock', 'move-to-served', 'add-reservation', 'available-reservations',
-        'staff-scheduling', 'website', 'payments']);
+        'staff-scheduling', 'approve-schedule', 'website', 'payments',]);
 
 
     useEffect(() => {
@@ -87,47 +79,47 @@ const ConfirmInventory = () => {
         setWebfrontId("webfrontId");
 
 
-        getStockItems();
+        getShifts();
     }, []);
 
-    const getStockItems = () => {
+    const getShifts = () => {
 
-        getDataFromDBTwo(STOCK_ITEM_COLLECTION, AMDIN_FIELD, adminId, 'confirmed', false).then((v) => {
+        getDataFromDBTwo(SHIFT_COLLECTION, AMDIN_FIELD, adminId, 'confirmed', false).then((v) => {
 
             if (v !== null) {
 
                 v.data.forEach(element => {
                     let d = element.data();
-                    setStockItems(stockItems => [...stockItems, {
+                    setShifts(shifts => [...shifts, {
                         id: element.id,
                         adminId: d.adminId,
                         userId: d.userId,
-                        transactionType: d.transactionType,
-                        category: d.category,
-                        title: d.title,
-                        details: d.details,
-                        itemNumber: d.itemNumber,
+                        user: d.user,
                         date: d.date,
                         dateString: d.dateString,
-                        dateOfUpdate: d.dateOdUpdate,
-                        status: 'Pantry',
-                        confirmed: d.confirmed
+                        startDate: d.startDate,
+                        endDate: d.endDate,
+                        startTime: d.startTime,
+                        endTime: d.endTime,
+                        role: d.role,
+                        confirmed: false,
+                        dateOfUpdate: d.dateOfUpdate,
                     }]);
 
-                    setStockItemsTemp(stockItems => [...stockItems, {
+                    setShiftsTemp(shifts => [...shifts, {
                         id: element.id,
                         adminId: d.adminId,
                         userId: d.userId,
-                        transactionType: d.transactionType,
-                        category: d.category,
-                        title: d.title,
-                        details: d.details,
-                        itemNumber: d.itemNumber,
+                        user: d.user,
                         date: d.date,
                         dateString: d.dateString,
-                        dateOfUpdate: d.dateOdUpdate,
-                        status: 'Pantry',
-                        confirmed: false
+                        startDate: d.startDate,
+                        endDate: d.endDate,
+                        startTime: d.startTime,
+                        endTime: d.endTime,
+                        role: d.role,
+                        confirmed: false,
+                        dateOfUpdate: d.dateOfUpdate,
                     }]);
 
                 });
@@ -149,17 +141,17 @@ const ConfirmInventory = () => {
         });
     }
 
-    const getReadyToUpdate = (v: IStockItem) => {
+    const getReadyToUpdate = (v: IShift) => {
         setOpen(true);
-        setStockItem(v);
+        setShift(v);
         setEdit(true);
 
     }
 
-    const editArray = (v: IStockItem) => {
+    const editArray = (v: IShift) => {
 
         if (containsObject(v, selectedTrans)) {
-            let newArray: IStockCategory[] = [];
+            let newArray: IShift[] = [];
             selectedTrans.forEach((el) => {
                 if (el.id !== v.id) {
                     newArray.push(el);
@@ -167,19 +159,22 @@ const ConfirmInventory = () => {
             });
             setSelectedTrans(newArray);
         } else {
-            let newItem = { ...v, confirmed: true, dateOfUpdate: new Date().toDateString() }
+            let newItem = { ...v, confirmed: true, dateOfUpdate: new Date() }
             setSelectedTrans([...selectedTrans, newItem]);
         }
 
     }
 
-    const confirmStockItems = async () => {
+    const confirmShifts = async () => {
 
 
         setLoading(true);
         selectedTrans.forEach((el) => {
+
+
             //Logic to delete the item           
-            updateDocument(STOCK_ITEM_COLLECTION, el.id, el).then((v) => {
+            updateDocument(SHIFT_COLLECTION, el.id, el).then((v) => {
+
             }).catch((e: any) => {
                 console.error(e);
                 toast.error('There was an error please try again');
@@ -200,12 +195,13 @@ const ConfirmInventory = () => {
             setLoading(true);
             selectedTrans.forEach((el) => {
                 //Logic to delete the item           
-                deleteDocument(STOCK_ITEM_COLLECTION, el.id).then(() => {
+                deleteDocument(SHIFT_COLLECTION, el.id).then(() => {
 
                 }).catch((e: any) => {
                     console.error(e);
                 });
             });
+            setLoading(false);
 
         }
     }
@@ -235,18 +231,18 @@ const ConfirmInventory = () => {
         setLoading(true);
         if (search !== '') {
 
-            let res: IStockItem[] = searchStringInArray(stockItems, search);
+            let res: IShift[] = searchStringInArray(shifts, search);
 
             if (res.length > 0) {
                 setTimeout(() => {
-                    setStockItemsTemp(res);
+                    setShiftsTemp(res);
                     setLoading(false);
                 }, 1500);
 
             } else {
                 toast.info(`${search} not found `);
                 setTimeout(() => {
-                    setStockItemsTemp(stockItems);
+                    setShiftsTemp(shifts);
                     setLoading(false);
                 }, 1500);
 
@@ -257,7 +253,7 @@ const ConfirmInventory = () => {
         } else {
 
             setTimeout(() => {
-                setStockItemsTemp(stockItems);
+                setShiftsTemp(shifts);
                 setLoading(false);
             }, 1500);
 
@@ -266,7 +262,7 @@ const ConfirmInventory = () => {
 
 
     return (
-        <AppAccess access={accessArray} component={'confirm-stock'}>
+        <AppAccess access={accessArray} component={'approve-schedule'}>
             <div className='relative'>
                 <div className="bg-white rounded-[30px] p-4  ">
                     <div>
@@ -313,7 +309,7 @@ const ConfirmInventory = () => {
                                     </thead>
                                     <tbody>
                                         {
-                                            stockItemsTemp.slice(start, end).map((value, index) => {
+                                            shiftsTemp.slice(start, end).map((value, index) => {
                                                 return (
                                                     <tr key={index}
                                                         onClick={() => { getReadyToUpdate(value) }}
@@ -327,11 +323,12 @@ const ConfirmInventory = () => {
                                                                 onChange={() => { editArray(value); }}
                                                                 className='accent-[#8b0e06]' />
                                                         </td>
-                                                        <td className='text-left' >{value.dateString}</td>
-                                                        <td className='text-left' >{value.title}</td>
-                                                        <td className='text-left' >{value.details}</td>
-                                                        <td className='text-left' >{value.category}</td>
-                                                        <td className='text-left' >{value.itemNumber}</td>
+                                                        <td className='text-left' >{value.user.name}</td>
+                                                        <td className='text-left' >{value.startDate}</td>
+                                                        <td className='text-left' >{value.endDate}</td>
+                                                        <td className='text-left' >{value.startTime}</td>
+                                                        <td className='text-left' >{value.endTime}</td>
+                                                        <td className='text-left' >{value.role}</td>
 
                                                     </tr>
                                                 )
@@ -339,7 +336,7 @@ const ConfirmInventory = () => {
                                         }
                                     </tbody>
                                     <tfoot>
-                                        {stockItemsTemp.length > 0 ? <div className='flex w-full'>
+                                        {shiftsTemp.length > 0 ? <div className='flex w-full'>
                                             <ReactPaginate
                                                 pageClassName="border-2 border-[#8b0e06] px-2 py-1 rounded-full"
                                                 previousLinkClassName="border-2 border-[#8b0e06] px-2 py-2 rounded-[25px] bg-[#8b0e06] text-white font-bold"
@@ -369,7 +366,7 @@ const ConfirmInventory = () => {
                         <button
                             onClick={() => {
 
-                                confirmStockItems();
+                                confirmShifts();
                             }}
                             className="                                        
                             font-bold                                        
@@ -429,4 +426,4 @@ const ConfirmInventory = () => {
     );
 };
 
-export default ConfirmInventory;
+export default ConfirmSchedule;

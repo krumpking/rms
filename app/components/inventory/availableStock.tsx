@@ -13,6 +13,7 @@ import { IStockCategory, IStockItem } from '../../types/stockTypes';
 import { STOCK_CATEGORY_REF, STOCK_ITEM_COLLECTION } from '../../constants/stockConstants';
 import { containsObject, findOccurrences, findOccurrencesObjectId, searchStringInArray } from '../../utils/arrayM';
 import ReactPaginate from 'react-paginate';
+import AppAccess from '../accessLevel';
 
 interface MyProps {
   status: string,
@@ -59,6 +60,11 @@ const AvailableStock: FC<MyProps> = ({ status }) => {
   const [start, setStart] = useState(0);
   const [end, setEnd] = useState(10);
   const [search, setSearch] = useState("");
+  const [accessArray, setAccessArray] = useState<any[]>([
+    'menu', 'orders', 'move-from-pantry', 'move-from-kitchen', 'cash-in',
+    'cash-out', 'cash-report', 'add-stock', 'confirm-stock', 'move-to-served', 'add-reservation', 'available-reservations',
+    'staff-scheduling', 'website', 'payments']);
+  const [component, setComponent] = useState("");
 
 
   useEffect(() => {
@@ -72,6 +78,21 @@ const AvailableStock: FC<MyProps> = ({ status }) => {
     }
     // setAdminId(decrypt(infoFromCookie, COOKIE_ID));
     setWebfrontId("webfrontId");
+    switch (status) {
+      case 'Pantry':
+        setComponent('move-from-pantry');
+        break;
+      case 'Kitchen':
+        setComponent('move-from-kitchen');
+        break;
+      case 'Served':
+        setComponent('move-to-served');
+        break;
+
+      default:
+        setComponent('move-from-pantry');
+        break;
+    }
 
 
     getStockItems();
@@ -143,11 +164,6 @@ const AvailableStock: FC<MyProps> = ({ status }) => {
     });
   }
 
-
-
-
-
-
   const getReadyToUpdate = (v: IStockItem) => {
 
 
@@ -159,13 +175,6 @@ const AvailableStock: FC<MyProps> = ({ status }) => {
 
 
   }
-
-
-
-
-
-
-
 
   const sendStockItems = async () => {
 
@@ -290,23 +299,24 @@ const AvailableStock: FC<MyProps> = ({ status }) => {
 
 
   return (
-    <div>
-      <div className="bg-white rounded-[30px] p-4 ">
-        {loading ? (
-          <div className="w-full flex flex-col items-center content-center">
-            <Loader />
-          </div>
-        ) : (
-          <div className="flex flex-col overflow-y-scroll max-h-[700px] w-full gap-4 p-4">
-            <div className=''>
-              <input
-                type="text"
-                value={search}
-                placeholder={"Search"}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                }}
-                className="
+    <AppAccess access={accessArray} component={component}>
+      <div>
+        <div className="bg-white rounded-[30px] p-4 ">
+          {loading ? (
+            <div className="w-full flex flex-col items-center content-center">
+              <Loader />
+            </div>
+          ) : (
+            <div className="flex flex-col overflow-y-scroll max-h-[700px] w-full gap-4 p-4">
+              <div className=''>
+                <input
+                  type="text"
+                  value={search}
+                  placeholder={"Search"}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                  }}
+                  className="
                       w-full
                       rounded-[25px]
                       border-2
@@ -320,36 +330,37 @@ const AvailableStock: FC<MyProps> = ({ status }) => {
                       focus-visible:shadow-none
                       focus:border-primary
                   "
-                onKeyDown={handleKeyDown}
-              />
-            </div>
-            <table className="table  border-separate space-y-6 text-sm w-full">
-              <thead className="bg-[#8b0e06] text-white font-bold0">
-                <tr>
-                  {labels.map((v: any, index) => (
-                    <th key={v.label} className={`text-left`}>{v}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {
-                  stockItemsTemp.slice(start, end).map((value, index) => {
-                    return (
-                      <tr key={index}
-                        onClick={() => { getReadyToUpdate(value) }}
-                        className={'odd:bg-white even:bg-slate-50  hover:cursor-pointer hover:bg-[#8b0e06] hover:text-white'}>
-                        <td className='text-left' >{value.dateString}</td>
-                        <td className='text-left' >{value.title}</td>
-                        <td className='text-left' >{value.details}</td>
-                        <td className='text-left col-span-3' >{value.category}</td>
-                        <td className='text-left' >{value.itemNumber}</td>
+                  onKeyDown={handleKeyDown}
+                />
+              </div>
+              <table className="table  border-separate space-y-6 text-sm w-full">
+                <thead className="bg-[#8b0e06] text-white font-bold0">
+                  <tr>
+                    {labels.map((v: any, index) => (
+                      <th key={v.label} className={`text-left`}>{v}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {
+                    stockItemsTemp.slice(start, end).map((value, index) => {
+                      return (
+                        <tr key={index}
+                          onClick={() => { getReadyToUpdate(value) }}
+                          className={'odd:bg-white even:bg-slate-50  hover:cursor-pointer hover:bg-[#8b0e06] hover:text-white'}>
+                          <td className='text-left' >{value.dateString}</td>
+                          <td className='text-left' >{value.title}</td>
+                          <td className='text-left' >{value.details}</td>
+                          <td className='text-left col-span-3' >{value.category}</td>
+                          <td className='text-left' >{value.itemNumber}</td>
 
-                      </tr>
-                    )
-                  })
-                }
-              </tbody>
-              <tfoot>
+                        </tr>
+                      )
+                    })
+                  }
+                </tbody>
+              </table>
+              <div>
                 {stockItemsTemp.length > 0 ? <div className='flex w-full'>
                   <ReactPaginate
                     pageClassName="border-2 border-[#8b0e06] px-2 py-1 rounded-full"
@@ -367,68 +378,67 @@ const AvailableStock: FC<MyProps> = ({ status }) => {
                     renderOnZeroPageCount={() => null}
                   />
                 </div> : <p></p>}
-              </tfoot>
-            </table>
+              </div>
 
-          </div>
-        )}
-      </div>
+            </div>
+          )}
+        </div>
 
-      <Transition appear show={open} as={Fragment}>
-        <Dialog
-          as="div"
-          className="fixed inset-0 z-10 overflow-y-auto"
-          onClose={() => setOpen(false)}
-        >
-          <div className="min-h-screen px-4 text-center backdrop-blur-sm ">
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0"
-              enterTo="opacity-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <Dialog.Overlay className="fixed inset-0" />
-            </Transition.Child>
+        <Transition appear show={open} as={Fragment}>
+          <Dialog
+            as="div"
+            className="fixed inset-0 z-10 overflow-y-auto"
+            onClose={() => setOpen(false)}
+          >
+            <div className="min-h-screen px-4 text-center backdrop-blur-sm ">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0"
+                enterTo="opacity-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+              >
+                <Dialog.Overlay className="fixed inset-0" />
+              </Transition.Child>
 
-            <span
-              className="inline-block h-screen align-middle"
-              aria-hidden="true"
-            >
-              &#8203;
-            </span>
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 scale-95"
-              enterTo="opacity-100 scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 scale-100"
-              leaveTo="opacity-0 scale-95"
-            >
-              <div className="bg-white my-8 inline-block w-full max-w-md transform overflow-hidden rounded-2xl p-6 text-left align-middle shadow-xl transition-all">
+              <span
+                className="inline-block h-screen align-middle"
+                aria-hidden="true"
+              >
+                &#8203;
+              </span>
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <div className="bg-white my-8 inline-block w-full max-w-md transform overflow-hidden rounded-2xl p-6 text-left align-middle shadow-xl transition-all">
 
-                <Dialog.Title
-                  as="h3"
-                  className="text-sm font-medium leading-6 text-gray-900 m-4"
-                >
+                  <Dialog.Title
+                    as="h3"
+                    className="text-sm font-medium leading-6 text-gray-900 m-4"
+                  >
 
-                  Type Number of items to move
-                </Dialog.Title>
-                <div className="flex flex-col items-center space-y-2 w-full">
+                    Type Number of items to move
+                  </Dialog.Title>
+                  <div className="flex flex-col items-center space-y-2 w-full">
 
-                  <div className="mb-6 w-full">
-                    <input
-                      type="number"
-                      value={numberOfItems}
-                      placeholder={'No of Items to move'}
-                      onChange={(e) => {
-                        setNumberOfItems(parseInt(e.target.value));
-                      }}
-                      name="itemNumber"
-                      className="
+                    <div className="mb-6 w-full">
+                      <input
+                        type="number"
+                        value={numberOfItems}
+                        placeholder={'No of Items to move'}
+                        onChange={(e) => {
+                          setNumberOfItems(parseInt(e.target.value));
+                        }}
+                        name="itemNumber"
+                        className="
                           w-full
                           rounded-[25px]
                           border-2
@@ -442,14 +452,14 @@ const AvailableStock: FC<MyProps> = ({ status }) => {
                           focus-visible:shadow-none
                           focus:border-primary
                         "
-                      required
-                    />
-                  </div>
-                  <button
-                    onClick={() => {
-                      sendStockItems();
-                    }}
-                    className="
+                        required
+                      />
+                    </div>
+                    <button
+                      onClick={() => {
+                        sendStockItems();
+                      }}
+                      className="
                       w-full
                        font-bold
                        rounded-[25px]
@@ -465,21 +475,23 @@ const AvailableStock: FC<MyProps> = ({ status }) => {
                        hover:bg-opacity-90
                        transition
                    "
-                  >
-                    Move
+                    >
+                      Move
 
-                  </button>
+                    </button>
+                  </div>
+
+
                 </div>
+              </Transition.Child>
+            </div>
+          </Dialog>
+        </Transition>
 
+        <ToastContainer position="top-right" autoClose={5000} />
+      </div>
+    </AppAccess>
 
-              </div>
-            </Transition.Child>
-          </div>
-        </Dialog>
-      </Transition>
-
-      <ToastContainer position="top-right" autoClose={5000} />
-    </div>
   );
 };
 

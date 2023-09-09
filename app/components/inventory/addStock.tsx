@@ -19,6 +19,7 @@ import { IStockCategory, IStockItem } from '../../types/stockTypes';
 import { STOCK_CATEGORY_REF, STOCK_ITEM_COLLECTION } from '../../constants/stockConstants';
 import ReactPaginate from 'react-paginate';
 import { searchStringInArray } from '../../utils/arrayM';
+import AppAccess from '../accessLevel';
 
 const AddInventory = () => {
   const [loading, setLoading] = useState(true);
@@ -63,6 +64,10 @@ const AddInventory = () => {
   const [start, setStart] = useState(0);
   const [end, setEnd] = useState(10);
   const [search, setSearch] = useState("");
+  const [accessArray, setAccessArray] = useState<any[]>([
+    'menu', 'orders', 'move-from-pantry', 'move-from-kitchen', 'cash-in',
+    'cash-out', 'cash-report', 'add-stock', 'confirm-stock', 'move-to-served', 'add-reservation', 'available-reservations',
+    'staff-scheduling', 'website', 'payments']);
 
   useEffect(() => {
     document.body.style.backgroundColor = LIGHT_GRAY;
@@ -306,23 +311,24 @@ const AddInventory = () => {
 
 
   return (
-    <div>
-      <div className="bg-white rounded-[30px] p-4 relative">
-        {loading ? (
-          <div className="w-full flex flex-col items-center content-center">
-            <Loader />
-          </div>
-        ) : (
-          <div className="flex flex-col overflow-y-scroll max-h-[700px] w-full gap-4 p-4">
-            <div className=''>
-              <input
-                type="text"
-                value={search}
-                placeholder={"Search"}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                }}
-                className="
+    <AppAccess access={accessArray} component={'add-stock'}>
+      <div>
+        <div className="bg-white rounded-[30px] p-4 relative">
+          {loading ? (
+            <div className="w-full flex flex-col items-center content-center">
+              <Loader />
+            </div>
+          ) : (
+            <div className="flex flex-col overflow-y-scroll max-h-[700px] w-full gap-4 p-4">
+              <div className=''>
+                <input
+                  type="text"
+                  value={search}
+                  placeholder={"Search"}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                  }}
+                  className="
                     w-full
                     rounded-[25px]
                     border-2
@@ -336,36 +342,37 @@ const AddInventory = () => {
                     focus-visible:shadow-none
                     focus:border-primary
                 "
-                onKeyDown={handleKeyDown}
-              />
-            </div>
-            <table className="table  border-separate space-y-6 text-sm w-full">
-              <thead className="bg-[#8b0e06] text-white font-bold0">
-                <tr>
-                  {labels.map((v: any, index) => (
-                    <th key={v.label} className={`text-left`}>{v}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {
-                  stockItemsTemp.slice(start, end).map((value, index) => {
-                    return (
-                      <tr key={index}
-                        onClick={() => { getReadyToUpdate(value) }}
-                        className={'odd:bg-white even:bg-slate-50  hover:cursor-pointer hover:bg-[#8b0e06] hover:text-white'}>
-                        <td className='text-left' >{value.dateString}</td>
-                        <td className='text-left' >{value.title}</td>
-                        <td className='text-left' >{value.details}</td>
-                        <td className='text-left col-span-3' >{value.category}</td>
-                        <td className='text-left' >{value.itemNumber}</td>
+                  onKeyDown={handleKeyDown}
+                />
+              </div>
+              <table className="table  border-separate space-y-6 text-sm w-full">
+                <thead className="bg-[#8b0e06] text-white font-bold0">
+                  <tr>
+                    {labels.map((v: any, index) => (
+                      <th key={v.label} className={`text-left`}>{v}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {
+                    stockItemsTemp.slice(start, end).map((value, index) => {
+                      return (
+                        <tr key={index}
+                          onClick={() => { getReadyToUpdate(value) }}
+                          className={'odd:bg-white even:bg-slate-50  hover:cursor-pointer hover:bg-[#8b0e06] hover:text-white'}>
+                          <td className='text-left' >{value.dateString}</td>
+                          <td className='text-left' >{value.title}</td>
+                          <td className='text-left' >{value.details}</td>
+                          <td className='text-left col-span-3' >{value.category}</td>
+                          <td className='text-left' >{value.itemNumber}</td>
 
-                      </tr>
-                    )
-                  })
-                }
-              </tbody>
-              <tfoot>
+                        </tr>
+                      )
+                    })
+                  }
+                </tbody>
+              </table>
+              <div>
                 {stockItemsTemp.length > 0 ? <div className='flex w-full'>
                   <ReactPaginate
                     pageClassName="border-2 border-[#8b0e06] px-2 py-1 rounded-full"
@@ -383,19 +390,18 @@ const AddInventory = () => {
                     renderOnZeroPageCount={() => null}
                   />
                 </div> : <p></p>}
-              </tfoot>
-            </table>
+              </div>
 
-          </div>
-        )}
-      </div>
-      <div className='fixed bottom-10 left-0 right-10 z-10  flex flex-row-reverse'>
+            </div>
+          )}
+        </div>
+        <div className='fixed bottom-10 left-0 right-10 z-10  flex flex-row-reverse'>
 
-        <button
-          onClick={() => {
-            setOpen(true);
-          }}
-          className="
+          <button
+            onClick={() => {
+              setOpen(true);
+            }}
+            className="
               font-bold
               rounded-full
               border-2
@@ -409,65 +415,65 @@ const AddInventory = () => {
               hover:bg-opacity-90
               transition
           "
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-        </button>
-      </div>
-      <Transition appear show={open} as={Fragment}>
-        <Dialog
-          as="div"
-          className="fixed inset-0 z-10 overflow-y-auto"
-          onClose={() => setOpen(false)}
-        >
-          <div className="min-h-screen px-4 text-center backdrop-blur-sm ">
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0"
-              enterTo="opacity-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <Dialog.Overlay className="fixed inset-0" />
-            </Transition.Child>
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+          </button>
+        </div>
+        <Transition appear show={open} as={Fragment}>
+          <Dialog
+            as="div"
+            className="fixed inset-0 z-10 overflow-y-auto"
+            onClose={() => setOpen(false)}
+          >
+            <div className="min-h-screen px-4 text-center backdrop-blur-sm ">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0"
+                enterTo="opacity-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+              >
+                <Dialog.Overlay className="fixed inset-0" />
+              </Transition.Child>
 
-            <span
-              className="inline-block h-screen align-middle"
-              aria-hidden="true"
-            >
-              &#8203;
-            </span>
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 scale-95"
-              enterTo="opacity-100 scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 scale-100"
-              leaveTo="opacity-0 scale-95"
-            >
-              <div className="bg-white my-8 inline-block w-full max-w-md transform overflow-hidden rounded-2xl p-6 text-left align-middle shadow-xl transition-all">
+              <span
+                className="inline-block h-screen align-middle"
+                aria-hidden="true"
+              >
+                &#8203;
+              </span>
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <div className="bg-white my-8 inline-block w-full max-w-md transform overflow-hidden rounded-2xl p-6 text-left align-middle shadow-xl transition-all">
 
-                <Dialog.Title
-                  as="h3"
-                  className="text-sm font-medium leading-6 text-gray-900 m-4"
-                >
+                  <Dialog.Title
+                    as="h3"
+                    className="text-sm font-medium leading-6 text-gray-900 m-4"
+                  >
 
-                  Add Stock Item
-                </Dialog.Title>
-                <div className="flex flex-col items-center space-y-2 w-full">
+                    Add Stock Item
+                  </Dialog.Title>
+                  <div className="flex flex-col items-center space-y-2 w-full">
 
-                  <div className="mb-6 w-full">
-                    <input
-                      type="text"
-                      value={stockItem.title}
-                      placeholder={'Title'}
-                      onChange={handleChange}
-                      name="title"
-                      className="
+                    <div className="mb-6 w-full">
+                      <input
+                        type="text"
+                        value={stockItem.title}
+                        placeholder={'Title'}
+                        onChange={handleChange}
+                        name="title"
+                        className="
                           w-full
                           rounded-[25px]
                           border-2
@@ -481,16 +487,16 @@ const AddInventory = () => {
                           focus-visible:shadow-none
                           focus:border-primary
                          "
-                      required
-                    />
-                  </div>
-                  <div className="mb-6 w-full">
-                    <textarea
-                      name="details"
-                      value={stockItem.details}
-                      placeholder={'Item Description'}
-                      onChange={handleChange}
-                      className="
+                        required
+                      />
+                    </div>
+                    <div className="mb-6 w-full">
+                      <textarea
+                        name="details"
+                        value={stockItem.details}
+                        placeholder={'Item Description'}
+                        onChange={handleChange}
+                        className="
                           h-25
                           w-full
                           rounded-[25px]
@@ -505,38 +511,38 @@ const AddInventory = () => {
                           focus-visible:shadow-none
                           focus:border-primary
                           "
-                      required
-                    />
-                  </div>
-                  <div className="mb-6 w-full">
-                    <button className='font-bold rounded-[25px] border-2 border-[#8b0e06] bg-white px-4 py-3 w-full'
-                      onClick={(e) => e.preventDefault()}>
-                      <select value={stockItem.category}
-                        onChange={handleChange}
-                        name="category"
-                        className='bg-white w-full'
-                        data-required="1"
-                        required>
-                        <option value="Item Category" hidden>
-                          Select Item Category
-                        </option>
-                        {categories.map(v => (
-                          <option value={v.category} >
-                            {v.category}
+                        required
+                      />
+                    </div>
+                    <div className="mb-6 w-full">
+                      <button className='font-bold rounded-[25px] border-2 border-[#8b0e06] bg-white px-4 py-3 w-full'
+                        onClick={(e) => e.preventDefault()}>
+                        <select value={stockItem.category}
+                          onChange={handleChange}
+                          name="category"
+                          className='bg-white w-full'
+                          data-required="1"
+                          required>
+                          <option value="Item Category" hidden>
+                            Select Item Category
                           </option>
-                        ))}
-                      </select>
-                    </button>
-                  </div>
-                  <div className="mb-6 w-full">
-                    <p className='text-xs text-gray-400 text-center'>Number of items</p>
-                    <input
-                      type="number"
-                      name="itemNumber"
-                      value={stockItem.itemNumber}
-                      placeholder={'Price in USD'}
-                      onChange={handleChange}
-                      className="
+                          {categories.map(v => (
+                            <option value={v.category} >
+                              {v.category}
+                            </option>
+                          ))}
+                        </select>
+                      </button>
+                    </div>
+                    <div className="mb-6 w-full">
+                      <p className='text-xs text-gray-400 text-center'>Number of items</p>
+                      <input
+                        type="number"
+                        name="itemNumber"
+                        value={stockItem.itemNumber}
+                        placeholder={'Price in USD'}
+                        onChange={handleChange}
+                        className="
                          w-full
                          rounded-[25px]
                          border-2
@@ -550,15 +556,15 @@ const AddInventory = () => {
                          focus-visible:shadow-none
                          focus:border-primary
                          "
-                      required
-                    />
-                  </div>
-                  <button
-                    onClick={() => {
+                        required
+                      />
+                    </div>
+                    <button
+                      onClick={() => {
 
-                      edit ? editStockItem() : addStockItem();
-                    }}
-                    className="
+                        edit ? editStockItem() : addStockItem();
+                      }}
+                      className="
                         font-bold
                         w-full
                         rounded-[25px]
@@ -574,20 +580,22 @@ const AddInventory = () => {
                         hover:bg-opacity-90
                         transition
                     "
-                  >
-                    {edit ? 'Update Stock Item' : 'Add Stock Item'}
-                  </button>
+                    >
+                      {edit ? 'Update Stock Item' : 'Add Stock Item'}
+                    </button>
+                  </div>
+
+
                 </div>
+              </Transition.Child>
+            </div>
+          </Dialog>
+        </Transition>
 
+        <ToastContainer position="top-right" autoClose={5000} />
+      </div>
+    </AppAccess>
 
-              </div>
-            </Transition.Child>
-          </div>
-        </Dialog>
-      </Transition>
-
-      <ToastContainer position="top-right" autoClose={5000} />
-    </div>
   );
 };
 

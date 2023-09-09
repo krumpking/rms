@@ -1,11 +1,15 @@
 export type IUser = {
-    id: any,
-    adminId: any,
-    date: any,
-    name: any,
-    contact: any,
-    role: any,
-    email: any
+    id: string,
+    userId: string,
+    adminId: string,
+    access: string[],
+    date: Date,
+    dateOfUpdate: Date,
+    dateString: string,
+    name: string,
+    contact: string,
+    email: string,
+
 }
 
 
