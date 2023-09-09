@@ -116,7 +116,6 @@ const Logs = () => {
                         }
                         hours += minutes;
                         let month = DateMethods.showMonth(startDate.getMonth());
-
                         logsTempVar.push({
                             id: d.user.id,
                             userId: d.userId,
