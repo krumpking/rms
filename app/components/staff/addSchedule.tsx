@@ -69,10 +69,11 @@ const AddSchedule = () => {
         id: "",
         adminId: "",
         user: "",
+        userId: "",
         date: new Date(),
         dateString: new Date().toDateString(),
-        startDate: new Date(),
-        endDate: new Date(),
+        startDate: new Date().toDateString(),
+        endDate: new Date().toDateString(),
         dateOfUpdate: new Date(),
         startTime: "",
         endTime: "",
@@ -160,7 +161,7 @@ const AddSchedule = () => {
                 toast.error('There was an error please try again');
             });
         } else {
-            toast.error('Shift can only be later than today');
+            toast.error('Chosen dates have to be later than today');
         }
 
 

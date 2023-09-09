@@ -21,6 +21,9 @@ import Script from 'next/script';
 import AppAccess from '../app/components/accessLevel';
 import { Tab } from '@headlessui/react';
 import AddSchedule from '../app/components/staff/addSchedule';
+import ConfirmSchedule from '../app/components/staff/approveSchedule';
+import BasicCalendar from '../app/components/staff/calendar';
+import Logs from '../app/components/staff/logs';
 
 
 function classNames(...classes: string[]) {
@@ -225,7 +228,7 @@ const Staff = () => {
                                         'ring-white  ring-offset-2 focus:outline-none focus:ring-2'
                                     )}
                                 >
-
+                                    <BasicCalendar />
                                 </Tab.Panel>
                                 <Tab.Panel
                                     className={classNames(
@@ -241,7 +244,7 @@ const Staff = () => {
                                         'ring-white  ring-offset-2 focus:outline-none focus:ring-2'
                                     )}
                                 >
-
+                                    <ConfirmSchedule />
                                 </Tab.Panel>
                                 <Tab.Panel
                                     className={classNames(
@@ -249,7 +252,7 @@ const Staff = () => {
                                         'ring-white  ring-offset-2 focus:outline-none focus:ring-2'
                                     )}
                                 >
-
+                                    <Logs />
                                 </Tab.Panel>
                             </Tab.Panels>
                         </Tab.Group>

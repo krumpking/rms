@@ -37,13 +37,14 @@ const ConfirmSchedule = () => {
     const [shift, setShift] = useState<IShift>({
         id: "",
         adminId: "",
+        userId: "",
         user: {
             name: ""
         },
         date: new Date(),
         dateString: new Date().toDateString(),
-        startDate: new Date(),
-        endDate: new Date(),
+        startDate: new Date().toDateString(),
+        endDate: new Date().toDateString(),
         dateOfUpdate: new Date(),
         startTime: "",
         endTime: "",
@@ -62,7 +63,7 @@ const ConfirmSchedule = () => {
     const [accessArray, setAccessArray] = useState<any[]>([
         'menu', 'orders', 'move-from-pantry', 'move-from-kitchen', 'cash-in',
         'cash-out', 'cash-report', 'add-stock', 'confirm-stock', 'move-to-served', 'add-reservation', 'available-reservations',
-        'staff-scheduling', 'website', 'payments']);
+        'staff-scheduling', 'approve-schedule', 'website', 'payments',]);
 
 
     useEffect(() => {
@@ -169,8 +170,11 @@ const ConfirmSchedule = () => {
 
         setLoading(true);
         selectedTrans.forEach((el) => {
+
+
             //Logic to delete the item           
             updateDocument(SHIFT_COLLECTION, el.id, el).then((v) => {
+
             }).catch((e: any) => {
                 console.error(e);
                 toast.error('There was an error please try again');
@@ -191,12 +195,13 @@ const ConfirmSchedule = () => {
             setLoading(true);
             selectedTrans.forEach((el) => {
                 //Logic to delete the item           
-                deleteDocument(STOCK_ITEM_COLLECTION, el.id).then(() => {
+                deleteDocument(SHIFT_COLLECTION, el.id).then(() => {
 
                 }).catch((e: any) => {
                     console.error(e);
                 });
             });
+            setLoading(false);
 
         }
     }
@@ -331,7 +336,7 @@ const ConfirmSchedule = () => {
                                         }
                                     </tbody>
                                     <tfoot>
-                                        {stockItemsTemp.length > 0 ? <div className='flex w-full'>
+                                        {shiftsTemp.length > 0 ? <div className='flex w-full'>
                                             <ReactPaginate
                                                 pageClassName="border-2 border-[#8b0e06] px-2 py-1 rounded-full"
                                                 previousLinkClassName="border-2 border-[#8b0e06] px-2 py-2 rounded-[25px] bg-[#8b0e06] text-white font-bold"
@@ -361,7 +366,7 @@ const ConfirmSchedule = () => {
                         <button
                             onClick={() => {
 
-                                confirmStockItems();
+                                confirmShifts();
                             }}
                             className="                                        
                             font-bold                                        
