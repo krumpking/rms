@@ -11,7 +11,8 @@ export type Iinfo = {
     about: string,
     address: string,
     phone: string;
-    gallery: string[]
+    gallery: string[],
+    logo: any
 
 }
 

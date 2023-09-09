@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 
 import { ToastContainer, toast } from 'react-toastify';
@@ -14,6 +14,12 @@ import { decrypt } from '../../utils/crypto';
 import { setDate } from 'date-fns';
 import { checkEmptyOrNull } from '../../utils/objectM';
 import AppAccess from '../accessLevel';
+import { useDropzone } from 'react-dropzone';
+import { updateDocument, uploadFile } from '../../api/mainApi';
+import imageCompression from 'browser-image-compression';
+import { print } from '../../utils/console';
+import { INFO_COLLECTION } from '../../constants/infoConstants';
+import ShowImage from '../showImage';
 
 
 
@@ -21,7 +27,7 @@ import AppAccess from '../accessLevel';
 const GeneralInfo = () => {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    const [webfrontname, setWebfrontname] = useState("");
+    const [webfrontname, setWebfrontname] = useState("webfrontId");
     const [title, setTitle] = useState("");
     const [about, setAbout] = useState("");
     const [address, setAddress] = useState("");
@@ -36,6 +42,11 @@ const GeneralInfo = () => {
         'menu', 'orders', 'move-from-pantry', 'move-from-kitchen', 'cash-in',
         'cash-out', 'cash-report', 'add-stock', 'confirm-stock', 'move-to-served', 'add-reservation', 'available-reservations',
         'staff-scheduling', 'website', 'payments']);
+    const [image, setImage] = useState<any>();
+    const [imageAdded, setImageAdded] = useState(false);
+    const [files, setFiles] = useState<any[]>([]);
+    const [isUpdate, setIsUpdate] = useState(false);
+    const [gallery, setGallery] = useState<string[]>([""]);
 
 
     useEffect(() => {
@@ -73,6 +84,9 @@ const GeneralInfo = () => {
                     setDateString(val.dateString);
                     setId(val.id);
                     setDocId(el.id);
+                    setIsUpdate(true);
+                    setImage(val.logo);
+                    setGallery(val.gallery);
 
                 });
                 setLoading(false);
@@ -87,7 +101,10 @@ const GeneralInfo = () => {
     }
 
 
-    const addInfo = () => {
+    const addInfo = async () => {
+
+
+
 
         let ident = "";
         if (id === "") {
@@ -108,7 +125,9 @@ const GeneralInfo = () => {
             date: new Date(),
             dateString: new Date().toDateString(),
             id: ident,
-            gallery: []
+            gallery: gallery,
+            logo: {}
+
         }
 
 
@@ -116,22 +135,134 @@ const GeneralInfo = () => {
         if (checkEmptyOrNull(info)) {
             toast.error('Ooops looks like you left out some information')
         } else {
-            setLoading(true);
-            addResInfo(docId, info).then((v) => {
-                if (v == null) {
-                    toast.error('Webfront name is already taken please try another one');
-                } else {
-                    toast.success('Wohooo information successfully saved!');
+
+            if (files.length > 0) {
+                setLoading(true);
+                try {
+
+                    const name = files[0].name;
+                    const options = {
+                        maxSizeMB: 1,
+                        maxWidthOrHeight: 1920,
+                        useWebWorker: true
+                    }
+
+
+
+                    await uploadFile(`${webfrontname}/logo/${name}`, files[0]);
+                    const info = name.split('_');
+
+
+                    try {
+                        const compressedFile = await imageCompression(files[0], options);
+
+                        // Thumbnail
+                        await uploadFile(`${webfrontname}/logo/thumbnail_${name}`, compressedFile);
+
+                        let newInfo = {
+                            adminId: "adminId",
+                            webfrontId: webfrontname,
+                            title: title,
+                            about: about,
+                            address: address,
+                            phone: phone,
+                            email: email,
+                            date: new Date(),
+                            dateString: new Date().toDateString(),
+                            id: ident,
+                            gallery: gallery,
+                            logo: {
+                                original: name,
+                                thumbnail: `thumbnail_${name}`
+                            }
+                        }
+
+
+                        if (isUpdate) {
+                            updateDocument(INFO_COLLECTION, docId, newInfo).then((v) => {
+                                toast.success("Info updated");
+                                setLoading(false);
+                            }).catch((e: any) => {
+                                setLoading(false);
+                                console.error(e);
+                                toast.error('There was an error please try again');
+                            });
+                        } else {
+
+
+                            addResInfo(newInfo).then((v) => {
+                                if (v == null) {
+                                    toast.error('Webfront name is already taken please try another one');
+                                } else {
+                                    toast.success('Wohooo information successfully saved!');
+                                }
+                                setLoading(false);
+                            }).catch((e: any) => {
+                                setLoading(false);
+                                console.error(e);
+                                toast.error('There was an error please try again');
+                            });
+
+                        }
+
+
+
+
+
+
+
+                    } catch (error) {
+                        console.log(error);
+                    }
+
+
+
+
+                } catch (e) {
+                    console.error(e);
                 }
-                setLoading(false);
-            }).catch((e: any) => {
-                setLoading(false);
-                console.error(e);
-                toast.error('There was an error please try again');
-            })
+
+            } else {
+                toast.error('Ooops looks like you left out your logo');
+            }
+
+
+
+
         }
 
     }
+
+
+    const onDrop = useCallback((acceptedFiles: any[]) => {
+
+        var reader = new FileReader();
+        reader.readAsDataURL(acceptedFiles[0]);
+        reader.onload = function () {
+            if (reader.result !== null) {
+                setImage(reader.result);
+                setImageAdded(true);
+            }
+
+        };
+        reader.onerror = function (error) {
+            console.log('Error: ', error);
+        };
+        // Do something with the files
+        if (files.length > 0) {
+            let currFiles = files;
+
+            currFiles.concat(acceptedFiles);
+            setFiles(currFiles);
+        } else {
+            setFiles(acceptedFiles);
+        }
+
+
+
+
+    }, []);
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
 
     return (
@@ -142,18 +273,30 @@ const GeneralInfo = () => {
                     {loading ?
                         <div className='w-full flex flex-col items-center content-center'>
                             <Loader />
-
                         </div>
                         :
-
-
-
-
                         <div className='grid grid-cols-1 lg:grid-cols-2'>
 
                             <div className='flex flex-col items-center space-y-2 w-full'>
-                                <p className='text-center text-xs text-gray-300 mb-4 font-bold'>Update Your Info</p>
-                                <div className="mb-6">
+                                <p className='text-center text-xs text-gray-300 mb-4 font-bold'>Update Organization Info</p>
+
+                                <div {...getRootProps()} className='border-dashed h-48 w-full border-2 p-8 flex content-center items-center text-center' >
+                                    <input {...getInputProps()} />
+                                    <>
+                                        {imageAdded ? <p>Logo added</p>
+                                            : <>
+                                                {
+                                                    isDragActive ?
+                                                        <p>Drop the logo here ...</p> :
+                                                        <p> Drag &lsquo;n&lsquo; drop some logo here, or click to select logo image</p>
+                                                }
+                                            </>
+                                        }
+                                    </>
+
+                                </div>
+                                <p className='text-center text-xs text-gray-300 mb-4 font-bold  w-full'>Update Your Info</p>
+                                <div className="mb-6 w-full">
                                     <input
                                         type="text"
                                         value={webfrontname}
@@ -178,7 +321,7 @@ const GeneralInfo = () => {
                                         required
                                     />
                                 </div>
-                                <div className="mb-6">
+                                <div className="mb-6 w-full">
                                     <input
                                         type="text"
                                         value={title}
@@ -203,7 +346,7 @@ const GeneralInfo = () => {
                                         required
                                     />
                                 </div>
-                                <div className="mb-6">
+                                <div className="mb-6 w-full">
                                     <textarea
 
                                         value={about}
@@ -229,7 +372,7 @@ const GeneralInfo = () => {
                                         required
                                     />
                                 </div>
-                                <div className="mb-6">
+                                <div className="mb-6 w-full">
                                     <input
                                         type="text"
                                         value={address}
@@ -254,7 +397,7 @@ const GeneralInfo = () => {
                                         required
                                     />
                                 </div>
-                                <div className="mb-6">
+                                <div className="mb-6 w-full">
                                     <input
                                         type="text"
                                         value={email}
@@ -279,7 +422,7 @@ const GeneralInfo = () => {
                                         required
                                     />
                                 </div>
-                                <div className="mb-6">
+                                <div className="mb-6 w-full">
                                     <input
                                         type="text"
                                         value={phone}
@@ -308,7 +451,7 @@ const GeneralInfo = () => {
                                     onClick={() => { addInfo() }}
                                     className="
                                         font-bold
-                                        w-ful
+                                        w-full
                                         rounded-[25px]
                                         border-2
                                         border-[#8b0e06]
@@ -322,18 +465,21 @@ const GeneralInfo = () => {
                                         hover:bg-opacity-90
                                         transition
                                     ">
-                                    Add Organization Info
+                                    {isUpdate ? 'Update Info' : 'Add Info'}
                                 </button>
 
                             </div>
-                            <div className='flex flex-col items-center space-y-2 w-fullre'>
-                                <p className='text-center text-xs text-gray-300 mb-4 font-bold'>Your Info</p>
-                                <h1 className='mb-6'>{webfrontname}</h1>
-                                <h1 className='mb-6'>{title}</h1>
-                                <p className='mb-6'>{about}</p>
-                                <h1 className='mb-6'>{address}</h1>
-                                <h1 className='mb-6'>{phone}</h1>
-                                <h1 className='mb-6'>{email}</h1>
+                            <div className='flex flex-col items-center space-y-2 w-full text-center'>
+                                <p className='text-center text-xs text-gray-300 mb-4 font-bold w-full'>Your Basic Info</p>
+                                {isUpdate ?
+                                    <ShowImage src={`${webfrontname}/logo/${image.thumbnail}`} alt={'logo'} style={'rounded-[25px] shadow-md w-48 h-48'} />
+                                    : <img src={imageAdded ? image : `${image}`} className='rounded-[25px] shadow-md w-48 h-48' />}
+                                <h1 className='mb-6 w-full'>{webfrontname}</h1>
+                                <h1 className='mb-6 w-full'>{title}</h1>
+                                <p className='mb-6 w-full'>{about}</p>
+                                <h1 className='mb-6 w-full'>{address}</h1>
+                                <h1 className='mb-6 w-full'>{phone}</h1>
+                                <h1 className='mb-6 w-full'>{email}</h1>
 
                             </div>
                         </div>}
