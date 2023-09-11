@@ -10,7 +10,9 @@ import { IWebsite } from '../app/types/websiteTypes';
 import { Dialog, Transition } from '@headlessui/react';
 import { addDocument, getOneDocument, updateDocument } from '../app/api/mainApi';
 import { WEBSITE_COLLECTION } from '../app/constants/websiteConstants';
-import Web1 from '../app/components/website/web1';
+import WebOne from '../app/components/website/webOne/webOne';
+
+
 
 
 
@@ -30,7 +32,7 @@ const WebFront = () => {
             websiteId: 1,
             adminId: "",
             userId: "",
-            title: "FoodiesBooth 1",
+            title: "Flair One",
             src: "images/bg-swurl.png"
         },
     ]);
@@ -39,7 +41,7 @@ const WebFront = () => {
         websiteId: 1,
         adminId: "adminId",
         userId: "",
-        title: "FoodiesBooth 1",
+        title: "Flair One",
         src: "images/bg-swurl.png"
     });
     const [open, setOpen] = useState(false);
@@ -82,8 +84,7 @@ const WebFront = () => {
     const getView = (index: number) => {
         switch (index) {
             case 1:
-                return <Web1 />
-
+                return <WebOne />
             default:
                 return <p></p>
         }
@@ -143,7 +144,8 @@ const WebFront = () => {
 
                         :
                         <div className='bg-white col-span-8 my-8 rounded-[30px] flex flex-col p-8'>
-                            <h1 className='font-bold'>Choose your website</h1>
+                            {/* <h1 className='font-bold'>Choose your website</h1> */}
+                            <h1>Edit your website</h1>
                             <div className='grid grid-cols-3 gap-4'>
                                 {webs.map((v) => (
                                     <div className='shadow-2xl h-72 rounded-[25px] flex flex-col p-4' onClick={() => { setChooseWebsite(v); setOpen(true); }}>
@@ -206,7 +208,7 @@ const WebFront = () => {
                                         className="text-sm font-medium leading-6 text-gray-900 m-4 flex justify-between"
                                     >
                                         <h1 className='text-2xl font-bold'>{chooseWebsite.title}</h1>
-                                        <button
+                                        {/* <button
                                             onClick={() => {
                                                 addWebsite();
                                             }}
@@ -220,7 +222,7 @@ const WebFront = () => {
                                                 py-3
                                                 px-10
                                                 bg-[#8b0e06]
-                                                text-base 
+                                                text-base
                                                 text-white
                                                 cursor-pointer
                                                 hover:bg-opacity-90
@@ -228,7 +230,7 @@ const WebFront = () => {
                                             "
                                         >
                                             Select Website
-                                        </button>
+                                        </button> */}
 
                                     </Dialog.Title>
 

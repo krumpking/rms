@@ -7,7 +7,6 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router'
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
-import { getUser, getUserById } from '../app/api/adminApi';
 import { getCookie, setCookie } from 'react-use-cookie';
 import { decrypt, encrypt } from '../app/utils/crypto';
 
@@ -47,18 +46,7 @@ const Login = () => {
             if (infoFormCookie.length > 0) {
 
                 const id = decrypt(infoFormCookie, COOKIE_ID);
-                getUserById(id).then((v) => {
 
-                    if (v !== null) {
-                        router.push({
-                            pathname: '/home'
-                        });
-                    }
-                    setLoading(false);
-                }).catch((e) => {
-                    setLoading(false);
-                    console.error(e);
-                });
 
             } else {
                 setLoading(false);
