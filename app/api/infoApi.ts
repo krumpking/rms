@@ -22,21 +22,16 @@ export const getResInfo = async (adminId: string) => {
 }
 
 
-export const addResInfo = async (info: Iinfo) => {
+export const checkForWebsiteName = async (name: string) => {
 
-
-
-    const qry = query(INFO_REF, where("webfrontId", "==", info.webfrontId));
+    const qry = query(INFO_REF, where("websiteName", "==", name));
     const snapshot = await getCountFromServer(qry);
     if (snapshot.data().count > 0) {
-
         return null;
 
     } else {
-        return addDoc(INFO_REF, info);
+        return true;
     }
-
-
 
 
 }

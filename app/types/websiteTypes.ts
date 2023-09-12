@@ -1,19 +1,19 @@
 export type IWebsite = {
     id: string,
-    websiteId: number,
+    websiteId: string,
     adminId: string,
     userId: string,
-    title: string,
-    src: string,
+    websiteName: string,
+    chosenWebsiteNo: number,
+    src: string
 }
 
 
 export type IWebsiteOneInfo = {
     id: string,
-    websiteId: number,
+    websiteName: string,
     adminId: string,
     userId: string,
-    title: string,
     logo: any,
     serviceProviderName: string,
     headerTitle: string,
@@ -29,8 +29,8 @@ export type IWebsiteOneInfo = {
     email: string,
     address: string,
     phone: string,
-
-
+    date: Date,
+    dateString: string
 }
 
 

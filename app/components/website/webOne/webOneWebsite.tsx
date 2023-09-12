@@ -12,6 +12,8 @@ import { MEAL_ITEM_COLLECTION, MEAL_STORAGE_REF, MENU_ITEM_COLLECTION, MENU_STOR
 import { AMDIN_FIELD } from '../../../constants/constants';
 import { searchStringInArray } from '../../../utils/arrayM';
 import { IOrder } from '../../../types/orderTypes';
+import { WEBSITE_INFO_COLLECTION } from '../../../constants/websiteConstants';
+import { print } from '../../../utils/console';
 
 const WebOneWebsite = () => {
     const [surname, setSurname] = useState('');
@@ -29,10 +31,9 @@ const WebOneWebsite = () => {
     const [index, setIndex] = useState(0);
     const [info, setInfo] = useState<IWebsiteOneInfo>({
         id: "",
-        websiteId: 1,
+        websiteName: "",
         adminId: "",
         userId: "",
-        title: "",
         logo: {
             original: "",
             thumbnail: ""
@@ -60,6 +61,8 @@ const WebOneWebsite = () => {
         email: "email@email.com",
         address: "Address",
         phone: "phone Number",
+        date: new Date(),
+        dateString: new Date().toString()
 
     });
     const [meals, setMeals] = useState<IMeal[]>([]);
@@ -67,6 +70,7 @@ const WebOneWebsite = () => {
     const [menuItems, setMenuItems] = useState<IMenuItem[]>([]);
     const [menuItemsSto, setMenuItemsSto] = useState<IMenuItem[]>([]);
     const [webfrontname, setWebfrontname] = useState("webfrontId");
+    const [websiteName, setWebsiteName] = useState("websitename");
     const [adminId, setAdminId] = useState("adminId");
     const [search, setSearch] = useState("");
     const [reservation, setReservation] = useState({});
@@ -87,7 +91,54 @@ const WebOneWebsite = () => {
 
         getMeals();
         getMenuItems();
+        getWebsiteInfo();
     }, []);
+
+    const getWebsiteInfo = () => {
+
+        getDataFromDBOne(WEBSITE_INFO_COLLECTION, AMDIN_FIELD, adminId).then((v) => {
+
+            if (v !== null) {
+
+                v.data.forEach(element => {
+                    let d = element.data();
+                    setInfo({
+                        id: element.id,
+                        websiteName: d.websiteName,
+                        adminId: d.adminId,
+                        userId: d.userId,
+                        logo: d.logo,
+                        serviceProviderName: d.serviceProviderName,
+                        headerImage: d.headerImage,
+                        headerTitle: d.headerTitle,
+                        headerText: d.headerText,
+                        aboutUsImage: d.aboutUsImage,
+                        aboutUsTitle: d.aboutUsTitle,
+                        aboutUsInfo: d.aboutUsInfo,
+                        themeMainColor: d.themMainColor,
+                        themeSecondaryColor: d.themeSecondaryColor,
+                        reservation: d.reservation,
+                        contactUsImage: d.contactUsImage,
+                        email: d.email,
+                        address: d.address,
+                        phone: d.phone,
+                        date: d.date,
+                        dateString: d.dateString
+                    });
+
+                });
+
+
+
+            }
+            setLoading(false);
+
+        }).catch((e) => {
+            console.error(e);
+            setLoading(true);
+        });
+
+    }
 
     const getMeals = () => {
 
@@ -268,12 +319,15 @@ const WebOneWebsite = () => {
             ) : (
                 <div className="bg-white rounded-[30px] p-4 ">
                     <div className='flex flex-col'>
-                        <div className='flex justify-between'>
-                            <div className='flex flex-row items-center space-x-4'>
+                        <div className='flex justify-between items-center content-center'>
+                            <div className='flex flex-row items-center space-x-4 content-center'>
+
                                 {info.logo.thumbnail !== "" ?
-                                    <ShowImage src={`${webfrontname}/info/websiteOne/${info.logo.thumbnail}`} alt={''} style={'h-8 rounded-md w-8'} /> :
-                                    <img src="images/logo.png" className='h-8 rounded-[25px] w-8' />}
-                                {info.serviceProviderName}
+                                    <ShowImage src={`${info.websiteName}/logo/${info.logo.thumbnail}`} alt={''} style={'h-8 rounded-[25px]'} /> :
+                                    <img src="images/logo.png" className='h-8 rounded-[25px] w-8 self-center' />}
+
+                                <h1>{info.serviceProviderName}</h1>
+
                             </div>
                             <div className='flex flex-row items-center space-x-4 font-bold'>
                                 <a><h1>Home</h1></a>
@@ -306,7 +360,7 @@ const WebOneWebsite = () => {
                             </div>
                             <div className='p-4 '>
                                 {info.headerImage.thumbnail !== "" ?
-                                    <ShowImage src={`${webfrontname}/info/websiteOne/${info.headerImage.thumbnail}`} alt={''} style={''} /> :
+                                    <ShowImage src={`${info.websiteName}/header/${info.headerImage.thumbnail}`} alt={''} style={''} /> :
                                     <img src="images/webOneDefaultPicture.jpg" className='h-96 rounded-[25px] w-96' />}
 
                             </div>
@@ -339,9 +393,10 @@ const WebOneWebsite = () => {
 
                         </div>
                         <div className='grid grid-cols-2 place-content-center place-items-center mb-6'>
+
                             <div>
-                                {info.headerImage.thumbnail !== "" ?
-                                    <ShowImage src={`${webfrontname}/info/websiteOne/${info.aboutUsImage.thumbnail}`} alt={''} style={'h-96 rounded-[25px] w-96'} /> :
+                                {info.aboutUsImage.thumbnail !== "" ?
+                                    <ShowImage src={`${info.websiteName}/about/${info.aboutUsImage.thumbnail}`} alt={''} style={'h-96 rounded-[25px] w-96'} /> :
                                     <img src="images/webOneDefaultPicture.jpg" className='h-96 rounded-[25px] w-96' />}
                             </div>
                             <div>
@@ -544,8 +599,8 @@ const WebOneWebsite = () => {
                             : <p></p>}
                         <div className='grid grid-cols-2 gap-4 mb-6 place-items-center'>
                             <div>
-                                {info.headerImage.thumbnail !== "" ?
-                                    <ShowImage src={`${webfrontname}/info/websiteOne/${info.aboutUsImage.thumbnail}`} alt={''} style={'h-96 rounded-[25px] w-96'} /> :
+                                {info.id !== "" ?
+                                    <ShowImage src={`${info.websiteName}/contact/${info.contactUsImage.thumbnail}`} alt={'contact image'} style={'h-96 rounded-[25px] w-96'} /> :
                                     <img src="images/webOneDefaultPicture.jpg" className='h-96 rounded-[25px] w-96' />}
                             </div>
                             <div>
@@ -648,10 +703,11 @@ const WebOneWebsite = () => {
 
                         </div>
                         <div className='flex flex-col content-center items-center min-h-48 text-white p-8' style={{ backgroundColor: `${info.themeMainColor}` }}>
-                            {info.logo.thumbnail !== "" ?
-                                <ShowImage src={`${webfrontname}/info/websiteOne/${info.logo.thumbnail}`} alt={''} style={'h-8 rounded-[25px] w-8'} /> :
-                                <img src="images/logo.png" className='h-8 rounded-[25px] w-8' />}
-                            <h1 className='mb-6'>{info.title}</h1>
+                            {
+                                info.id !== "" ?
+                                    <ShowImage src={`${info.websiteName}/logo/${info.logo.thumbnail}`} alt={'logo image'} style={'h-8 rounded-[25px] w-8'} /> :
+                                    <img src="images/logo.png" className='h-8 rounded-[25px] w-8' />}
+                            <h1 className='mb-6'>{info.serviceProviderName}</h1>
                             <h1 className='mb-6'>{info.email}</h1>
                             <h1 className='mb-6'>{info.phone}</h1>
                             <h1 className='mb-6'>{info.address}</h1>

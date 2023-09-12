@@ -36,7 +36,7 @@ const ShowImage: FC<MyProps> = ({ src, alt, style }) => {
     return (
         <LazyLoad>
             <div className="m-auto">
-                <img src={url} alt={alt} className={style + ' object-cover w-full max-h-96 mb-10'} />
+                <img src={url} alt={alt} className={style + ' object-cover w-full max-h-96'} />
             </div>
         </LazyLoad>
 

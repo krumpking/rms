@@ -26,22 +26,23 @@ const WebFront = () => {
         'menu', 'orders', 'move-from-pantry', 'move-from-kitchen', 'cash-in',
         'cash-out', 'cash-report', 'add-stock', 'confirm-stock', 'move-to-served', 'add-reservation', 'available-reservations',
         'staff-scheduling', 'website', 'payments', 'stock-overview', 'receipting',]);
-    const [webs, setWebs] = useState<IWebsite[]>([
-        {
-            id: "",
-            websiteId: 1,
-            adminId: "",
-            userId: "",
-            title: "Flair One",
-            src: "images/bg-swurl.png"
-        },
-    ]);
-    const [chooseWebsite, setChooseWebsite] = useState<IWebsite>({
-        id: "id",
-        websiteId: 1,
+    const [webs, setWebs] = useState<IWebsite[]>([{
+        id: "",
+        websiteId: "",
         adminId: "adminId",
         userId: "",
-        title: "Flair One",
+        websiteName: "",
+        chosenWebsiteNo: 1,
+        src: "images/bg-swurl.png"
+    },
+    ]);
+    const [chooseWebsite, setChooseWebsite] = useState<IWebsite>({
+        id: "",
+        websiteId: "",
+        adminId: "adminId",
+        userId: "",
+        websiteName: "Flair",
+        chosenWebsiteNo: 1,
         src: "images/bg-swurl.png"
     });
     const [open, setOpen] = useState(false);
@@ -67,8 +68,9 @@ const WebFront = () => {
                     websiteId: el.id,
                     adminId: el.adminId,
                     userId: el.userId,
-                    title: el.title,
-                    src: el.src,
+                    websiteName: el.websiteName,
+                    chosenWebsiteNo: el.chosenWebsiteName,
+                    src: el.src
                 });
             }
 
@@ -127,9 +129,6 @@ const WebFront = () => {
 
         <AppAccess access={accessArray} component={'website'}>
             <div>
-
-
-
                 <div className='flex flex-col'>
 
                     <div className='lg:col-span-3' id="nav">
@@ -148,9 +147,9 @@ const WebFront = () => {
                             <h1>Edit your website</h1>
                             <div className='grid grid-cols-3 gap-4'>
                                 {webs.map((v) => (
-                                    <div className='shadow-2xl h-72 rounded-[25px] flex flex-col p-4' onClick={() => { setChooseWebsite(v); setOpen(true); }}>
+                                    <div className='shadow-2xl h-72 rounded-[25px] flex flex-col p-4    ' onClick={() => { setChooseWebsite(v); setOpen(true); }}>
                                         <div className='flex justify-between'>
-                                            <h1 className='text-xl font-bol'>{v.title}</h1>
+                                            <h1 className='text-xl font-bol'>{v.websiteName}</h1>
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
                                             </svg>
@@ -207,7 +206,7 @@ const WebFront = () => {
                                         as="h3"
                                         className="text-sm font-medium leading-6 text-gray-900 m-4 flex justify-between"
                                     >
-                                        <h1 className='text-2xl font-bold'>{chooseWebsite.title}</h1>
+                                        <h1 className='text-2xl font-bold underline'>{chooseWebsite.websiteName}</h1>
                                         {/* <button
                                             onClick={() => {
                                                 addWebsite();
@@ -235,7 +234,7 @@ const WebFront = () => {
                                     </Dialog.Title>
 
                                     <div className='w-full border-2 rounded-[15px]'>
-                                        {getView(chooseWebsite.websiteId)}
+                                        {getView(chooseWebsite.chosenWebsiteNo)}
                                     </div>
 
                                 </div>
@@ -243,12 +242,9 @@ const WebFront = () => {
                         </div>
                     </Dialog>
                 </Transition>
-
-
                 <ToastContainer
                     position="top-right"
                     autoClose={5000} />
-
             </div>
         </AppAccess >
 

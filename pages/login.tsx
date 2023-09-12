@@ -225,53 +225,60 @@ const Login = () => {
 
 
     return (
-        <div className='bg-[#00947a] w-full h-full p-4 md:p-8 2xl:p-16 '>
-            <div className='bg-white h-full rounded-[25px] grid grid-cols-1 md:grid-cols-2 p-4 place-items-center'>
+        <div className=' w-full h-full p-4 md:p-8 2xl:p-16 ' style={{ backgroundColor: PRIMARY_COLOR }}>
+            <div className='bg-white h-full rounded-[25px] p-4'>
+                <div className='h-16'>
+                    <a href="/">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75" />
+                        </svg>
 
-
-                <div className='hidden lg:block'>
-                    <Carousel children={shownSlides.map((v) => {
-                        return (
-                            slide(v.image)
-                        )
-                    })} />
+                    </a>
                 </div>
+                <div className='grid grid-cols-1 md:grid-cols-2 place-items-center p-4 h-full'>
 
-                <div className=''>
-                    {loading ?
-                        <div className='w-full flex flex-col items-center content-center'>
-                            <Loader />
-                        </div>
+                    <div className='hidden lg:block'>
+                        <img src={"images/webOneDefaultPicture.jpg"} className='h-96 w-full' />
+                    </div>
+
+                    <div className=''>
+                        {loading ?
+                            <div className='w-full flex flex-col items-center content-center'>
+                                <Loader />
+                            </div>
 
 
-                        : <form onSubmit={
-                            (e) => {
-                                e.preventDefault()
-                                //login()
-                                router.push({
-                                    pathname: '/home'
-                                });
-                            }
-                        }>
-                            <p className='text-center text-xs text-gray-300 mb-4 font-bold'>Login</p>
-                            <div className="mb-6">
-                                <input
-                                    type="text"
-                                    value={sent ? accessCode : phone}
-                                    placeholder={sent ? "Please enter the One Time Password" : "Phone (include country your code )"}
-                                    onChange={(e) => {
-                                        if (sent) {
-                                            setAccessCode(e.target.value);
-                                        } else {
-                                            setPhone(e.target.value)
-                                        }
+                            : <form
+                                className='flex flex-col content-center items-center justify-center'
+                                onSubmit={
+                                    (e) => {
+                                        e.preventDefault()
+                                        //login()
+                                        router.push({
+                                            pathname: '/home'
+                                        });
+                                    }
+                                }>
 
-                                    }}
-                                    className="
+
+                                <p className='text-center text-xs text-gray-300 mb-4 font-bold'>Login</p>
+                                <div className="mb-6">
+                                    <input
+                                        type="text"
+                                        value={sent ? accessCode : phone}
+                                        placeholder={sent ? "Please enter the One Time Password" : "Phone (include country your code )"}
+                                        onChange={(e) => {
+                                            if (sent) {
+                                                setAccessCode(e.target.value);
+                                            } else {
+                                                setPhone(e.target.value)
+                                            }
+
+                                        }}
+                                        className="
                                         w-full
                                         rounded-[25px]
                                         border-2
-                                        border-[#fdc92f]
                                         py-3
                                         px-5
                                         bg-white
@@ -281,35 +288,35 @@ const Login = () => {
                                         focus-visible:shadow-none
                                         focus:border-primary
                                         "
-                                    required
-                                />
-                            </div>
+                                        style={{ borderColor: PRIMARY_COLOR }}
+                                        required
+                                    />
+                                </div>
 
-                            <div className="mb-10">
-                                <input
-                                    type="submit"
-                                    value={sent ? "Login" : "Send One Time Password"}
-                                    className="
+                                <div className="mb-10">
+                                    <input
+                                        type="submit"
+                                        value={sent ? "Login" : "Send One Time Password"}
+                                        className="
                                         font-bold
                                         w-full
                                         rounded-[25px]
                                         border-2
-                                        border-[#fdc92f]
                                         border-primary
                                         py-3
                                         px-5
-                                        bg-[#fdc92f]
                                         text-base 
-                                        text-[#7d5c00]
+                                        text-white
                                         cursor-pointer
                                         hover:bg-opacity-90
                                         transition
                                     "
-                                />
-                            </div>
-                        </form>}
+                                        style={{ backgroundColor: PRIMARY_COLOR, borderColor: PRIMARY_COLOR }}
+                                    />
+                                </div>
+                            </form>}
+                    </div>
                 </div>
-
             </div>
             <div id="recaptcha-container"></div>
             <ToastContainer
