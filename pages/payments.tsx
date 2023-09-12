@@ -16,8 +16,6 @@ import { IPayments } from '../app/types/paymentTypes';
 import { addPayment, getPayments, getPromo } from '../app/api/paymentApi';
 import { print } from '../app/utils/console';
 
-
-
 const Payments = () => {
     const [phone, setPhone] = useState("");
     const [accessCode, setAccessCode] = useState(0);
@@ -38,15 +36,11 @@ const Payments = () => {
     const [promoCode, setPromoCode] = useState("");
     const [userId, setUserId] = useState("");
 
-
-
     useEffect(() => {
         document.body.style.backgroundColor = LIGHT_GRAY;
 
-
         var infoFormCookie = getCookie(COOKIE_ID);
         if (typeof infoFormCookie !== 'undefined') {
-
 
             if (infoFormCookie.length > 0) {
                 const id = decrypt(infoFormCookie, COOKIE_ID);
@@ -55,7 +49,6 @@ const Payments = () => {
                 if (typeof roleCookie !== 'undefined') {
 
                     if (roleCookie.length > 0) {
-
 
                         let role = decrypt(getCookie(PERSON_ROLE), id);
                         if (role !== 'Admin') {
@@ -66,7 +59,6 @@ const Payments = () => {
 
                     }
                 }
-
 
                 getPayments(id).then((v) => {
 
@@ -103,9 +95,6 @@ const Payments = () => {
                         var nextDate = new Date(new Date().setDate(d.getDate() + 30));
                         setNextPaymentDate(`${nextDate.getDate()} ${DateMethods.showMonth(nextDate.getMonth() + 1)} ${nextDate.getFullYear()}`);
 
-
-
-
                     }
                     setLastPaymentDate('No Payment made');
 
@@ -129,25 +118,13 @@ const Payments = () => {
                 });
             }
 
-
         } else {
             router.push({
                 pathname: '/login',
             });
         }
 
-
-
-
-
-
-
-
     }, []);
-
-
-
-
 
     const handlePageClick = (event: { selected: number; }) => {
         let val = event.selected + 1;
@@ -161,7 +138,6 @@ const Payments = () => {
     };
 
     const checkPromoCode = async () => {
-
 
         getPromo(promoCode).then((value) => {
 
@@ -190,7 +166,6 @@ const Payments = () => {
             setLoading(false);
         });
 
-
     }
 
     return (
@@ -202,7 +177,6 @@ const Payments = () => {
                     <ClientNav organisationName={'Vision Is Primary'} url={'payments'} />
                 </div>
                 <div className='col-span-9 m-8  lg:grid grid-cols-1 lg:grid-cols-2 gap-4'>
-
 
                     {loading ?
                         <div className='flex flex-col justify-center items-center w-full col-span-8'>
@@ -221,7 +195,6 @@ const Payments = () => {
                                         onChange={(e) => {
 
                                             setAccessCode(parseInt(e.target.value));
-
 
                                         }}
                                         className="
@@ -290,7 +263,7 @@ const Payments = () => {
                                         py-3
                                         px-5
                                         bg-[#fdc92f]
-                                        text-base 
+                                        text-base
                                         text-[#7d5c00]
                                         cursor-pointer
                                         hover:bg-opacity-90
@@ -357,13 +330,10 @@ const Payments = () => {
                                                             <p className="text-sm text-center">{v.amount}</p>
                                                         </td>
 
-
                                                     </tr>
 
                                                 ))}
                                                 <tr>
-
-
 
                                                 </tr>
                                             </tbody>
@@ -392,15 +362,8 @@ const Payments = () => {
 
                         </>}
 
-
-
-
                 </div>
             </div>
-
-
-
-
 
             <ToastContainer
                 position="top-right"
@@ -410,6 +373,4 @@ const Payments = () => {
     )
 };
 
-
 export default Payments
-
