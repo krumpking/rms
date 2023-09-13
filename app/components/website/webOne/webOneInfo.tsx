@@ -4,16 +4,18 @@ import { getCookie } from 'react-use-cookie';
 import { ToastContainer, toast } from 'react-toastify';
 import { useRouter } from 'next/router';
 import Loader from '../../loader';
-import { IWebsiteOneInfo } from '../../../types/websiteTypes';
+import { IWebsite, IWebsiteOneInfo } from '../../../types/websiteTypes';
 import { useDropzone } from 'react-dropzone';
 import { HexColorPicker } from "react-colorful";
 import ShowImage from '../../showImage';
 import { addDocument, getDataFromDBOne, updateDocument, uploadFile } from '../../../api/mainApi';
 import { checkForWebsiteName } from '../../../api/infoApi';
 import imageCompression from 'browser-image-compression';
-import { WEBSITE_INFO_COLLECTION } from '../../../constants/websiteConstants';
+import { DEFAULT_LOCATION, DEFAULT_ZOOM, MAP_API, WEBSITE_COLLECTION, WEBSITE_INFO_COLLECTION } from '../../../constants/websiteConstants';
 import { AMDIN_FIELD } from '../../../constants/constants';
 import { print } from '../../../utils/console';
+import { createId } from '../../../utils/stringM';
+import MapPicker from 'react-google-map-picker';
 
 const WebOneWebsiteInfo = () => {
     const [loading, setLoading] = useState(true);
@@ -52,7 +54,9 @@ const WebOneWebsiteInfo = () => {
         address: "",
         phone: "",
         date: new Date(),
-        dateString: new Date().toDateString()
+        dateString: new Date().toDateString(),
+        deliveryCost: 0,
+        mapLocation: DEFAULT_LOCATION
 
     });
     const [logoImageAdded, setLogoImageAdded] = useState(false);
@@ -68,7 +72,8 @@ const WebOneWebsiteInfo = () => {
     const [colorSec, setColorSecondary] = useState("#aabbcc");
     const [reservation, setReservation] = useState(false);
     const [adminId, setAdminId] = useState("adminId");
-
+    const [userId, setUserId] = useState("userId");
+    const [location, setLocation] = useState(DEFAULT_LOCATION);
 
 
 
@@ -79,6 +84,12 @@ const WebOneWebsiteInfo = () => {
         getWebsiteInfo();
 
     }, []);
+
+    const handleChangeLocation = (lat: any, lng: any) => {
+        setLocation({ lat: lat, lng: lng });
+    }
+
+
 
 
     const getWebsiteInfo = () => {
@@ -110,7 +121,9 @@ const WebOneWebsiteInfo = () => {
                         address: d.address,
                         phone: d.phone,
                         date: d.date,
-                        dateString: d.dateString
+                        dateString: d.dateString,
+                        deliveryCost: d.deliveryCost,
+                        mapLocation: d.mapLocation
                     });
 
                 });
@@ -251,6 +264,26 @@ const WebOneWebsiteInfo = () => {
 
                             setFiles([]);
                             getWebsiteInfo();
+
+                            let website: IWebsite = {
+                                id: createId(),
+                                websiteId: createId(),
+                                adminId: adminId,
+                                userId: userId,
+                                websiteName: info.websiteName,
+                                chosenWebsiteNo: 1,
+                                src: 'images/webOne.png',
+                                date: new Date(),
+                                dateString: new Date().toDateString()
+                            }
+
+                            addDocument(WEBSITE_COLLECTION, website).then((v) => {
+
+                            }).catch((e) => {
+                                console.error(e);
+                            })
+
+
                         }).catch((e: any) => {
                             setFiles([]);
                             getWebsiteInfo();
@@ -301,7 +334,7 @@ const WebOneWebsiteInfo = () => {
         <div>
             {loading ? (
                 <div className="flex flex-col items-center content-center">
-                    <Loader />
+                    <Loader color={''} />
                 </div>
             ) : (
                 <div className="bg-white rounded-[30px] p-4  grid grid-cols-2">
@@ -611,6 +644,38 @@ const WebOneWebsiteInfo = () => {
                                 name="address"
                                 value={info.address}
                                 placeholder={"Address"}
+                                onChange={handleChange}
+                                className="
+                                        w-full
+                                        rounded-[25px]
+                                        border-2
+                                        border-[#8b0e06]
+                                        py-3
+                                        px-5
+                                        bg-white
+                                        text-base text-body-color
+                                        placeholder-[#ACB6BE]
+                                        outline-none
+                                        focus-visible:shadow-none
+                                        focus:border-primary
+                                        "
+                                required
+                            />
+                        </div>
+                        <div className="mb-6 w-full">
+                            <MapPicker defaultLocation={DEFAULT_LOCATION}
+                                zoom={DEFAULT_ZOOM}
+                                // mapTypeId={createId()}
+                                style={{ height: '200px', width: "100%" }}
+                                onChangeLocation={handleChangeLocation}
+                                apiKey={MAP_API} />
+                        </div>
+                        <div className="mb-6 w-full">
+                            <input
+                                type="text"
+                                name="address"
+                                value={info.deliveryCost}
+                                placeholder={"Delivery Cost per KM in USD"}
                                 onChange={handleChange}
                                 className="
                                         w-full

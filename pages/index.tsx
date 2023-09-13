@@ -26,7 +26,7 @@ const Home: NextPage = () => {
 
     let url = window.location.href;
     let buz = url.slice(7, url.indexOf(".localhost"));
-    print(buz);
+
     if (buz !== "" && !buz.includes(":")) {
       setIsOtherWebsite(true);
       setBusiness(buz);
@@ -35,7 +35,6 @@ const Home: NextPage = () => {
       setLoading(false);
     }
 
-    print(window.location.href);
   }, [])
 
 
@@ -250,8 +249,8 @@ const Home: NextPage = () => {
 
   return (
     <div>
-      {loading ? <div className='flex items-center content-center w-full justify-center p-16'>
-        <Loader />
+      {loading ? <div className='flex items-center content-center w-full h-screen justify-center p-16'>
+        <Loader color={''} />
       </div> :
 
         <div>

@@ -68,7 +68,6 @@ const CreateOrder = () => {
         getCategories();
         getMeals();
         getMenuItems();
-        getOrders();
     }, []);
 
 
@@ -195,24 +194,6 @@ const CreateOrder = () => {
                 });
 
 
-
-            }
-            setLoading(false);
-
-        }).catch((e) => {
-            console.error(e);
-            setLoading(true);
-        });
-    }
-
-
-    const getOrders = () => {
-
-        getDataFromDBOne(ORDER_COLLECTION, AMDIN_FIELD, adminId).then((v) => {
-
-            if (v !== null) {
-                let oN: number = v.count + 1;
-                setOrderNo(oN);
 
             }
             setLoading(false);
@@ -378,37 +359,54 @@ const CreateOrder = () => {
             total += el.price;
         });
 
+        getDataFromDBOne(ORDER_COLLECTION, AMDIN_FIELD, adminId).then((v) => {
 
-        const order: IOrder = {
-            id: "id",
-            orderNo: orderNo,
-            adminId: "adminId",
-            userId: "userId",
-            items: addItems,
-            status: 5,
-            statusCode: 'Received',
-            totalCost: total,
-            deliveryMethod: 'Pick Up',
-            clientId: "clientId",
-            customerName: customerName,
-            tableNo: tableNo,
-            date: new Date(),
-            dateString: new Date().toDateString(),
-        }
+            if (v !== null) {
+                let oN: number = v.count + 1;
+                const order: IOrder = {
+                    id: "id",
+                    orderNo: oN,
+                    adminId: "adminId",
+                    userId: "userId",
+                    items: addItems,
+                    status: 5,
+                    statusCode: 'Received',
+                    totalCost: total,
+                    deliveryMethod: 'Pick Up',
+                    clientId: "clientId",
+                    customerName: customerName,
+                    tableNo: tableNo,
+                    date: new Date(),
+                    dateString: new Date().toDateString(),
+                    customerEmail: "",
+                    customerPhone: "",
+                    customerAddress: ""
+                }
 
 
 
-        addDocument(ORDER_COLLECTION, order).then((v) => {
-            getOrders();
+                addDocument(ORDER_COLLECTION, order).then((v) => {
+
+                    setLoading(false);
+                    toast.success("Meal Added Successfully");
+
+                }).catch((e: any) => {
+                    setLoading(false);
+
+                    console.error(e);
+                    toast.error('There was an error please try again');
+                });
+
+            }
             setLoading(false);
-            toast.success("Meal Added Successfully");
 
-        }).catch((e: any) => {
-            setLoading(false);
-
+        }).catch((e) => {
             console.error(e);
-            toast.error('There was an error please try again');
+            setLoading(true);
         });
+
+
+
     }
 
 
@@ -420,7 +418,7 @@ const CreateOrder = () => {
             <div className="bg-white rounded-[30px] p-4 ">
                 {loading ? (
                     <div className="w-full flex flex-col items-center content-center">
-                        <Loader />
+                        <Loader color={''} />
                     </div>
                 ) : (
 

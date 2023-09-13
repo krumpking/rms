@@ -316,7 +316,7 @@ const AddInventory = () => {
         <div className="bg-white rounded-[30px] p-4 relative">
           {loading ? (
             <div className="w-full flex flex-col items-center content-center">
-              <Loader />
+              <Loader color={''} />
             </div>
           ) : (
             <div className="flex flex-col overflow-y-scroll max-h-[700px] w-full gap-4 p-4">

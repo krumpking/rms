@@ -33,7 +33,9 @@ const WebFront = () => {
         userId: "",
         websiteName: "",
         chosenWebsiteNo: 1,
-        src: "images/bg-swurl.png"
+        src: "images/webOne.png",
+        date: new Date(),
+        dateString: ""
     },
     ]);
     const [chooseWebsite, setChooseWebsite] = useState<IWebsite>({
@@ -43,7 +45,9 @@ const WebFront = () => {
         userId: "",
         websiteName: "Flair",
         chosenWebsiteNo: 1,
-        src: "images/bg-swurl.png"
+        src: "images/webOne.png",
+        date: new Date(),
+        dateString: ""
     });
     const [open, setOpen] = useState(false);
     const [adminId, setAdminId] = useState("adminId");
@@ -70,7 +74,9 @@ const WebFront = () => {
                     userId: el.userId,
                     websiteName: el.websiteName,
                     chosenWebsiteNo: el.chosenWebsiteName,
-                    src: el.src
+                    src: el.src,
+                    date: el.date,
+                    dateString: el.dateString
                 });
             }
 
@@ -138,7 +144,7 @@ const WebFront = () => {
 
                     {loading ?
                         <div className='flex flex-col justify-center items-center w-full col-span-9'>
-                            <Loader />
+                            <Loader color={''} />
                         </div>
 
                         :

@@ -226,7 +226,7 @@ const Login = () => {
 
     return (
         <div className=' w-full h-full p-4 md:p-8 2xl:p-16 ' style={{ backgroundColor: PRIMARY_COLOR }}>
-            <div className='bg-white h-full rounded-[25px] p-4'>
+            <div className='bg-white h-full rounded-[25px] p-8'>
                 <div className='h-16'>
                     <a href="/">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6">

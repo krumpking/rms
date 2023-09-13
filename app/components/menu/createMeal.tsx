@@ -382,7 +382,7 @@ const CreateMeal = () => {
             <div className="bg-white rounded-[30px] p-4 ">
                 {loading ? (
                     <div className="w-full flex flex-col items-center content-center">
-                        <Loader />
+                        <Loader color={''} />
                     </div>
                 ) : (
 
@@ -436,6 +436,16 @@ const CreateMeal = () => {
                         </div>
                         <div className='col-span-3 flex flex-col p-4 '>
                             <div className='max-h-[150px] overflow-y-scroll'>
+                                <div className='flex flex-row justify-between shadow-md m-4 p-4'>
+                                    <p className="text-xs"> Item</p>
+                                    <div className='flex justify-between space-x-2'>
+                                        <p className="text-xs" >No of Items</p>
+                                        <p className="text-xs">Price</p>
+                                        <p className="text-xs">Total</p>
+                                        <p className="text-xs w-4"></p>
+                                    </div>
+
+                                </div>
                                 {displayedItems.map((v: any) => (
                                     <div className='flex flex-row justify-between shadow-sm m-4 p-4'>
                                         <h1>{v.itemName}</h1>

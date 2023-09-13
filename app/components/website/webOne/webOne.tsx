@@ -7,6 +7,7 @@ import Loader from '../../loader';
 import { Tab } from '@headlessui/react';
 import WebOneWebsite from './webOneWebsite';
 import WebOneWebsiteInfo from './webOneInfo';
+import { IWebsiteOneInfo } from '../../../types/websiteTypes';
 
 function classNames(...classes: string[]) {
     return classes.filter(Boolean).join(' ');
@@ -25,15 +26,46 @@ const Web1 = () => {
     const [account, setAccount] = useState('');
     const [bank, setBank] = useState('');
     const router = useRouter();
-    const [tabs, setTabs] = useState(['Website', 'Website Info'])
+    const [tabs, setTabs] = useState(['Website', 'Website Info']);
+    const [info, setInfo] = useState<IWebsiteOneInfo>({
+        id: "",
+        websiteName: "",
+        adminId: "",
+        userId: "",
+        logo: {
+            original: "",
+            thumbnail: ""
+        },
+        serviceProviderName: "Quizznos",
+        headerTitle: "Meet, East & Enjoy the true taste",
+        headerText: "The food places an neighourhood restaurent serving seasonal global cuisine driven by faire",
+        aboutUsImage: {
+            original: "",
+            thumbnail: ""
+        },
+        aboutUsTitle: "About us title",
+        aboutUsInfo: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam ornare tempus aliquet. Pellentesque finibus, est et iaculis suscipit, dolor nulla commodo dui, nec ultricies arcu nisl tristique eros. Morbi eros est, pulvinar eget ornare ac, ultrices eget risus. Ut lobortis pellentesque pretium. Praesent sollicitudin vestibulum iaculis. Mauris a finibus orci. Quisque ipsum nunc, efficitur sit amet blandit ut, aliquam quis dui.",
+        themeMainColor: "#8b0e06",
+        themeSecondaryColor: "#8b0e06",
+        headerImage: {
+            original: "",
+            thumbnail: ""
+        },
+        reservation: true,
+        contactUsImage: {
+            original: "",
+            thumbnail: ""
+        },
+        email: "email@email.com",
+        address: "Address",
+        phone: "phone Number",
+        date: new Date(),
+        dateString: new Date().toString(),
+        deliveryCost: 0,
+        mapLocation: {}
 
+    });
 
-    useEffect(() => {
-
-
-
-
-    }, [])
 
 
 
@@ -41,8 +73,8 @@ const Web1 = () => {
     return (
         <div>
             {loading ? (
-                <div className="flex flex-col items-center content-center">
-                    <Loader />
+                <div className="flex flex-col items-center content-center h-screen justify-center">
+                    <Loader color={''} />
                 </div>
             ) : (
                 <div className="bg-white rounded-[30px] p-4 ">
@@ -73,7 +105,7 @@ const Web1 = () => {
                                     'ring-white  ring-offset-2 focus:outline-none focus:ring-2'
                                 )}
                             >
-                                <WebOneWebsite />
+                                <WebOneWebsite info={info} />
                             </Tab.Panel>
                             <Tab.Panel
                                 className={classNames(

@@ -1,15 +1,18 @@
-import React from 'react'
+import React, { FC } from 'react'
 import { Grid } from 'react-loader-spinner';
 import { PRIMARY_COLOR } from '../constants/constants';
 
+interface MyProps {
+    color: string
+}
 
 
-const Loader = () => {
+const Loader: FC<MyProps> = ({ color }) => {
     return (
         <Grid
             height="100"
             width="100"
-            color={PRIMARY_COLOR}
+            color={color === "" ? PRIMARY_COLOR : color}
             ariaLabel="grid-loading"
             radius="12.5"
             wrapperStyle={{}}

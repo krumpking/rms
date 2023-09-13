@@ -5,7 +5,9 @@ export type IWebsite = {
     userId: string,
     websiteName: string,
     chosenWebsiteNo: number,
-    src: string
+    src: string,
+    date: Date,
+    dateString: string
 }
 
 
@@ -30,7 +32,9 @@ export type IWebsiteOneInfo = {
     address: string,
     phone: string,
     date: Date,
-    dateString: string
+    dateString: string,
+    deliveryCost: number,
+    mapLocation: any
 }
 
 

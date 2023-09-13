@@ -18,6 +18,10 @@ import Script from 'next/script';
 import Head from 'next/head';
 import { IUser } from '../app/types/userTypes';
 import { createId } from '../app/utils/stringM';
+import { addDocument } from '../app/api/mainApi';
+import { ADMIN_COLLECTION } from '../app/constants/userConstants';
+import { WEBSITE_COLLECTION } from '../app/constants/websiteConstants';
+import { IWebsite } from '../app/types/websiteTypes';
 
 
 const SignUp = () => {
@@ -141,6 +145,15 @@ const SignUp = () => {
                 email: email
             }
 
+
+            addDocument(ADMIN_COLLECTION, admin).then((v) => {
+
+
+
+            }).catch((e) => {
+                console.error(e);
+            })
+
             // addAdmin(admin).then((v: DocumentReference<DocumentData> | null) => {
             //     if (v == null) {
             //         toast.warn("Phone number already exists, user another phone number or login");
@@ -228,7 +241,7 @@ const SignUp = () => {
 
                         <div className=''>
                             {loading ?
-                                <Loader />
+                                <Loader color={''} />
 
                                 :
 

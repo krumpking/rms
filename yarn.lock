@@ -6579,7 +6579,7 @@ promzard@^0.3.0:
   dependencies:
     read "1"
 
-prop-types@15.8.1, prop-types@^15, prop-types@^15.5.8, prop-types@^15.6.0, prop-types@^15.6.2, prop-types@^15.7.2, prop-types@^15.8.1:
+prop-types@15.8.1, prop-types@^15, prop-types@^15.5.8, prop-types@^15.6.0, prop-types@^15.6.1, prop-types@^15.6.2, prop-types@^15.7.2, prop-types@^15.8.1:
   version "15.8.1"
   resolved "https://registry.npmjs.org/prop-types/-/prop-types-15.8.1.tgz"
   integrity sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==
@@ -6791,6 +6791,11 @@ react-floater@^0.7.6:
     react-proptype-conditional-require "^1.0.4"
     tree-changes "^0.9.1"
 
+react-google-map-picker@^1.2.3:
+  version "1.2.3"
+  resolved "https://registry.yarnpkg.com/react-google-map-picker/-/react-google-map-picker-1.2.3.tgz#bfd4efe1e2a1345a66d3250ed05ed37166fc2f33"
+  integrity sha512-XeIj0Eh0vhNToMTebQQrt5O9fdPRDf4KtG8J22xupH7Pu49J1dP5UuhfCM6VmK2nIv5ECyQUpOT6+gZgGaQhJA==
+
 react-google-maps@^9.4.5:
   version "9.4.5"
   resolved "https://registry.yarnpkg.com/react-google-maps/-/react-google-maps-9.4.5.tgz#920c199bdc925e0ce93880edffb09428d263aafa"
@@ -6863,6 +6868,14 @@ react-loader-spinner@^5.3.4:
     react-is "^18.2.0"
     styled-components "^5.3.5"
     styled-tools "^1.7.2"
+
+react-location-picker@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/react-location-picker/-/react-location-picker-1.5.0.tgz#42e0f90633401e1b21e49c62a5616be7ddd46d2c"
+  integrity sha512-gBbskwQu319pSjDehqaty+w6nMV9pXayqeaQmwnOvQtDG2TfVAJGta79VlLjQxmeKwsBjHlhkwJ7HW87IN/GKA==
+  dependencies:
+    prop-types "^15.6.1"
+    react-google-maps "^9.4.5"
 
 react-overlays@^5.2.1:
   version "5.2.1"

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import React, { FC, useEffect, useState } from 'react'
 import { Audio } from 'react-loader-spinner';
 import Drawer from './drawer';
-import { ADMIN_ID, COOKIE_EMAIL, COOKIE_ID, COOKIE_NAME, COOKIE_ORGANISATION, COOKIE_PHONE, DOWNLOAD_APP, PERSON_ROLE, URL_LOCK_ID, WHATSAPP_CONTACT } from '../constants/constants';
+import { ADMIN_ID, COOKIE_EMAIL, COOKIE_ID, COOKIE_NAME, COOKIE_ORGANISATION, COOKIE_PHONE, DOWNLOAD_APP, PERSON_ROLE, PRIMARY_COLOR, URL_LOCK_ID, WHATSAPP_CONTACT } from '../constants/constants';
 import { getCookie, setCookie } from 'react-use-cookie';
 import { decrypt } from '../utils/crypto';
 import { COOKIE_AFFILIATE_NUMBER } from '../constants/affilliateConstants';
@@ -70,7 +70,7 @@ const ClientNav: FC<MyProps> = ({ organisationName, url }) => {
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 5.25h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5" />
                     </svg>
                 </button>
-                <Drawer isOpen={isOpen} setIsOpen={setIsOpen} bg={'bg-[#8b0e06]'}>
+                <Drawer isOpen={isOpen} setIsOpen={setIsOpen} bg={'#8b0e06'} color={'#fff'}>
                     <div className='w-[200px]  p-4 flex justify-center items-center bg-white rounded-[25px] mt-4'>
                         <img src="/images/logo.png" className='h-24 w-24 my-6 rounded-xl' />
                     </div>

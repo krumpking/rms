@@ -51,6 +51,8 @@ const Accounting = () => {
         tableNo: "",
         date: new Date(),
         dateString: "",
+        customerEmail: "",
+        customerPhone: ""
     });
     const [open, setOpen] = useState(false);
     const [webfrontname, setWebfrontname] = useState("");
@@ -142,7 +144,9 @@ const Accounting = () => {
                         tableNo: d.tableNO,
                         date: d.date,
                         dateString: d.dateString,
-                        totalCost: d.totalCost
+                        totalCost: d.totalCost,
+                        customerEmail: d.customerEmail,
+                        customerPhone: d.customerPhone
                     }]);
 
                 });
@@ -244,7 +248,9 @@ const Accounting = () => {
             tableNo: d.tableNo,
             date: d.date,
             dateString: d.dateString,
-            totalCost: cost
+            totalCost: cost,
+            customerPhone: d.customerName,
+            customerEmail: d.customerEmail
         }
         setSelectedOrder(sOrder);
     }
@@ -357,7 +363,7 @@ const Accounting = () => {
                     <div className="w-full m-2 px-2 py-8 sm:px-0 col-span-9 bg-white rounded-[30px] p-4 ">
                         {loading ? (
                             <div className="w-full flex flex-col items-center content-center">
-                                <Loader />
+                                <Loader color={''} />
                             </div>
                         ) : (
 
