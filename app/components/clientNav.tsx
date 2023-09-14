@@ -3,7 +3,7 @@ import Link from 'next/link';
 import React, { FC, useEffect, useState } from 'react'
 import { Audio } from 'react-loader-spinner';
 import Drawer from './drawer';
-import { ADMIN_ID, COOKIE_EMAIL, COOKIE_ID, COOKIE_NAME, COOKIE_ORGANISATION, COOKIE_PHONE, DOWNLOAD_APP, PERSON_ROLE, URL_LOCK_ID, WHATSAPP_CONTACT } from '../constants/constants';
+import { ADMIN_ID, COOKIE_EMAIL, COOKIE_ID, COOKIE_NAME, COOKIE_ORGANISATION, COOKIE_PHONE, DOWNLOAD_APP, PERSON_ROLE, PRIMARY_COLOR, URL_LOCK_ID, WHATSAPP_CONTACT } from '../constants/constants';
 import { getCookie, setCookie } from 'react-use-cookie';
 import { decrypt } from '../utils/crypto';
 import { COOKIE_AFFILIATE_NUMBER } from '../constants/affilliateConstants';
@@ -70,7 +70,7 @@ const ClientNav: FC<MyProps> = ({ organisationName, url }) => {
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 5.25h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5" />
                     </svg>
                 </button>
-                <Drawer isOpen={isOpen} setIsOpen={setIsOpen} bg={'bg-[#8b0e06]'}>
+                <Drawer isOpen={isOpen} setIsOpen={setIsOpen} bg={'#8b0e06'} color={'#fff'}>
                     <div className='w-[200px]  p-4 flex justify-center items-center bg-white rounded-[25px] mt-4'>
                         <img src="/images/logo.png" className='h-24 w-24 my-6 rounded-xl' />
                     </div>
@@ -85,7 +85,7 @@ const ClientNav: FC<MyProps> = ({ organisationName, url }) => {
                                 <h1 className='col-span-3 text-white'>Home</h1>
                             </div>
                         </a>
-                        <a href={'/info'} className={`${url === 'info' ? 'bg-[#fc0109] p-2 rounded-[25px]' : 'p-2 rounded-[25px]'}`}>
+                        {/* <a href={'/info'} className={`${url === 'info' ? 'bg-[#fc0109] p-2 rounded-[25px]' : 'p-2 rounded-[25px]'}`}>
                             <div className='grid grid-cols-4 w-full'>
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6 col-span-1 text-white justify-self-center">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
@@ -94,7 +94,7 @@ const ClientNav: FC<MyProps> = ({ organisationName, url }) => {
 
                                 <h1 className='col-span-3 text-white'> Info</h1>
                             </div>
-                        </a>
+                        </a> */}
                         <a href={'/users'} className={`${url === 'users' ? 'bg-[#fc0109] p-2 rounded-[25px]' : 'p-2 rounded-[25px]'}`}>
                             <div className='grid grid-cols-4 w-full'>
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="col-span-1 w-6 h-6 text-white justify-self-center">
@@ -177,7 +177,7 @@ const ClientNav: FC<MyProps> = ({ organisationName, url }) => {
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
                                 </svg>
 
-                                <h1 className='col-span-3 text-white'>Web Front</h1>
+                                <h1 className='col-span-3 text-white'>Website</h1>
                             </div>
                         </a>
                         <a href={'/payments'} className={`${url === 'payments' ? 'bg-[#fc0109] p-2 rounded-[25px] ' : 'p-2 rounded-[25px]'}`}>

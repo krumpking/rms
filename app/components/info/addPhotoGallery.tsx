@@ -20,8 +20,9 @@ import { getUrl } from '../../utils/getImageUrl';
 import { Iinfo } from '../../types/infoTypes';
 import { print } from '../../utils/console';
 import ShowImageGalleries from '../showImageGallery';
-import { uploadFile } from '../../api/mainApi';
+import { updateDocument, uploadFile } from '../../api/mainApi';
 import AppAccess from '../accessLevel';
+import { INFO_COLLECTION } from '../../constants/infoConstants';
 
 
 const PhotoGallery = () => {
@@ -58,6 +59,7 @@ const PhotoGallery = () => {
         'menu', 'orders', 'move-from-pantry', 'move-from-kitchen', 'cash-in',
         'cash-out', 'cash-report', 'add-stock', 'confirm-stock', 'move-to-served', 'add-reservation', 'available-reservations',
         'staff-scheduling', 'website', 'payments']);
+    const [logo, setLogo] = useState<any>();
 
     useEffect(() => {
         document.body.style.backgroundColor = LIGHT_GRAY;
@@ -93,6 +95,7 @@ const PhotoGallery = () => {
                     setDateString(val.dateString);
                     setId(val.id);
                     setDocId(el.id);
+                    setLogo(val.logo);
                     if (val.gallery.length > 0) {
                         let imgs: any[] = [];
                         val.gallery.forEach(async (element: any) => {
@@ -187,11 +190,12 @@ const PhotoGallery = () => {
                             date: new Date(),
                             dateString: new Date().toDateString(),
                             id: id,
+                            logo: logo,
                             gallery: currFiles
                         }
 
 
-                        addResInfo(docId, info).then((v) => {
+                        updateDocument(INFO_COLLECTION, docId, info).then((v) => {
                             setPercentageDone(0);
                             getInfo();
                             setImageLoader(false);
@@ -201,7 +205,9 @@ const PhotoGallery = () => {
                             setLoading(false);
                             console.error(e);
                             toast.error('There was an error please try again');
-                        })
+                        });
+
+
 
 
 

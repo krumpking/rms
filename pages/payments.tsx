@@ -16,6 +16,8 @@ import { IPayments } from '../app/types/paymentTypes';
 import { addPayment, getPayments, getPromo } from '../app/api/paymentApi';
 import { print } from '../app/utils/console';
 import AppAccess from '../app/components/accessLevel';
+import { addDocument } from '../app/api/mainApi';
+import { PAYMENTS_COLLECTION } from '../app/constants/paymentConstants';
 
 
 
@@ -27,6 +29,17 @@ const Payments = () => {
     const router = useRouter();
     const [{ isPending }] = usePayPalScriptReducer();
     const [payments, setPayments] = useState<IPayments[]>([]);
+    const [payment, setPayment] = useState<IPayments>({
+        id: "",
+        adminId: "",
+        userId: "",
+        date: new Date(),
+        dateString: new Date().toDateString(),
+        amount: 0,
+        duration: 0,
+        refCode: '',
+        package: 'Solo'
+    });
     const [pages, setPages] = useState(0);
     const [paymentsStart, setPaymentStart] = useState(0);
     const [paymentsEnd, setPaymentEnd] = useState(10);
@@ -42,6 +55,8 @@ const Payments = () => {
         'menu', 'orders', 'move-from-pantry', 'move-from-kitchen', 'cash-in',
         'cash-out', 'cash-report', 'add-stock', 'confirm-stock', 'move-to-served', 'add-reservation', 'available-reservations',
         'staff-scheduling', 'website', 'payments', 'stock-overview']);
+    const [category, setCategory] = useState(['Solo', 'Small Team', 'Enterprise']);
+    const [duration, setDuration] = useState([30, 90, 365]);
 
 
 
@@ -49,98 +64,98 @@ const Payments = () => {
         document.body.style.backgroundColor = LIGHT_GRAY;
 
 
-        var infoFormCookie = getCookie(COOKIE_ID);
-        if (typeof infoFormCookie !== 'undefined') {
+        // var infoFormCookie = getCookie(COOKIE_ID);
+        // if (typeof infoFormCookie !== 'undefined') {
 
 
-            if (infoFormCookie.length > 0) {
-                const id = decrypt(infoFormCookie, COOKIE_ID);
-                setUserId(id);
-                var roleCookie = getCookie(PERSON_ROLE);
-                if (typeof roleCookie !== 'undefined') {
+        //     if (infoFormCookie.length > 0) {
+        //         const id = decrypt(infoFormCookie, COOKIE_ID);
+        //         setUserId(id);
+        //         var roleCookie = getCookie(PERSON_ROLE);
+        //         if (typeof roleCookie !== 'undefined') {
 
-                    if (roleCookie.length > 0) {
-
-
-                        let role = decrypt(getCookie(PERSON_ROLE), id);
-                        if (role !== 'Admin') {
-                            toast.error('Only Admin can make payments');
-                            toast.error('Kindly contact Admin to make payment');
-                            router.push('/login');
-                        }
-
-                    }
-                }
+        //             if (roleCookie.length > 0) {
 
 
-                getPayments(id).then((v) => {
+        //                 let role = decrypt(getCookie(PERSON_ROLE), id);
+        //                 if (role !== 'Admin') {
+        //                     toast.error('Only Admin can make payments');
+        //                     toast.error('Kindly contact Admin to make payment');
+        //                     router.push('/login');
+        //                 }
 
-                    if (v !== null) {
-
-                        let prevPayments: IPayments[] = [];
-                        v.data.forEach(element => {
-                            const fromDb = element.data().userId;
-                            if (fromDb !== "") {
-                                if (fromDb === id) {
-                                    prevPayments.push({
-                                        id: element.id,
-                                        userId: element.data().userId,
-                                        date: element.data().date,
-                                        amount: element.data().amount,
-                                        refCode: element.data().refCode
-                                    });
-                                }
-
-                            }
-                        });
-                        setPayments(prevPayments);
-                        if (payments.length > 0) {
-                            setProduct({
-                                description: "Digital Data Tree Subscription Fee",
-                                price: 45
-                            });
-                            setLastPaymentDate("Upcoming");
-
-                        }
-
-                        var d = new Date(payments[0].date);
-                        setLastPaymentDate(`${d.getDate()} ${DateMethods.showMonth(d.getMonth() + 1)} ${d.getFullYear()}`);
-                        var nextDate = new Date(new Date().setDate(d.getDate() + 30));
-                        setNextPaymentDate(`${nextDate.getDate()} ${DateMethods.showMonth(nextDate.getMonth() + 1)} ${nextDate.getFullYear()}`);
+        //             }
+        //         }
 
 
+        //         getPayments(id).then((v) => {
+
+        //             if (v !== null) {
+
+        //                 let prevPayments: IPayments[] = [];
+        //                 v.data.forEach(element => {
+        //                     const fromDb = element.data().userId;
+        //                     if (fromDb !== "") {
+        //                         if (fromDb === id) {
+        //                             prevPayments.push({
+        //                                 id: element.id,
+        //                                 userId: element.data().userId,
+        //                                 date: element.data().date,
+        //                                 amount: element.data().amount,
+        //                                 refCode: element.data().refCode
+        //                             });
+        //                         }
+
+        //                     }
+        //                 });
+        //                 setPayments(prevPayments);
+        //                 if (payments.length > 0) {
+        //                     setProduct({
+        //                         description: "Digital Data Tree Subscription Fee",
+        //                         price: 45
+        //                     });
+        //                     setLastPaymentDate("Upcoming");
+
+        //                 }
+
+        //                 var d = new Date(payments[0].date);
+        //                 setLastPaymentDate(`${d.getDate()} ${DateMethods.showMonth(d.getMonth() + 1)} ${d.getFullYear()}`);
+        //                 var nextDate = new Date(new Date().setDate(d.getDate() + 30));
+        //                 setNextPaymentDate(`${nextDate.getDate()} ${DateMethods.showMonth(nextDate.getMonth() + 1)} ${nextDate.getFullYear()}`);
 
 
-                    }
-                    setLastPaymentDate('No Payment made');
-
-                    setLoading(false);
-
-                }).catch((err) => {
-                    console.error(err);
-                    setLoading(false);
-                });
-
-                var numOfPages = Math.floor(payments.length / 10);
-                if (payments.length % 10 > 0) {
-                    numOfPages++;
-                }
-                const pags = Array.from(Array(numOfPages).keys());
-                setPages(pags.length);
-
-            } else {
-                router.push({
-                    pathname: '/login',
-                });
-            }
 
 
-        } else {
-            router.push({
-                pathname: '/login',
-            });
-        }
+        //             }
+        //             setLastPaymentDate('No Payment made');
 
+        //             setLoading(false);
+
+        //         }).catch((err) => {
+        //             console.error(err);
+        //             setLoading(false);
+        //         });
+
+        //         var numOfPages = Math.floor(payments.length / 10);
+        //         if (payments.length % 10 > 0) {
+        //             numOfPages++;
+        //         }
+        //         const pags = Array.from(Array(numOfPages).keys());
+        //         setPages(pags.length);
+
+        //     } else {
+        //         router.push({
+        //             pathname: '/login',
+        //         });
+        //     }
+
+
+        // } else {
+        //     router.push({
+        //         pathname: '/login',
+        //     });
+        // }
+        setLoading(false);
 
 
 
@@ -173,16 +188,18 @@ const Payments = () => {
             if (value) {
                 toast.success('Promo code accepted');
                 const id = decrypt(getCookie(COOKIE_ID), COOKIE_ID);
-                const payment = {
+                const newPayment = {
+                    ...payment,
                     id: Random.randomString(13, "abcdefghijkhlmnopqrstuvwxz123456789"),
                     userId: id,
-                    date: new Date().toString(),
+                    date: new Date(),
+                    dateString: new Date().toDateString,
                     amount: 0,
                     refCode: ""
                 }
 
-                addPayment(payment).then((v) => {
-
+                addDocument(PAYMENTS_COLLECTION, newPayment).then((v) => {
+                    toast.success('Promo Successfully submitted');
                 }).catch((er) => {
                     console.error(er);
                 });
@@ -198,60 +215,120 @@ const Payments = () => {
 
     }
 
+    const handleChange = (e: any) => {
+        setPayment({
+            ...payment,
+            [e.target.name]: e.target.value
+        })
+    }
+
     return (
         <AppAccess access={accessArray} component={'payments'}>
             <div>
 
-                <div className='flex flex-col lg:grid lg:grid-cols-12'>
+                <div className='flex flex-col'>
 
                     <div className='lg:col-span-3'>
                         <ClientNav organisationName={'Vision Is Primary'} url={'payments'} />
                     </div>
-                    <div className='col-span-9 m-8  lg:grid grid-cols-1 lg:grid-cols-2 gap-4'>
+                    <div className='col-span-9 m-8 '>
 
 
                         {loading ?
                             <div className='flex flex-col justify-center items-center w-full col-span-8'>
-                                <Loader />
+                                <Loader color={''} />
                             </div>
 
                             :
 
-                            <>
+                            <div className='lg:grid grid-cols-1 lg:grid-cols-2 gap-4'>
                                 <div className='flex flex-col  w-full col-span-1  space-y-4'>
                                     <div className='flex flex-col justify-center items-center w-full bg-white rounded-[30px] h-84 p-4'>
+                                        <button
+                                            className='font-bold rounded-[25px] border-2 bg-white px-4 py-3 w-full mb-2'
+                                            style={{ borderColor: PRIMARY_COLOR }}
+                                            onClick={(e) => e.preventDefault()}>
+                                            <select
+                                                onChange={handleChange}
+                                                name="package"
+                                                className='bg-white w-full'
+                                                data-required="1"
+                                                required>
+                                                <option value="Delivery" hidden>
+                                                    Select Package
+                                                </option>
+                                                {category.map(v => (
+                                                    <option value={v} >
+                                                        {v}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </button>
+                                        <button
+                                            className='font-bold rounded-[25px] border-2 bg-white px-4 py-3 w-full mb-2 text-center'
+                                            style={{ borderColor: PRIMARY_COLOR }}
+                                            onClick={(e) => e.preventDefault()}>
+                                            <select
+                                                // value={order.deliveryMethod}
+                                                onChange={handleChange}
+                                                name="duration"
+                                                className='bg-white w-full'
+                                                data-required="1"
+                                                required>
+                                                <option value="Delivery" hidden>
+                                                    Select Duration
+                                                </option>
+                                                {duration.map(v => (
+                                                    <option value={v} >
+                                                        {v}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </button>
                                         <input
-                                            type="number"
-                                            value={accessCode}
+                                            type="text"
+                                            value={payment.refCode}
                                             placeholder={"Refferial Code(If Available)"}
-                                            onChange={(e) => {
-
-                                                setAccessCode(parseInt(e.target.value));
-
-
+                                            name="refCode"
+                                            onChange={handleChange}
+                                            style={{
+                                                borderColor: PRIMARY_COLOR
                                             }}
                                             className="
-                                        text-center
-                                        w-full
-                                        rounded-[25px]
-                                        border-2
-                                        border-[#fdc92f]
-                                        py-3
-                                        px-5
-                                        bg-white
-                                        text-base text-body-color
-                                        placeholder-[#ACB6BE]
-                                        outline-none
-                                        focus-visible:shadow-none
-                                        focus:border-primary
-                                        mb-4
-                                        "
+                                                text-center
+                                                w-full
+                                                rounded-[25px]
+                                                border-2
+                                                py-3
+                                                px-5
+                                                bg-white
+                                                text-base text-body-color
+                                                placeholder-[#ACB6BE]
+                                                outline-none
+                                                focus-visible:shadow-none
+                                                focus:border-primary
+                                                mb-4
+                                            "
                                             required
                                         />
                                         <h1 className='col-span-3 m-4'>Make Payment</h1>
                                         {isPending ?
-                                            <Loader />
-                                            : <PaypalCheckoutButton affNo={accessCode} />}
+                                            <Loader color={''} />
+                                            : <PaypalCheckoutButton payment={payment} isReservationPayment={false} reservation={{
+                                                adminId: '',
+                                                userId: '',
+                                                name: '',
+                                                phoneNumber: 0,
+                                                email: '',
+                                                date: new Date(),
+                                                time: '',
+                                                peopleNumber: 0,
+                                                notes: '',
+                                                category: '',
+                                                dateAdded: new Date(),
+                                                dateOfUpdate: new Date(),
+                                                dateAddedString: ''
+                                            }} color={''} />}
                                         <h1 className='col-span-3 m-4'>or</h1>
                                         <input
                                             type="text"
@@ -262,22 +339,24 @@ const Payments = () => {
                                                 setPromoCode(e.target.value);
 
                                             }}
+                                            style={{
+                                                borderColor: PRIMARY_COLOR
+                                            }}
                                             className="
-                                        text-center
-                                        w-full
-                                        rounded-[25px]
-                                        border-2
-                                        border-[#fdc92f]
-                                        py-3
-                                        px-5
-                                        bg-white
-                                        text-base text-body-color
-                                        placeholder-[#ACB6BE]
-                                        outline-none
-                                        focus-visible:shadow-none
-                                        focus:border-primary
-                                        mb-4
-                                        "
+                                                text-center
+                                                w-full
+                                                rounded-[25px]
+                                                border-2
+                                                py-3
+                                                px-5
+                                                bg-white
+                                                text-base text-body-color
+                                                placeholder-[#ACB6BE]
+                                                outline-none
+                                                focus-visible:shadow-none
+                                                focus:border-primary
+                                                mb-4
+                                            "
                                             required
                                         />
                                         <button
@@ -286,27 +365,29 @@ const Payments = () => {
                                                 checkPromoCode();
 
                                             }}
+                                            style={{
+                                                backgroundColor: PRIMARY_COLOR,
+                                                borderColor: PRIMARY_COLOR
+                                            }}
                                             className="
-                                    font-bold
-                                        w-full
-                                        rounded-[25px]
-                                    border-2
-                                    border-[#fdc92f]
-                                        border-primary
-                                        py-3
-                                        px-5
-                                        bg-[#fdc92f]
-                                        text-base 
-                                        text-[#7d5c00]
-                                        cursor-pointer
-                                        hover:bg-opacity-90
-                                        transition
-                                        ">
+                                                font-bold
+                                                w-full
+                                                rounded-[25px]
+                                                border-2
+                                                border-primary
+                                                py-3
+                                                px-5
+                                                text-base
+                                                text-white
+                                                cursor-pointer
+                                                hover:bg-opacity-90
+                                                transition
+                                            ">
                                             Submit Promo Code
                                         </button>
 
                                     </div>
-                                    <div className='bg-[#00947a] p-5 h-64 rounded-[30px]'>
+                                    <div className='p-5 h-64 rounded-[30px]' style={{ backgroundColor: PRIMARY_COLOR }}>
                                         <h1 className='text-white'>Last payment date: {lastPaymentDate} </h1>
                                         <h1 className='text-white'>Next payment date: {nextPaymentDate} </h1>
                                         <div className='h-3'>
@@ -322,7 +403,7 @@ const Payments = () => {
                                 <div className='col-span-1 bg-white rounded-[30px] p-4'>
                                     <p>Payment History</p>
                                     {payments.length > 0 ?
-                                        <>
+                                        <div>
                                             <table className="table-auto w-full">
                                                 <thead className="text-xs font-semibold uppercase text-gray-400 bg-gray-50">
 
@@ -357,7 +438,7 @@ const Payments = () => {
                                                                 </button>
                                                             </td>
                                                             <td className="p-2 whitespace-nowrap">
-                                                                <p className="text-left font-medium ">{v.date}</p>
+                                                                <p className="text-left font-medium ">{v.dateString}</p>
                                                             </td>
                                                             <td className="p-2 whitespace-nowrap">
                                                                 <p className="text-sm text-center">{v.amount}</p>
@@ -392,11 +473,11 @@ const Payments = () => {
                                                     renderOnZeroPageCount={() => null}
                                                 />
                                             </div>
-                                        </> : <p>No Payment History</p>}
+                                        </div> : <p>No Payment History</p>}
 
                                 </div>
 
-                            </>}
+                            </div>}
 
 
 
