@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FC } from 'react';
 import { getCookie } from 'react-use-cookie';
 import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router';
 import Loader from '../../loader';
 import { IContact, IWebsiteOneInfo } from '../../../types/websiteTypes';
@@ -20,7 +21,13 @@ import { createId, numberWithCommas } from '../../../utils/stringM';
 import { ORDER_COLLECTION } from '../../../constants/orderConstants';
 import MapPicker from 'react-google-map-picker';
 import { DEFAULT_LOCATION, DEFAULT_ZOOM, MAP_API } from '../../../constants/websiteConstants';
-import { distance } from '../../../utils/mapMethods';
+import { distance, findDis, getDis } from '../../../utils/mapMethods';
+import { LatLng, computeDistanceBetween } from 'spherical-geometry-js';
+import { usePayPalScriptReducer } from '@paypal/react-paypal-js';
+import PaypalCheckoutButton from '../../paypalButton';
+import { IPayments } from '../../../types/paymentTypes';
+import { CONTACT_COLLECTION } from '../../../constants/contactConstats';
+
 
 interface MyProps {
     info: IWebsiteOneInfo
@@ -37,8 +44,23 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
     const [webfrontname, setWebfrontname] = useState("webfrontId");
     const [websiteName, setWebsiteName] = useState("websitename");
     const [adminId, setAdminId] = useState("adminId");
+    const [userId, setUserId] = useState("");
     const [search, setSearch] = useState("");
-    const [reservation, setReservation] = useState({});
+    const [reservation, setReservation] = useState({
+        adminId: "",
+        userId: "",
+        name: "",
+        phoneNumber: 0,
+        email: "",
+        date: new Date(),
+        time: "",
+        peopleNumber: 0,
+        notes: "",
+        category: "",
+        dateAdded: new Date(),
+        dateOfUpdate: new Date(),
+        dateAddedString: ""
+    });
     const [contact, setContact] = useState<IContact>({
         id: "",
         adminId: "",
@@ -61,27 +83,41 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
         status: 0,
         statusCode: "",
         totalCost: 0,
-        deliveryMethod: "",
+        deliveryMethod: "Pick Up",
         clientId: "",
         customerName: "",
         customerEmail: "",
         customerPhone: "",
         customerAddress: "",
+        deliveryLocation: null,
         tableNo: "",
         date: new Date(),
         dateString: new Date().toDateString(),
+
 
     });
     const [displayedItems, setDisplayedItems] = useState<any>([]);
     const [deliveryMethods, setDeliveryMethods] = useState(['Pick Up', 'Delivery']);
     const [deliveryCost, setDeliveryCost] = useState(0);
     const [location, setLocation] = useState(DEFAULT_LOCATION);
-
+    const [loadDist, setLoadDist] = useState(false);
+    const [isReservationPayment, setIsReservationPayment] = useState(false);
+    const [{ isPending }] = usePayPalScriptReducer();
+    const [payment, setPayment] = useState<IPayments>({
+        id: "",
+        adminId: "",
+        userId: "",
+        date: new Date(),
+        dateString: new Date().toDateString(),
+        amount: 10,
+        duration: 0,
+        refCode: '',
+        package: ''
+    });
 
 
 
     useEffect(() => {
-
         getMeals();
         getMenuItems();
     }, []);
@@ -89,9 +125,6 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
     const handleChangeLocation = (lat: any, lng: any) => {
         setLocation({ lat: lat, lng: lng });
     }
-
-
-
 
     const getMeals = () => {
 
@@ -149,7 +182,6 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
         getDataFromDBOne(MENU_ITEM_COLLECTION, AMDIN_FIELD, adminId).then((v) => {
 
             if (v !== null) {
-
                 v.data.forEach(element => {
                     let d = element.data();
 
@@ -181,9 +213,6 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                     }]);
 
                 });
-
-
-
             }
             setLoading(false);
 
@@ -286,7 +315,8 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
         });
 
         if (order.deliveryMethod == "Delivery") {
-            let d = info.deliveryCost * distance(location.lat, location.lng, info.mapLocation.latitude, info.mapLocation.longitude, 'K');
+            let dis = computeDistanceBetween(new LatLng(location.lat, location.lng), new LatLng(info.mapLocation.latitude, info.mapLocation.longitude));
+            let d = info.deliveryCost * (dis / 1000);
             d.toFixed(2)
             total += d;
         }
@@ -325,7 +355,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                 price: v.price
             })
         }
-
+        toast.success('Added to cart');
         setDisplayedItems(display);
     }
 
@@ -361,7 +391,9 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 
     const getDeliveryCost = () => {
 
-        let d = info.deliveryCost * distance(location.lat, location.lng, info.mapLocation.latitude, info.mapLocation.longitude, 'K');
+
+        let dis = computeDistanceBetween(new LatLng(location.lat, location.lng), new LatLng(info.mapLocation.latitude, info.mapLocation.longitude));
+        let d = info.deliveryCost * (dis / 1000);
         return d.toFixed(2);
 
     }
@@ -384,23 +416,27 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                     });
                     total += deliveryCost;
 
-                    let newOrder = {
+                    let newOrder: IOrder = {
                         ...order,
                         orderNo: oN,
                         items: addItems,
+                        status: 0,
                         statusCode: "Sent",
                         totalCost: total,
+                        deliveryMethod: "Delivery",
                         deliveryLocation: location,
+                        date: new Date(),
+                        dateString: new Date().toDateString()
 
                     }
 
-                    print(newOrder);
+
                     addDocument(ORDER_COLLECTION, newOrder).then((v) => {
                         setLoading(false);
                         toast.success('Order Added successfully');
                     }).catch((e) => {
                         console.error(e);
-
+                        toast.error('Please try again');
                     })
 
                 }
@@ -421,7 +457,39 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 
 
 
+    const addReservation = () => {
+        let newRes = {
+            ...reservation,
+            date: new Date(),
+            addedDate: new Date(),
+            dateString: new Date().toDateString(),
+            dateAddedString: new Date().toDateString(),
+        }
+        print(newRes);
+        setReservation(newRes);
+        setIsReservationPayment(true);
+        setIsOpen(true);
+    }
 
+    const addContact = () => {
+        let newContact = {
+            ...contact,
+            date: new Date(),
+            dateString: new Date().toDateString(),
+            adminId: adminId,
+            userId: userId
+        }
+
+        addDocument(CONTACT_COLLECTION, newContact).then((v) => {
+            if (v !== null) {
+                toast.success('Message successfully sent')
+            }
+        }).catch((e) => {
+            console.error(e);
+            toast.error('There was an error sending a message please try again');
+        })
+
+    }
 
     const getView = () => {
         switch (index) {
@@ -490,7 +558,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                                             <p className="text-xl">{v.title}</p>
                                             <div className='flex justify-between'>
                                                 <p className='text-md'>{v.price}USD</p>
-                                                <div
+                                                <button
                                                     onClick={() => { addToCart(v) }}
                                                     className='relative rounded-md p-2'
                                                     style={{ backgroundColor: info.themeMainColor }} >
@@ -498,7 +566,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                                                         fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6 text-white">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
                                                     </svg>
-                                                </div>
+                                                </button>
                                             </div>
 
                                         </div>
@@ -595,10 +663,10 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                                         "
                                     />
                                     <input
-                                        type="date"
-                                        // value={search}
-                                        // placeholder={"Date"}
-                                        name="date"
+                                        type="text"
+                                        // value={reservation}
+                                        name="phoneNumber"
+                                        placeholder={"Phone Number"}
                                         onChange={handleChange}
                                         style={{ borderColor: `${info.themeMainColor}` }}
                                         className="
@@ -614,6 +682,28 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                                         focus-visible:shadow-none
                                         focus:border-primary
                                         mb-6
+                                        "
+                                    />
+                                    <input
+                                        type="date"
+                                        // value={search}
+                                        // placeholder={"Date"}
+                                        name="date"
+                                        onChange={handleChange}
+                                        style={{ borderColor: `${info.themeMainColor}` }}
+                                        className="
+                                            w-full
+                                            rounded-md
+                                            border-2
+                                            py-3
+                                            px-5
+                                            bg-white
+                                            text-base text-body-color
+                                            placeholder-[#ACB6BE]
+                                            outline-none
+                                            focus-visible:shadow-none
+                                            focus:border-primary
+                                            mb-6
                                         "
                                     />
                                     <input
@@ -624,51 +714,90 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                                         onChange={handleChange}
                                         style={{ borderColor: `${info.themeMainColor}` }}
                                         className="
-                                        w-full
-                                        rounded-md
-                                        border-2
-                                        py-3
-                                        px-5
-                                        bg-white
-                                        text-base text-body-color
-                                        placeholder-[#ACB6BE]
-                                        outline-none
-                                        focus-visible:shadow-none
-                                        focus:border-primary
-                                        mb-6
+                                            w-full
+                                            rounded-md
+                                            border-2
+                                            py-3
+                                            px-5
+                                            bg-white
+                                            text-base text-body-color
+                                            placeholder-[#ACB6BE]
+                                            outline-none
+                                            focus-visible:shadow-none
+                                            focus:border-primary
+                                            mb-6
                                         "
-
-                                        onKeyDown={handleKeyDown}
+                                    />
+                                    <input
+                                        type="text"
+                                        // value={search}
+                                        placeholder={"Email"}
+                                        name="email"
+                                        onChange={handleChange}
+                                        style={{ borderColor: `${info.themeMainColor}` }}
+                                        className="
+                                            col-span-2
+                                            w-full
+                                            rounded-md
+                                            border-2
+                                            py-3
+                                            px-5
+                                            bg-white
+                                            text-base text-body-color
+                                            placeholder-[#ACB6BE]
+                                            outline-none
+                                            focus-visible:shadow-none
+                                            focus:border-primary
+                                            mb-6
+                                        "
+                                    />
+                                    <textarea
+                                        name="notes"
+                                        // value={search}
+                                        placeholder={"Notes"}
+                                        onChange={handleChange}
+                                        style={{ borderColor: `${info.themeMainColor}` }}
+                                        className="
+                                            col-span-2
+                                            w-full
+                                            rounded-md
+                                            border-2
+                                            py-3
+                                            px-5
+                                            bg-white
+                                            text-base text-body-color
+                                            placeholder-[#ACB6BE]
+                                            outline-none
+                                            focus-visible:shadow-none
+                                            focus:border-primary
+                                            mb-6
+                                        "
                                     />
                                     <input
                                         type="number"
-                                        name="number"
-                                        value={search}
+                                        name="peopleNumber"
                                         placeholder={"Number of people"}
-                                        onChange={(e) => {
-                                            setSearch(e.target.value);
-                                        }}
+                                        onChange={handleChange}
                                         style={{ borderColor: `${info.themeMainColor}` }}
                                         className="
-                                        w-full
-                                        rounded-md
-                                        border-2
-                                        py-3
-                                        px-5
-                                        bg-white
-                                        text-base text-body-color
-                                        placeholder-[#ACB6BE]
-                                        outline-none
-                                        focus-visible:shadow-none
-                                        focus:border-primary
-                                        mb-6
+                                            w-full
+                                            rounded-md
+                                            border-2
+                                            py-3
+                                            px-5
+                                            bg-white
+                                            text-base text-body-color
+                                            placeholder-[#ACB6BE]
+                                            outline-none
+                                            focus-visible:shadow-none
+                                            focus:border-primary                                        
                                         "
-
-                                        onKeyDown={handleKeyDown}
                                     />
+
                                     <button
-                                        className='py-2 px-5 text-white rounded-md w-full'
-                                        style={{ backgroundColor: `${info.themeMainColor}` }}
+                                        onClick={() => { addReservation() }}
+                                        className='py-3 px-5 text-white rounded-md w-full border'
+                                        style={{ backgroundColor: `${info.themeMainColor}`, borderColor: info.themeMainColor }}
                                     >
                                         Add Reservation
                                     </button>
@@ -751,7 +880,6 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                                         "
                                 />
                                 <textarea
-
                                     // value={reservation}
                                     name="message"
                                     placeholder={"Message"}
@@ -773,7 +901,8 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                                         "
                                 />
                                 <button
-                                    className='py-2 px-5 text-white rounded-md w-full'
+                                    onClick={() => { addContact() }}
+                                    className='py-3 px-5 text-white rounded-md w-full'
                                     style={{ backgroundColor: `${info.themeMainColor}` }}
                                 >
                                     Send Message
@@ -1001,16 +1130,29 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                     <div className="bg-white rounded-[30px] p-4 ">
                         {getView()}
                         <Drawer isOpen={isOpen} setIsOpen={setIsOpen} bg={"#fff"} color={info.themeMainColor}>
-                            <div style={{ borderColor: info.themeMainColor }} className="border rounded-md h-full w-full flex flex-col items-center m-4 p-4">
-                                <div className={'mb-2 w-full'}>
-                                    <input
-                                        type="string"
-                                        value={order.customerName}
-                                        name="customerName"
-                                        placeholder={"Full Name"}
-                                        onChange={handleChangeOrder}
-                                        style={{ borderColor: info.themeMainColor }}
-                                        className="
+                            {isReservationPayment ?
+                                <div className='w-full'>
+                                    {
+                                        isPending ?
+                                            <Loader color={''} />
+                                            : <PaypalCheckoutButton
+                                                payment={payment}
+                                                isReservationPayment={false}
+                                                reservation={reservation}
+                                                color={''} />}
+                                </div>
+
+
+                                : <div style={{ borderColor: info.themeMainColor }} className="border rounded-md h-full w-full flex flex-col items-center m-4 p-4">
+                                    <div className={'mb-2 w-full'}>
+                                        <input
+                                            type="string"
+                                            value={order.customerName}
+                                            name="customerName"
+                                            placeholder={"Full Name"}
+                                            onChange={handleChangeOrder}
+                                            style={{ borderColor: info.themeMainColor }}
+                                            className="
                                                 w-full
                                                 rounded-md
                                                 border-2                                               
@@ -1023,17 +1165,17 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                                                 focus-visible:shadow-none
                                                 focus:border-primary
                                         "
-                                    />
-                                </div>
-                                <div className={'mb-2 w-full'}>
-                                    <input
-                                        type="string"
-                                        value={order.customerPhone}
-                                        placeholder={"Phone Number"}
-                                        name="customerPhone"
-                                        onChange={handleChangeOrder}
-                                        style={{ borderColor: info.themeMainColor }}
-                                        className="
+                                        />
+                                    </div>
+                                    <div className={'mb-2 w-full'}>
+                                        <input
+                                            type="string"
+                                            value={order.customerPhone}
+                                            placeholder={"Phone Number"}
+                                            name="customerPhone"
+                                            onChange={handleChangeOrder}
+                                            style={{ borderColor: info.themeMainColor }}
+                                            className="
                                                 w-full
                                                 rounded-md
                                                 border-2
@@ -1046,17 +1188,17 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                                                 focus-visible:shadow-none
                                                 focus:border-primary
                                         "
-                                    />
-                                </div>
-                                <div className={'mb-2 w-full'}>
-                                    <input
-                                        type="string"
-                                        value={order.customerEmail}
-                                        placeholder={"Email"}
-                                        name="customerEmail"
-                                        onChange={handleChangeOrder}
-                                        style={{ borderColor: info.themeMainColor }}
-                                        className="
+                                        />
+                                    </div>
+                                    <div className={'mb-2 w-full'}>
+                                        <input
+                                            type="string"
+                                            value={order.customerEmail}
+                                            placeholder={"Email"}
+                                            name="customerEmail"
+                                            onChange={handleChangeOrder}
+                                            style={{ borderColor: info.themeMainColor }}
+                                            className="
                                                 w-full
                                                 rounded-md
                                                 border-2
@@ -1069,111 +1211,113 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                                                 focus-visible:shadow-none
                                                 focus:border-primary
                                         "
-                                    />
-                                </div>
-                                <div className='mb-2 overflow-y-auto max-h-54 w-full'>
-                                    <div>
-                                        <div className='flex flex-row justify-between shadow-md m-4 p-4'>
-                                            <p className="text-xs"> Item</p>
-                                            <div className='flex justify-between space-x-2'>
-                                                <p className="text-xs" >No of Items</p>
-                                                <p className="text-xs">Price</p>
-                                                <p className="text-xs">Total</p>
-                                                <p className="text-xs w-4"></p>
-                                            </div>
-
-                                        </div>
-                                        {displayedItems.map((v: any) => (
+                                        />
+                                    </div>
+                                    <div className='mb-2 overflow-y-auto max-h-54 w-full'>
+                                        <div>
                                             <div className='flex flex-row justify-between shadow-md m-4 p-4'>
-                                                <h1>{v.itemName}</h1>
-                                                <div className='flex justify-between space-x-4'>
-                                                    <h1>{getCount(v.id)}</h1>
-                                                    <h1>{v.price}</h1>
-                                                    <h1>{getPriceOfItem(v)}</h1>
-                                                    <button onClick={() => { removeItem(v) }}>
-                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                        </svg>
-                                                    </button>
-
+                                                <p className="text-xs"> Item</p>
+                                                <div className='flex justify-between space-x-2'>
+                                                    <p className="text-xs" >No of Items</p>
+                                                    <p className="text-xs">Price</p>
+                                                    <p className="text-xs">Total</p>
+                                                    <p className="text-xs w-4"></p>
                                                 </div>
 
                                             </div>
-                                        ))}
+                                            {displayedItems.map((v: any) => (
+                                                <div className='flex flex-row justify-between shadow-md m-4 p-4'>
+                                                    <h1>{v.itemName}</h1>
+                                                    <div className='flex justify-between space-x-4'>
+                                                        <h1>{getCount(v.id)}</h1>
+                                                        <h1>{v.price}</h1>
+                                                        <h1>{getPriceOfItem(v)}</h1>
+                                                        <button onClick={() => { removeItem(v) }}>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                            </svg>
+                                                        </button>
+
+                                                    </div>
+
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
-                                <button
-                                    className='font-bold rounded-md border-2 bg-white px-4 py-3 w-full mb-2'
-                                    style={{ borderColor: info.themeMainColor }}
-                                    onClick={(e) => e.preventDefault()}>
-                                    <select
-                                        // value={order.deliveryMethod}
-                                        onChange={handleChangeOrder}
-                                        name="deliveryMethod"
-                                        className='bg-white w-full'
-                                        data-required="1"
-                                        required>
-                                        <option value="Delivery" hidden>
-                                            Select Delivery Method
-                                        </option>
-                                        {deliveryMethods.map(v => (
-                                            <option value={v} >
-                                                {v}
+                                    <button
+                                        className='font-bold rounded-md border-2 bg-white px-4 py-3 w-full mb-2'
+                                        style={{ borderColor: info.themeMainColor }}
+                                        onClick={(e) => e.preventDefault()}>
+                                        <select
+                                            // value={order.deliveryMethod}
+                                            onChange={handleChangeOrder}
+                                            name="deliveryMethod"
+                                            className='bg-white w-full'
+                                            data-required="1"
+                                            required>
+                                            <option value="Delivery" hidden>
+                                                Select Delivery Method
                                             </option>
-                                        ))}
-                                    </select>
-                                </button>
-                                {order.deliveryMethod == "Delivery" ?
-                                    <div className='w-full'>
-                                        <div className={'mb-2 w-full'}>
-                                            <input
-                                                type="string"
-                                                value={order.customerAddress}
-                                                placeholder={"Delivery Address"}
-                                                name="customerAddress"
-                                                onChange={handleChangeOrder}
-                                                style={{ borderColor: info.themeMainColor }}
-                                                className="
-                                                w-full
-                                                rounded-md
-                                                border-2
-                                                py-3
-                                                px-5
-                                                bg-white
-                                                text-base text-body-color
-                                                placeholder-[#ACB6BE]
-                                                outline-none
-                                                focus-visible:shadow-none
-                                                focus:border-primary
-                                        "
-                                            />
-                                        </div>
-                                        <div>
-                                            <p>Tap your location</p>
-                                            <MapPicker defaultLocation={DEFAULT_LOCATION}
-                                                zoom={DEFAULT_ZOOM}
-                                                // mapTypeId={createId()}
-                                                style={{ height: '200px', width: "100%" }}
-                                                onChangeLocation={handleChangeLocation}
-                                                apiKey={MAP_API} />
-                                        </div>
+                                            {deliveryMethods.map(v => (
+                                                <option value={v} >
+                                                    {v}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </button>
+                                    {order.deliveryMethod == "Delivery" ?
+                                        <div className='w-full'>
+                                            <div className={'mb-2 w-full'}>
+                                                <input
+                                                    type="string"
+                                                    value={order.customerAddress}
+                                                    placeholder={"Delivery Address"}
+                                                    name="customerAddress"
+                                                    onChange={handleChangeOrder}
+                                                    style={{ borderColor: info.themeMainColor }}
+                                                    className="
+                                                    w-full
+                                                    rounded-md
+                                                    border-2
+                                                    py-3
+                                                    px-5
+                                                    bg-white
+                                                    text-base text-body-color
+                                                    placeholder-[#ACB6BE]
+                                                    outline-none
+                                                    focus-visible:shadow-none
+                                                        focus:border-primary
+                                                "
+                                                />
+                                            </div>
+                                            < div >
+                                                <p>Tap your location</p>
+                                                <MapPicker defaultLocation={DEFAULT_LOCATION}
+                                                    zoom={DEFAULT_ZOOM}
+                                                    // mapTypeId={createId()}
+                                                    style={{ height: '200px', width: "100%" }}
+                                                    onChangeLocation={handleChangeLocation}
+                                                    apiKey={MAP_API} />
+                                            </div>
+                                        </div> : <p></p>}
+                                    {order.deliveryMethod == "Delivery" ? <div className='flex flex-row items-center text-center px-8 py-4 my-2 shadow-xl rounded-md w-full'>
+                                        {loadDist ?
+                                            <p>Loading Distance...</p>
+                                            : <h1 className="text-md">
+                                                Delivery Cost {getDeliveryCost()}
+                                            </h1>}
                                     </div> : <p></p>}
-                                {order.deliveryMethod == "Delivery" ? <div className='flex flex-row items-center text-center px-8 py-4 my-2 shadow-xl rounded-md w-full'>
-                                    <h1 className="text-md">
-                                        Delivery Cost {getDeliveryCost()}
-                                    </h1>
-                                </div> : <p></p>}
-                                <div className='flex flex-row items-center text-left px-8 py-4 my-2 shadow-xl rounded-md w-full'>
-                                    <h1 className="text-xl"
-                                        style={{ color: `${info.themeMainColor}` }}>
-                                        Total Cost: {numberWithCommas(getTotal().toString())} USD
-                                    </h1>
-                                </div>
-                                <button
-                                    onClick={() => {
-                                        addOrder()
-                                    }}
-                                    className="
+                                    <div className='flex flex-row items-center text-left px-8 py-4 my-2 shadow-xl rounded-md w-full'>
+                                        <h1 className="text-xl"
+                                            style={{ color: `${info.themeMainColor}` }}>
+                                            Total Cost: {numberWithCommas(getTotal().toString())} USD
+                                        </h1>
+                                    </div>
+                                    <button
+                                        onClick={() => {
+                                            addOrder()
+                                        }}
+                                        className="
                                         font-bold
                                         w-full
                                         rounded-md
@@ -1187,20 +1331,21 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                                         hover:bg-opacity-90
                                         transition
                                     "
-                                    style={{
-                                        borderColor: info.themeMainColor,
-                                        backgroundColor: info.themeMainColor
-                                    }}
-                                >
-                                    Submit Order
-                                </button>
-                            </div>
+                                        style={{
+                                            borderColor: info.themeMainColor,
+                                            backgroundColor: info.themeMainColor
+                                        }}
+                                    >
+                                        Submit Order
+                                    </button>
+                                </div>}
 
                         </Drawer>
                     </div >
-                )}
+                )
+                }
                 <ToastContainer position="top-right" autoClose={5000} />
-            </div>
+            </div >
 
         </div >
 

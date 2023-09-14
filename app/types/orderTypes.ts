@@ -13,6 +13,7 @@ export type IOrder = {
     customerEmail: string,
     customerPhone: string,
     customerAddress: string,
+    deliveryLocation: any,
     tableNo: string,
     date: Date,
     dateString: string,

@@ -24,3 +24,34 @@ export function distance(lat1: number, lon1: number, lat2: number, lon2: number,
         return dist;
     }
 }
+
+var rad = function (x: any) {
+    return x * Math.PI / 180;
+};
+
+export function findDis(lat1: number, lon1: number, lat2: number, lon2: number) {
+    var R = 6378137; // Earth’s mean radius in meter
+    var dLat = rad(lat2 - lat1);
+    var dLong = rad(lon2 - lon1);
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(rad(lat1)) * Math.cos(rad(lat2)) *
+        Math.sin(dLong / 2) * Math.sin(dLong / 2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    var d = R * c;
+    return d; // returns the distance in meter
+}
+
+
+export function getDis(lat1: number, lon1: number, lat2: number, lon2: number) {
+    var lat = [lat1, lat2]
+    var lng = [lon1, lon2]
+    var R = 6378137;
+    var dLat = (lat[1] - lat[0]) * Math.PI / 180;
+    var dLng = (lng[1] - lng[0]) * Math.PI / 180;
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat[0] * Math.PI / 180) * Math.cos(lat[1] * Math.PI / 180) *
+        Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    var d = R * c;
+    return Math.round(d);
+}

@@ -7600,6 +7600,11 @@ spdx-license-ids@^3.0.0:
   resolved "https://registry.yarnpkg.com/spdx-license-ids/-/spdx-license-ids-3.0.12.tgz#69077835abe2710b65f03969898b6637b505a779"
   integrity sha512-rr+VVSXtRhO4OHbXUiAF7xW3Bo9DuuF6C5jH+q/x15j2jniycgKbxU09Hr0WqlSLUs4i4ltHGXqTe7VHclYWyA==
 
+spherical-geometry-js@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/spherical-geometry-js/-/spherical-geometry-js-3.0.0.tgz#b05e37205f6e64f97bec90b807768a161faea53f"
+  integrity sha512-PvfGTBRSyoAr3KGk/pTkqA7vCMO0lXilnmh6DfiTrO4RhRz++RTbMbUXKcmkmw8olh2wWVVY2qx8sl5hJ+JpVg==
+
 ssf@~0.11.2:
   version "0.11.2"
   resolved "https://registry.yarnpkg.com/ssf/-/ssf-0.11.2.tgz#0b99698b237548d088fc43cdf2b70c1a7512c06c"
