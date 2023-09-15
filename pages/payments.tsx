@@ -314,21 +314,25 @@ const Payments = () => {
                                         <h1 className='col-span-3 m-4'>Make Payment</h1>
                                         {isPending ?
                                             <Loader color={''} />
-                                            : <PaypalCheckoutButton payment={payment} isReservationPayment={false} reservation={{
-                                                adminId: '',
-                                                userId: '',
-                                                name: '',
-                                                phoneNumber: 0,
-                                                email: '',
-                                                date: new Date(),
-                                                time: '',
-                                                peopleNumber: 0,
-                                                notes: '',
-                                                category: '',
-                                                dateAdded: new Date(),
-                                                dateOfUpdate: new Date(),
-                                                dateAddedString: ''
-                                            }} color={''} />}
+                                            : <PaypalCheckoutButton
+                                                payment={payment}
+                                                isReservationPayment={false}
+                                                reservation={{
+                                                    id: '',
+                                                    adminId: '',
+                                                    userId: '',
+                                                    name: '',
+                                                    phoneNumber: 0,
+                                                    email: '',
+                                                    date: new Date(),
+                                                    time: '',
+                                                    peopleNumber: 0,
+                                                    notes: '',
+                                                    category: '',
+                                                    dateAdded: new Date(),
+                                                    dateOfUpdate: new Date(),
+                                                    dateAddedString: ''
+                                                }} color={''} />}
                                         <h1 className='col-span-3 m-4'>or</h1>
                                         <input
                                             type="text"
@@ -501,4 +505,3 @@ const Payments = () => {
 
 
 export default Payments
-
