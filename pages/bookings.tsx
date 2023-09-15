@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  ADMIN_ID,
-  COOKIE_ID,
   LIGHT_GRAY,
-  PERSON_ROLE,
-  PRIMARY_COLOR,
 } from '../app/constants/constants';
 import Loader from '../app/components/loader';
 import { ToastContainer, toast } from 'react-toastify';
