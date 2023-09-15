@@ -205,7 +205,7 @@ const AvailableReservations = (props: { isHistory: boolean }) => {
       <div className="flex flex-col">
         {loading ? (
           <div className="flex flex-col justify-center items-center w-full col-span-8">
-            <Loader />
+            <Loader color={''} />
           </div>
         ) : (
           <div className="p-4 lg:p-8 2xl:p-16 rounded-md flex flex-col">

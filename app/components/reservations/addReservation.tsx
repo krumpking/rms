@@ -137,7 +137,7 @@ const AddReservation = () => {
     <div>
       {loading ? (
         <div className="flex flex-col items-center content-center">
-          <Loader />
+          <Loader color={''} />
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4">

@@ -29,7 +29,7 @@ export const uploadFile = (path: string, file: File): Promise<UploadResult> => {
 // Read Many Documents
 
 export const getDataFromDBOne = async (collectionName: any, fieldOne: any, checkOne: any) => {
-  const q = query(collection(firestore, collectionName), where(fieldOne, "==", checkOne));
+  const q = query(collection(firestore, collectionName), where(fieldOne, "==", checkOne), orderBy("date", "desc"));
   const snapshot = await getCountFromServer(q);
   if (snapshot.data().count > 0) {
     const querySnapshot = await getDocs(q);
@@ -43,7 +43,7 @@ export const getDataFromDBOne = async (collectionName: any, fieldOne: any, check
 
 
 export const getDataFromDBTwo = async (collectionName: any, fieldOne: any, checkOne: any, fieldTwo: string, checkTwo: any) => {
-  const q = query(collection(firestore, collectionName), where(fieldOne, "==", checkOne), where(fieldTwo, "==", checkTwo));
+  const q = query(collection(firestore, collectionName), where(fieldOne, "==", checkOne), where(fieldTwo, "==", checkTwo), orderBy("date", "desc"));
   const snapshot = await getCountFromServer(q);
   if (snapshot.data().count > 0) {
     const querySnapshot = await getDocs(q);
@@ -55,7 +55,7 @@ export const getDataFromDBTwo = async (collectionName: any, fieldOne: any, check
 }
 
 export const getDataFromDBThree = async (collectionName: any, fieldOne: any, checkOne: any, fieldTwo: any, checkTwo: any, fieldThree: any, checkThree: any) => {
-  const q = query(collection(firestore, collectionName), where(fieldOne, "==", checkOne), where(fieldTwo, "==", checkTwo), where(fieldThree, "==", checkThree));
+  const q = query(collection(firestore, collectionName), where(fieldOne, "==", checkOne), where(fieldTwo, "==", checkTwo), where(fieldThree, "==", checkThree), orderBy("population", "desc"));
   const snapshot = await getCountFromServer(q);
   if (snapshot.data().count > 0) {
     const querySnapshot = await getDocs(q);
