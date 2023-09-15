@@ -23,4 +23,5 @@ export const MENU_CAT_STORAGE_REF = 'menu-category';
 
 
 
+export const CATEGORY_STORAGE_REF = 'menu-category';
 

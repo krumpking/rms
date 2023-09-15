@@ -73,10 +73,15 @@ const OrderStatus = () => {
                         tableNo: d.tableNO,
                         date: d.date,
                         dateString: d.dateString,
-                        totalCost: d.totalCost
+                        totalCost: d.totalCost,
+                        deliveryLocation: null,
+                        customerAddress: "",
+                        customerEmail: "",
+                        customerPhone: ""
                     }]);
 
                 });
+
 
 
 
@@ -187,7 +192,7 @@ const OrderStatus = () => {
             <div className="bg-white rounded-[30px] p-4 ">
                 {loading ? (
                     <div className="w-full flex flex-col items-center content-center">
-                        <Loader />
+                        <Loader color={''} />
                     </div>
                 ) : (
                     <div className="flex flex-col  overflow-y-scroll  w-full p-4">

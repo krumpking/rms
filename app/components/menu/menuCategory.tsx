@@ -16,9 +16,8 @@ import { ICategory } from '../../types/menuTypes';
 import ShowImage from '../showImage';
 import { useDropzone } from 'react-dropzone';
 import imageCompression from 'browser-image-compression';
-import { MENU_CAT_COLLECTION } from '../../constants/menuConstants';
+import { CATEGORY_STORAGE_REF, MENU_CAT_COLLECTION } from '../../constants/menuConstants';
 import { addDocument, deleteDocument, deleteFile, getDataFromDBOne, uploadFile } from '../../api/mainApi';
-import { CATEGORY_STORAGE_REF } from '../../constants/categoryConstants';
 import { Dialog, Transition } from '@headlessui/react';
 
 const AddMenuCategory = () => {
@@ -171,6 +170,7 @@ const AddMenuCategory = () => {
     var result = confirm("Are you sure you want to delete?");
     if (result) {
       setLoading(true);
+      setCategories([]);
       deleteFile(`${webfrontId}/${CATEGORY_STORAGE_REF}/${pic.original}`);
       deleteFile(`${webfrontId}/${CATEGORY_STORAGE_REF}/${pic.thumbnail}`);
       deleteDocument(MENU_CAT_COLLECTION, id).then(() => {

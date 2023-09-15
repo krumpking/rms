@@ -5,8 +5,6 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router'
 import ClientNav from '../app/components/clientNav';
-import FormSummary from '../app/components/formSummary';
-import DataSummary from '../app/components/dataSummary';
 import { getCookie } from 'react-use-cookie';
 import Payment from '../app/utils/paymentUtil';
 import { decrypt, encrypt } from '../app/utils/crypto';
@@ -20,6 +18,17 @@ import { addDays } from 'date-fns';
 import { print } from '../app/utils/console';
 import Joyride from 'react-joyride';
 import Script from 'next/script';
+import AppAccess from '../app/components/accessLevel';
+import { Tab } from '@headlessui/react';
+import AddSchedule from '../app/components/staff/addSchedule';
+import ConfirmSchedule from '../app/components/staff/approveSchedule';
+import BasicCalendar from '../app/components/staff/calendar';
+import Logs from '../app/components/staff/logs';
+
+
+function classNames(...classes: string[]) {
+    return classes.filter(Boolean).join(' ');
+}
 
 
 const Staff = () => {
@@ -117,151 +126,19 @@ const Staff = () => {
 
 
     ])
+    const [tabs, setTabs] = useState([
+        'Shifts',
+        'Schedule Shifts',
+        'Confirm Shifts',
+        'Logs',
+
+    ]);
 
 
 
     useEffect(() => {
         document.body.style.backgroundColor = LIGHT_GRAY;
 
-
-
-        // setPreviousForms([
-        //     {
-        //         id: "element.id",
-        //         title: " element.data().title",
-        //         description: 'element.data().description',
-        //         elements: [{
-        //             id: "string",
-        //             elementId: 5,
-        //             label: "string",
-        //             arg1: "any",
-        //             arg2: "any",
-        //             arg3: "any"
-        //         }],
-        //         dateCreated: "element.data().dateCreated",
-        //         creatorId: "id",
-        //         editorNumbers: [" element.data().editorNumbers"]
-        //     }
-        // ])
-
-        // checkPayment()
-
-
-
-        // var infoFormCookie = getCookie(COOKIE_ID);
-        // if (typeof infoFormCookie !== 'undefined') {
-
-
-        //     if (infoFormCookie.length > 0) {
-        //         const id = decrypt(infoFormCookie, COOKIE_ID);
-
-
-        //         getForms(id).then((v) => {
-        //             if (v !== null) {
-        //                 v.data.forEach(element => {
-        //                     setPreviousForms((prevForms) => [...prevForms, {
-        //                         id: element.id,
-        //                         title: element.data().title,
-        //                         description: element.data().description,
-        //                         elements: element.data().elements,
-        //                         dateCreated: element.data().dateCreated,
-        //                         adminId: element.data().adminId,
-        //                         creatorId: id,
-        //                         editorNumbers: element.data().editorNumbers
-        //                     }]);
-
-        //                     element.data().editorNumbers.forEach((elem: any) => {
-        //                         setNumberOfDevices((prevNum: any) => [...prevNum, elem]);
-        //                     });
-
-        //                 });
-        //                 setLoading(false);
-        //                 setNumberOfForms(v.count);
-
-
-        //             }
-        //         }).catch((e) => {
-        //             toast.error('There was an error getting the')
-        //         });
-
-
-        //         getAllTasksToday().then((v) => {
-
-        //             var id = decrypt(getCookie(COOKIE_ID), COOKIE_ID);
-        //             if (v !== null) {
-        //                 var clnts: any[] = [];
-        //                 v.data.forEach(element => {
-
-        //                     var client = getClient(element.data().client, id);
-
-        //                     var task = {
-        //                         docId: element.id,
-        //                         id: element.data().id,
-        //                         adminId: element.data().adminId,
-        //                         date: element.data().date,
-        //                         description: decrypt(element.data().description, id),
-        //                         email: decrypt(element.data().email, id),
-        //                         priority: decrypt(element.data().priority, id),
-        //                         reminder: decrypt(element.data().reminder, id),
-        //                         client: client,
-        //                         title: decrypt(element.data().title, id),
-
-        //                     }
-
-        //                     clnts.push(task);
-
-        //                 });
-        //                 setTasks(clnts);
-        //                 if (clnts.length > 0) {
-        //                     toast.info(`You have ${clnts.length} tasks today!!`);
-        //                     updDateTasks(clnts)
-        //                 }
-
-
-        //             }
-
-        //             setLoading(false);
-        //         }).catch((e) => {
-        //             console.error(e);
-        //             setLoading(false);
-        //         });
-        //     } else {
-        //         router.push({
-        //             pathname: '/login',
-        //         });
-        //     }
-
-        // }
-
-
-        // const getClient = (client: any, id: string) => {
-        //     var notesA: any = [];
-        //     client.notes.forEach((el: string) => {
-        //         notesA.push(decrypt(el, id));
-        //     });
-
-
-        //     var prodA: any = [];
-        //     client.enquired.forEach((el: string) => {
-        //         prodA.push(decrypt(el, id));
-        //     });
-
-        //     var clientF = {
-        //         id: client.id,
-        //         adminId: client.adminId,
-        //         date: client.date,
-        //         name: decrypt(client.name, id),
-        //         contact: decrypt(client.contact, id),
-        //         organisation: decrypt(client.organisation, id),
-        //         stage: decrypt(client.stage, id),
-        //         notes: notesA,
-        //         refSource: decrypt(client.refSource, id),
-        //         enquired: prodA,
-        //         value: decrypt(client.value, id)
-        //     }
-
-        //     return clientF;
-        // }
 
 
 
@@ -307,49 +184,93 @@ const Staff = () => {
 
 
     return (
-        <>
-            {/* <Joyride
-                steps={steps}
-                showProgress={true}
-                continuous={true}
-                styles={{
-                    options: {
-                        primaryColor: "#00947a"
-                    }
-                }}
-            /> */}
-            <div>
-
-                <div className='flex flex-col lg:grid lg:grid-cols-12 '>
-
-                    <div className='lg:col-span-3' id="nav">
-                        <ClientNav organisationName={'FoodiesBooth'} url={'staff'} />
-                    </div>
 
 
-                    {loading ?
-                        <div className='flex flex-col justify-center items-center w-full col-span-9'>
-                            <Loader />
-                        </div>
+        < div >
 
-                        :
-                        <div className='bg-white col-span-8 my-8 rounded-[30px] flex flex-col p-8'>
+            <div className='flex flex-col '>
 
-
-                        </div>}
-
-
-
-
+                <div className='lg:col-span-3' id="nav">
+                    <ClientNav organisationName={'FoodiesBooth'} url={'staff'} />
                 </div>
 
 
+                {loading ?
+                    <div className='flex flex-col justify-center items-center w-full col-span-9'>
+                        <Loader />
+                    </div>
 
-                <ToastContainer
-                    position="top-right"
-                    autoClose={5000} />
+                    :
+                    <div className='bg-white col-span-8 my-8 rounded-[30px] flex flex-col p-8'>
+                        <Tab.Group>
+                            <Tab.List className="flex space-x-4 rounded-[25px] bg-[#f3f3f3] p-1 overflow-x-auto whitespace-nowrap">
+                                {tabs.map((category) => (
+                                    <Tab
+                                        key={category}
+                                        className={({ selected }) =>
+                                            classNames(
+                                                'w-full  py-2.5 text-sm font-medium leading-5 text-black rounded-[25px]',
+                                                'ring-white m-1',
+                                                selected
+                                                    ? 'bg-white shadow-md focus:outline-none te'
+                                                    : 'text-black hover:bg-white/[0.12] hover:text-white focus:outline-none'
+                                            )
+                                        }
+                                    >
+                                        {category}
+                                    </Tab>
+                                ))}
+                            </Tab.List>
+                            <Tab.Panels className="mt-2 ">
+                                <Tab.Panel
+                                    className={classNames(
+                                        'rounded-xl bg-white p-3',
+                                        'ring-white  ring-offset-2 focus:outline-none focus:ring-2'
+                                    )}
+                                >
+                                    <BasicCalendar />
+                                </Tab.Panel>
+                                <Tab.Panel
+                                    className={classNames(
+                                        'rounded-xl bg-white p-3',
+                                        'ring-white  ring-offset-2 focus:outline-none focus:ring-2'
+                                    )}
+                                >
+                                    <AddSchedule />
+                                </Tab.Panel>
+                                <Tab.Panel
+                                    className={classNames(
+                                        'rounded-xl bg-white p-3',
+                                        'ring-white  ring-offset-2 focus:outline-none focus:ring-2'
+                                    )}
+                                >
+                                    <ConfirmSchedule />
+                                </Tab.Panel>
+                                <Tab.Panel
+                                    className={classNames(
+                                        'rounded-xl bg-white p-3',
+                                        'ring-white  ring-offset-2 focus:outline-none focus:ring-2'
+                                    )}
+                                >
+                                    <Logs />
+                                </Tab.Panel>
+                            </Tab.Panels>
+                        </Tab.Group>
+
+                    </div>}
+
+
+
+
             </div>
-        </>
+
+
+
+            <ToastContainer
+                position="top-right"
+                autoClose={5000} />
+        </div >
+
 
 
     )

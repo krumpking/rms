@@ -274,7 +274,7 @@ const Meal = () => {
             <div className="bg-white rounded-[30px] p-4 ">
                 {loading ? (
                     <div className="w-full flex flex-col items-center content-center">
-                        <Loader />
+                        <Loader color={''} />
                     </div>
                 ) : (
                     <div className="grid grid-cols-2 lg:grid-cols-5 overflow-y-scroll max-h-[700px] w-full gap-4 p-4">

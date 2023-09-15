@@ -1,4 +1,8 @@
 import { collection } from "firebase/firestore";
 import { firestore } from "../../firebase/clientApp";
 
-export const ADMINS_PAYMENTS_REF = collection(firestore, `payments`);
+export const PAYMENTS_COLLECTION = `payments`;
+
+
+export const RESERVATION_PAYMENTS_COLLECTION = `reservation-payments`;
+
