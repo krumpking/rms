@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { ADMIN_ID, COOKIE_EMAIL, COOKIE_ID, COOKIE_NAME, COOKIE_ORGANISATION, COOKIE_PHONE, PERSON_ROLE, PRIMARY_COLOR } from '../app/constants/constants';
+import { ACCESS, ADMIN_ID, COOKIE_EMAIL, COOKIE_NAME, COOKIE_ORGANISATION, COOKIE_PHONE, PRIMARY_COLOR, USER_ID } from '../app/constants/constants';
 import Carousel from '../app/components/carousel';
 import { auth } from '../firebase/clientApp';
 import Loader from '../app/components/loader';
@@ -11,12 +11,14 @@ import { getCookie, setCookie } from 'react-use-cookie';
 import { decrypt, encrypt } from '../app/utils/crypto';
 
 import { COOKIE_AFFILIATE_NUMBER } from '../app/constants/affilliateConstants';
+import { ADMIN_COLLECTION } from '../app/constants/userConstants';
+import { getDataFromDBOne } from '../app/api/mainApi';
 
 const Login = () => {
     const [phone, setPhone] = useState("");
     const [accessCode, setAccessCode] = useState("");
     const [sent, setSent] = useState(false);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const router = useRouter();
     const [userId, setUserId] = useState("");
 
@@ -40,22 +42,7 @@ const Login = () => {
         }, auth);
 
 
-        var infoFormCookie = getCookie(COOKIE_ID);
-        if (typeof infoFormCookie !== 'undefined') {
 
-            if (infoFormCookie.length > 0) {
-
-                const id = decrypt(infoFormCookie, COOKIE_ID);
-
-
-            } else {
-                setLoading(false);
-            }
-
-
-        } else {
-            setLoading(false);
-        }
 
 
     }, []);
@@ -69,103 +56,53 @@ const Login = () => {
                 const user = result.user;
                 const userId = user.uid;
 
-                // getUser(phone).then(async (v) => {
+                getDataFromDBOne(ADMIN_COLLECTION, "contact", phone).then(async (v) => {
 
-                //     if (v == null) {
-                //         toast.warn('User not found, please Sign Up');
-                //         router.push({
-                //             pathname: '/signup',
-                //         });
-                //     } else {
+                    if (v == null) {
+                        toast.warn('User not found, please Sign Up');
+                        router.push({
+                            pathname: '/signup',
+                        });
+                    } else {
 
-                //         v.data.forEach((doc) => {
+                        v.data.forEach((doc) => {
 
-                //             toast.success('Welcome to Digital Data Tree');
+                            let d = doc.data();
+                            setCookie(USER_ID, encrypt(userId, ADMIN_ID), {
+                                days: 1,
+                                SameSite: 'Strict',
+                                Secure: true,
+                            });
+                            setCookie(ADMIN_ID, encrypt(d.adminId, ADMIN_ID), {
+                                days: 1,
+                                SameSite: 'Strict',
+                                Secure: true,
+                            });
+                            let accessKeys: string[] = [];
 
+                            d.access.forEach((element: any) => {
+                                accessKeys.push(encrypt(element, ADMIN_ID));
+                            });
+                            setCookie(ACCESS, accessKeys.toString(), {
+                                days: 1,
+                                SameSite: 'Strict',
+                                Secure: true,
+                            });
+                        });
 
+                        router.push({
+                            pathname: '/home'
+                        });
+                        setLoading(false);
 
-                //             const key = userId.substring(0, 13);
-                //             setCookie(COOKIE_ID, encrypt(userId, COOKIE_ID), {
-                //                 days: 7,
-                //                 SameSite: 'Strict',
-                //                 Secure: true,
-                //             });
-                //             //  
-                //             if (v.userType == "admin") {
-
-
-                //                 setCookie(COOKIE_ORGANISATION, encrypt(doc.data().organizationName, key), {
-                //                     days: 7,
-                //                     SameSite: 'Strict',
-                //                     Secure: true,
-                //                 });
-
-                //                 setCookie(ADMIN_ID, "", {
-                //                     days: 7,
-                //                     SameSite: 'Strict',
-                //                     Secure: true,
-                //                 });
-
-
-                //                 setCookie(PERSON_ROLE, encrypt("Admin", userId), {
-                //                     days: 7,
-                //                     SameSite: 'Strict',
-                //                     Secure: true,
-                //                 });
+                    }
 
 
+                }).catch((e) => {
+                    toast.error('There was an error getting your profile, please try again');
+                    console.error(e);
 
-
-                //             } else if (v.userType == "added") {
-                //                 setCookie(ADMIN_ID, encrypt(doc.data().adminId, COOKIE_ID), {
-                //                     days: 7,
-                //                     SameSite: 'Strict',
-                //                     Secure: true,
-                //                 });
-
-                //                 setCookie(PERSON_ROLE, doc.data().role, {
-                //                     days: 7,
-                //                     SameSite: 'Strict',
-                //                     Secure: true,
-                //                 });
-                //             } else {
-                //                 setCookie(COOKIE_AFFILIATE_NUMBER, doc.data().affiliateNo, {
-                //                     days: 7,
-                //                     SameSite: 'Strict',
-                //                     Secure: true,
-                //                 });
-                //             }
-
-                //             setCookie(COOKIE_EMAIL, encrypt(doc.data().email, key), {
-                //                 days: 7,
-                //                 SameSite: 'Strict',
-                //                 Secure: true,
-                //             });
-                //             setCookie(COOKIE_NAME, encrypt(doc.data().name, key), {
-                //                 days: 7,
-                //                 SameSite: 'Strict',
-                //                 Secure: true,
-                //             });
-                //             setCookie(COOKIE_PHONE, encrypt(phone, key), {
-                //                 days: 7,
-                //                 SameSite: 'Strict',
-                //                 Secure: true,
-                //             });
-                //         });
-
-                //         router.push({
-                //             pathname: '/home'
-                //         });
-                //         setLoading(false);
-
-                //     }
-
-
-                // }).catch((e) => {
-                //     toast.error('There was an error getting your profile, please try again');
-                //     console.error(e);
-
-                // });
+                });
                 // success
 
 
@@ -244,7 +181,7 @@ const Login = () => {
                     <div className=''>
                         {loading ?
                             <div className='w-full flex flex-col items-center content-center'>
-                                <Loader />
+                                <Loader color={''} />
                             </div>
 
 
@@ -253,14 +190,10 @@ const Login = () => {
                                 onSubmit={
                                     (e) => {
                                         e.preventDefault()
-                                        //login()
-                                        router.push({
-                                            pathname: '/home'
-                                        });
+                                        login()
+
                                     }
                                 }>
-
-
                                 <p className='text-center text-xs text-gray-300 mb-4 font-bold'>Login</p>
                                 <div className="mb-6">
                                     <input
@@ -292,8 +225,7 @@ const Login = () => {
                                         required
                                     />
                                 </div>
-
-                                <div className="mb-10">
+                                <div className="mb-10 w-full">
                                     <input
                                         type="submit"
                                         value={sent ? "Login" : "Send One Time Password"}

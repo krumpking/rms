@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { ADMIN_ID, COOKIE_ID, COOKIE_PHONE, LIGHT_GRAY, PERSON_ROLE, PRIMARY_COLOR, PRODUCTION_CLIENT_ID } from '../app/constants/constants';
+import { ADMIN_ID, COOKIE_PHONE, LIGHT_GRAY, PRIMARY_COLOR, PRODUCTION_CLIENT_ID } from '../app/constants/constants';
 import Loader from '../app/components/loader';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -13,11 +13,12 @@ import DateMethods from '../app/utils/date';
 import Random from '../app/utils/random';
 import { decrypt } from '../app/utils/crypto';
 import { IPayments } from '../app/types/paymentTypes';
-import { addPayment, getPayments, getPromo } from '../app/api/paymentApi';
+import { getPayments, getPromo } from '../app/api/paymentApi';
 import { print } from '../app/utils/console';
 import AppAccess from '../app/components/accessLevel';
 import { addDocument } from '../app/api/mainApi';
 import { PAYMENTS_COLLECTION } from '../app/constants/paymentConstants';
+import { useAuthIds } from '../app/components/authHook';
 
 
 
@@ -50,119 +51,18 @@ const Payments = () => {
     const [lastPaymentDate, setLastPaymentDate] = useState("");
     const [nextPaymentDate, setNextPaymentDate] = useState("");
     const [promoCode, setPromoCode] = useState("");
-    const [userId, setUserId] = useState("");
     const [accessArray, setAccessArray] = useState<any[]>([
         'menu', 'orders', 'move-from-pantry', 'move-from-kitchen', 'cash-in',
         'cash-out', 'cash-report', 'add-stock', 'confirm-stock', 'move-to-served', 'add-reservation', 'available-reservations',
         'staff-scheduling', 'website', 'payments', 'stock-overview']);
     const [category, setCategory] = useState(['Solo', 'Small Team', 'Enterprise']);
     const [duration, setDuration] = useState([30, 90, 365]);
+    const { adminId, userId, access } = useAuthIds();
 
 
 
     useEffect(() => {
         document.body.style.backgroundColor = LIGHT_GRAY;
-
-
-        // var infoFormCookie = getCookie(COOKIE_ID);
-        // if (typeof infoFormCookie !== 'undefined') {
-
-
-        //     if (infoFormCookie.length > 0) {
-        //         const id = decrypt(infoFormCookie, COOKIE_ID);
-        //         setUserId(id);
-        //         var roleCookie = getCookie(PERSON_ROLE);
-        //         if (typeof roleCookie !== 'undefined') {
-
-        //             if (roleCookie.length > 0) {
-
-
-        //                 let role = decrypt(getCookie(PERSON_ROLE), id);
-        //                 if (role !== 'Admin') {
-        //                     toast.error('Only Admin can make payments');
-        //                     toast.error('Kindly contact Admin to make payment');
-        //                     router.push('/login');
-        //                 }
-
-        //             }
-        //         }
-
-
-        //         getPayments(id).then((v) => {
-
-        //             if (v !== null) {
-
-        //                 let prevPayments: IPayments[] = [];
-        //                 v.data.forEach(element => {
-        //                     const fromDb = element.data().userId;
-        //                     if (fromDb !== "") {
-        //                         if (fromDb === id) {
-        //                             prevPayments.push({
-        //                                 id: element.id,
-        //                                 userId: element.data().userId,
-        //                                 date: element.data().date,
-        //                                 amount: element.data().amount,
-        //                                 refCode: element.data().refCode
-        //                             });
-        //                         }
-
-        //                     }
-        //                 });
-        //                 setPayments(prevPayments);
-        //                 if (payments.length > 0) {
-        //                     setProduct({
-        //                         description: "Digital Data Tree Subscription Fee",
-        //                         price: 45
-        //                     });
-        //                     setLastPaymentDate("Upcoming");
-
-        //                 }
-
-        //                 var d = new Date(payments[0].date);
-        //                 setLastPaymentDate(`${d.getDate()} ${DateMethods.showMonth(d.getMonth() + 1)} ${d.getFullYear()}`);
-        //                 var nextDate = new Date(new Date().setDate(d.getDate() + 30));
-        //                 setNextPaymentDate(`${nextDate.getDate()} ${DateMethods.showMonth(nextDate.getMonth() + 1)} ${nextDate.getFullYear()}`);
-
-
-
-
-        //             }
-        //             setLastPaymentDate('No Payment made');
-
-        //             setLoading(false);
-
-        //         }).catch((err) => {
-        //             console.error(err);
-        //             setLoading(false);
-        //         });
-
-        //         var numOfPages = Math.floor(payments.length / 10);
-        //         if (payments.length % 10 > 0) {
-        //             numOfPages++;
-        //         }
-        //         const pags = Array.from(Array(numOfPages).keys());
-        //         setPages(pags.length);
-
-        //     } else {
-        //         router.push({
-        //             pathname: '/login',
-        //         });
-        //     }
-
-
-        // } else {
-        //     router.push({
-        //         pathname: '/login',
-        //     });
-        // }
-        setLoading(false);
-
-
-
-
-
-
-
     }, []);
 
 
@@ -187,13 +87,14 @@ const Payments = () => {
 
             if (value) {
                 toast.success('Promo code accepted');
-                const id = decrypt(getCookie(COOKIE_ID), COOKIE_ID);
-                const newPayment = {
+
+                const newPayment: IPayments = {
                     ...payment,
                     id: Random.randomString(13, "abcdefghijkhlmnopqrstuvwxz123456789"),
-                    userId: id,
+                    userId: userId,
+                    adminId: adminId,
                     date: new Date(),
-                    dateString: new Date().toDateString,
+                    dateString: new Date().toDateString(),
                     amount: 0,
                     refCode: ""
                 }
@@ -223,7 +124,7 @@ const Payments = () => {
     }
 
     return (
-        <AppAccess access={accessArray} component={'payments'}>
+        <AppAccess access={access} component={'payments'}>
             <div>
 
                 <div className='flex flex-col'>

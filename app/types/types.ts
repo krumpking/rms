@@ -1,13 +1,3 @@
-export type IAdmin = {
-    id?: string,
-    name: string,
-    phoneNumber: string,
-    createdDate: string,
-    email: string,
-    organizationName: string,
-}
-
-
 
 
 export type IData = {

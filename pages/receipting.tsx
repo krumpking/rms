@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react'
-import { ADMIN_ID, AMDIN_FIELD, COOKIE_ID, CURRENCIES, LIGHT_GRAY, PERSON_ROLE, PRIMARY_COLOR } from '../app/constants/constants';
+import { ADMIN_ID, AMDIN_FIELD, CURRENCIES, LIGHT_GRAY, PRIMARY_COLOR } from '../app/constants/constants';
 import Loader from '../app/components/loader';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -52,7 +52,9 @@ const Accounting = () => {
         date: new Date(),
         dateString: "",
         customerEmail: "",
-        customerPhone: ""
+        customerPhone: "",
+        customerAddress: "",
+        deliveryLocation: null,
     });
     const [open, setOpen] = useState(false);
     const [webfrontname, setWebfrontname] = useState("");
@@ -74,25 +76,6 @@ const Accounting = () => {
     useEffect(() => {
         document.body.style.backgroundColor = LIGHT_GRAY;
 
-        let role = getCookie(PERSON_ROLE);
-        var infoFromCookie = "";
-        if (getCookie(ADMIN_ID) == "") {
-            infoFromCookie = getCookie(COOKIE_ID);
-        } else {
-            infoFromCookie = getCookie(ADMIN_ID);
-        }
-
-        // if (typeof role !== 'undefined') {
-        //     if (role !== "") {
-        //         var id = decrypt(infoFromCookie, COOKIE_ID);
-        //         var roleTitle = decrypt(role, id);
-        //         if (roleTitle == "Viewer") { // "Viewer" //"Editor"
-        //             router.push('/home');
-        //             toast.info("You do not have permission to access this page");
-        //         }
-
-        //     }
-        // }
         getOrders();
     }, []);
 
@@ -146,7 +129,9 @@ const Accounting = () => {
                         dateString: d.dateString,
                         totalCost: d.totalCost,
                         customerEmail: d.customerEmail,
-                        customerPhone: d.customerPhone
+                        customerPhone: d.customerPhone,
+                        customerAddress: d.cusotmerAddress,
+                        deliveryLocation: d.deliveryLocation
                     }]);
 
                 });
@@ -250,7 +235,9 @@ const Accounting = () => {
             dateString: d.dateString,
             totalCost: cost,
             customerPhone: d.customerName,
-            customerEmail: d.customerEmail
+            customerEmail: d.customerEmail,
+            customerAddress: d.customerAddress,
+            deliveryLocation: d.deliveryLocation
         }
         setSelectedOrder(sOrder);
     }

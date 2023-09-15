@@ -83,7 +83,7 @@ const OrderedItems: FC<MyProps> = ({ id }) => {
         <div>
             {loading ? (
                 <div className="flex flex-col items-center content-center">
-                    <Loader />
+                    <Loader color={''} />
                 </div>
             ) : (
                 <div className="bg-white rounded-[30px] p-4  ">

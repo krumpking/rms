@@ -1,29 +1,21 @@
 import { addDoc, collection, doc, getCountFromServer, getDocs, query, updateDoc, where } from "firebase/firestore";
 import { decrypt } from "../utils/crypto";
 import { firestore } from "../../firebase/clientApp";
-import { ADMINS_PAYMENTS_REF } from "../constants/paymentConstants";
-import { COOKIE_ID } from "../constants/constants";
+import { PAYMENTS_COLLECTION } from "../constants/paymentConstants";
 import { IPayments } from "../types/paymentTypes";
+import { useAuthIds } from "../components/authHook";
+
+const { adminId, userId, access } = useAuthIds();
 
 
 
-export const addPayment = async (payment: IPayments) => {
-
-    // Create a query against the collection.
+export const getPayments = async () => {
 
 
-    return await addDoc(ADMINS_PAYMENTS_REF, payment);
 
-
-}
-
-export const getPayments = async (userIdEncry: string) => {
-
-
-    var deId = decrypt(userIdEncry, COOKIE_ID);
 
     // Create a query against the collection.
-    const q = query(collection(firestore, "payments"), where("userId", "==", deId));
+    const q = query(collection(firestore, "payments"), where("adminId", "==", adminId));
     const snapshot = await getCountFromServer(q);
 
     if (snapshot.data().count > 0) {

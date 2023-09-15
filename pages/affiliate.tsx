@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { COOKIE_EMAIL, COOKIE_ID, COOKIE_NAME, COOKIE_ORGANISATION, COOKIE_PHONE, PRIMARY_COLOR } from '../app/constants/constants';
+import { COOKIE_EMAIL, COOKIE_NAME, COOKIE_ORGANISATION, COOKIE_PHONE, PRIMARY_COLOR } from '../app/constants/constants';
 import { auth } from '../firebase/clientApp';
 import Loader from '../app/components/loader';
 import { ToastContainer, toast } from 'react-toastify';
@@ -113,28 +113,28 @@ const Affiliate = () => {
                 email: email
             }
 
-            addAffiliate(affiliate).then((v: Number | null) => {
-                if (v == null) {
-                    toast.warn("Phone number already exists, user another phone number");
-                    setSent(false);
-                } else {
+            // addAffiliate(affiliate).then((v: Number | null) => {
+            //     if (v == null) {
+            //         toast.warn("Phone number already exists, user another phone number");
+            //         setSent(false);
+            //     } else {
 
 
-                    setCookie(COOKIE_ID, encrypt(userId, COOKIE_ID), {
-                        days: 1,
-                        SameSite: 'Strict',
-                        Secure: true,
-                    });
-                    router.push('/home');
+            //         setCookie(COOKIE_ID, encrypt(userId, COOKIE_ID), {
+            //             days: 1,
+            //             SameSite: 'Strict',
+            //             Secure: true,
+            //         });
+            //         router.push('/home');
 
 
-                }
+            //     }
 
 
-                setLoading(false);
+            //     setLoading(false);
 
 
-            }).catch(console.error);
+            // }).catch(console.error);
 
         }).catch((err: any) => {
             alert("The One Time Password you sent was not correct please retry");
@@ -164,7 +164,7 @@ const Affiliate = () => {
                     {loading ?
 
                         <div className='flex items-center justify-center justify-items-center'>
-                            <Loader />
+                            <Loader color={''} />
                         </div>
 
 

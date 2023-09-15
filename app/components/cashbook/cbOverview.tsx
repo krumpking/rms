@@ -284,7 +284,7 @@ const CBOverview = () => {
             <div>
                 {loading ? (
                     <div className="flex flex-col items-center content-center">
-                        <Loader />
+                        <Loader color={''} />
                     </div>
                 ) : (
                     <div className="bg-white rounded-[30px] p-4 flex flex-col">

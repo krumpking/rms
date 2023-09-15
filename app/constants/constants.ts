@@ -40,10 +40,13 @@ export const COOKIE_PHONE = 'jZmDw9V3i';
 export const COOKIE_ORGANISATION = '6a7ZP6ZtJ';
 
 export const COOKIE_EMAIL = '1OU2lbIQK';
-export const COOKIE_ID = 'y5Kgz3qY';
+export const USER_ID = 'y5Kgz3qY';
 export const ADMIN_ID = '34y98u75b2j';
-export const PERSON_ROLE = 'f7853r4d9872';
+export const ACCESS = 'f7853r4d9872';
 export const URL_LOCK_ID = 'AaM2a1VHtTXZWjcVw7hjrsM7aR8SJ6L5OL00rYUdf';
+export const SOLO_PACKAGE = 'Solo';
+export const TEAM_PACKAGE = 'Team';
+export const ENTERPRISE_PACKAGE = 'Enterprise';
 
 
 export const TEMPLATES = [

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { COOKIE_EMAIL, COOKIE_ID, COOKIE_NAME, COOKIE_ORGANISATION, COOKIE_PHONE, PRIMARY_COLOR } from '../app/constants/constants';
-import Carousel from '../app/components/carousel';
+import { ACCESS, ADMIN_ID, ENTERPRISE_PACKAGE, PRIMARY_COLOR, USER_ID } from '../app/constants/constants';
 import { auth } from '../firebase/clientApp';
 import Loader from '../app/components/loader';
 import { ToastContainer, toast } from 'react-toastify';
@@ -8,20 +7,17 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router'
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 import { setCookie } from 'react-use-cookie';
-import { DocumentData, DocumentReference } from 'firebase/firestore';
 import { encrypt } from '../app/utils/crypto';
 import Link from 'next/link';
-import { format, compareAsc, subDays } from 'date-fns'
-import { addPayment } from '../app/api/paymentApi';
+import { subDays } from 'date-fns'
 import Random from '../app/utils/random';
-import Script from 'next/script';
-import Head from 'next/head';
 import { IUser } from '../app/types/userTypes';
 import { createId } from '../app/utils/stringM';
+import { IPayments } from '../app/types/paymentTypes';
+import { addUser } from '../app/api/usersApi';
 import { addDocument } from '../app/api/mainApi';
-import { ADMIN_COLLECTION } from '../app/constants/userConstants';
-import { WEBSITE_COLLECTION } from '../app/constants/websiteConstants';
-import { IWebsite } from '../app/types/websiteTypes';
+import { PAYMENTS_COLLECTION } from '../app/constants/paymentConstants';
+
 
 
 const SignUp = () => {
@@ -31,7 +27,6 @@ const SignUp = () => {
     const [loading, setLoading] = useState(false);
     const router = useRouter();
     const [fullName, setFullName] = useState("");
-    const [organisationName, setOrganisationName] = useState("");
     const [email, setEmail] = useState("");
     const [checked, setChecked] = useState(false);
     const [accessArray, setAccessArray] = useState<any[]>([
@@ -146,67 +141,56 @@ const SignUp = () => {
             }
 
 
-            addDocument(ADMIN_COLLECTION, admin).then((v) => {
+            addUser(admin).then((v) => {
 
+                const payment: IPayments = {
+                    id: Random.randomString(13, "abcdefghijkhlmnopqrstuvwxz123456789"),
+                    adminId: userId,
+                    duration: 7,
+                    userId: userId,
+                    date: subDays(new Date(), 23),
+                    dateString: new Date().toDateString(),
+                    package: ENTERPRISE_PACKAGE,
+                    amount: 0,
+                    refCode: ""
+                }
 
+                addDocument(PAYMENTS_COLLECTION, payment).then((v: any) => {
+                    toast.success('7 day trial activated!!!');
+                }).catch((er: any) => {
+                    console.error(er);
+                });
+
+                setCookie(USER_ID, encrypt(userId, ADMIN_ID), {
+                    days: 1,
+                    SameSite: 'Strict',
+                    Secure: true,
+                });
+                setCookie(ADMIN_ID, encrypt(userId, ADMIN_ID), {
+                    days: 1,
+                    SameSite: 'Strict',
+                    Secure: true,
+                });
+                let accessKeys: string[] = [];
+
+                accessArray.forEach((element) => {
+                    accessKeys.push(encrypt(element, ADMIN_ID));
+                });
+                setCookie(ACCESS, accessKeys.toString(), {
+                    days: 1,
+                    SameSite: 'Strict',
+                    Secure: true,
+                });
+                router.push({
+                    pathname: '/home'
+                });
+                setLoading(false);
 
             }).catch((e) => {
+                setLoading(false);
                 console.error(e);
             })
 
-            // addAdmin(admin).then((v: DocumentReference<DocumentData> | null) => {
-            //     if (v == null) {
-            //         toast.warn("Phone number already exists, user another phone number or login");
-            //         setSent(false);
-            //     } else {
-
-
-            //         const payment = {
-            //             id: Random.randomString(13, "abcdefghijkhlmnopqrstuvwxz123456789"),
-            //             userId: userId,
-            //             date: subDays(new Date(), 23).toString(),
-            //             amount: 0,
-            //             refCode: ""
-            //         }
-
-            //         addPayment(payment).then((v) => {
-
-            //         }).catch((er) => {
-            //             console.error(er);
-            //         });
-
-            //         const key = v.id.substring(-13);
-            //         setCookie(COOKIE_ID, encrypt(userId, COOKIE_ID), {
-            //             days: 1,
-            //             SameSite: 'Strict',
-            //             Secure: true,
-            //         });
-            //         setCookie(COOKIE_ORGANISATION, encrypt(organisationName, key), {
-            //             days: 1,
-            //             SameSite: 'Strict',
-            //             Secure: true,
-            //         });
-            //         setCookie(COOKIE_EMAIL, encrypt(email, key), {
-            //             days: 1,
-            //             SameSite: 'Strict',
-            //             Secure: true,
-            //         });
-            //         setCookie(COOKIE_NAME, encrypt(fullName, key), {
-            //             days: 1,
-            //             SameSite: 'Strict',
-            //             Secure: true,
-            //         });
-
-            //         setCookie(COOKIE_PHONE, encrypt(phone, key), {
-            //             days: 1,
-            //             SameSite: 'Strict',
-            //             Secure: true,
-            //         });
-            //         router.push('/home');
-            //     }
-            //     setLoading(false);
-
-            // }).catch(console.error);
 
         }).catch((err: any) => {
             alert("The One Time Password you sent was not correct please retry");
@@ -233,13 +217,13 @@ const SignUp = () => {
 
                         </a>
                     </div>
-                    <div className='grid grid-cols-1 md:grid-cols-2 place-items-center p-4'>
-                        <div className='hidden lg:block'>
+                    <div className='grid grid-cols-1 md:grid-cols-2 place-items-center p-4 '>
+                        <div className='hidden md:block'>
                             <img src={"images/webOneDefaultPicture.jpg"} className='h-96 w-full' />
 
                         </div>
 
-                        <div className=''>
+                        <div className='w-full flex justify-center items-center'>
                             {loading ?
                                 <Loader color={''} />
 
@@ -247,12 +231,13 @@ const SignUp = () => {
 
                                 <div>
                                     {sent ?
-                                        <form onSubmit={
-                                            (e) => {
-                                                e.preventDefault()
-                                                signIn()
-                                            }
-                                        }>
+                                        <form
+                                            onSubmit={
+                                                (e) => {
+                                                    e.preventDefault()
+                                                    signIn()
+                                                }
+                                            }>
                                             <div className='flex w-full justify-center'>
                                                 <img src={"images/logo.png"} className='h-24' />
                                             </div>
@@ -267,19 +252,19 @@ const SignUp = () => {
 
 
                                                     }}
+                                                    style={{ borderColor: PRIMARY_COLOR }}
                                                     className="
-                                                w-full
-                                                rounded-[25px]
-                                                border-2
-                                                border-[#fdc92f]
-                                                py-3
-                                                px-5
-                                                bg-white
-                                                text-base text-body-color
-                                                placeholder-[#ACB6BE]
-                                                outline-none
-                                                focus-visible:shadow-none
-                                                focus:border-primary
+                                                        w-full
+                                                        rounded-[25px]
+                                                        border-2
+                                                        py-3
+                                                        px-5
+                                                        bg-white
+                                                        text-base text-body-color
+                                                        placeholder-[#ACB6BE]
+                                                        outline-none
+                                                        focus-visible:shadow-none
+                                                        focus:border-primary
                                                 "
                                                     required
                                                 />
@@ -290,6 +275,7 @@ const SignUp = () => {
                                                     type="submit"
                                                     value={"Login"}
                                                     className="
+                                                    text-white
                                                         font-bold
                                                         w-full
                                                         rounded-[25px]
@@ -309,12 +295,11 @@ const SignUp = () => {
                                         </form>
 
                                         :
-                                        <form onSubmit={
-                                            (e) => {
+                                        <form
+                                            onSubmit={(e) => {
                                                 e.preventDefault()
                                                 signUp()
-                                            }
-                                        }>
+                                            }}>
                                             <p className='text-center text-2xl text-black-300 mb-4 font-bold'>Start your 7 Day FREE trial</p>
                                             <div className="mb-6">
                                                 <input

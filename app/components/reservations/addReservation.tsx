@@ -3,10 +3,7 @@ import { FC } from 'react';
 import { createId } from '../../utils/stringM';
 import { getCookie } from 'react-use-cookie';
 import {
-  ADMIN_ID,
   AMDIN_FIELD,
-  COOKIE_ID,
-  PERSON_ROLE,
 } from '../../constants/constants';
 import { decrypt, encrypt } from '../../utils/crypto';
 import { addAClientToDB } from '../../api/crmApi';
