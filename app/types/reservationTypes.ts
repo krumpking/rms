@@ -28,6 +28,7 @@ export type IAttendee = {
 };
 
 export type IReservation = {
+  id: string,
   adminId: string;
   userId: string;
   name: string;

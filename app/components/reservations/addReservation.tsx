@@ -14,22 +14,23 @@ import Loader from '../loader';
 import { ToastContainer, toast } from 'react-toastify';
 import { print } from '../../utils/console';
 import { useRouter } from 'next/router';
-import { IBookingEvent, IReservation } from '../../types/reservationTypes';
-import { getOrgInfoFromDB } from '../../api/orgApi';
+import { IReservation } from '../../types/reservationTypes';
 import { RESERVATION_COLLECTION } from '../../constants/reservationConstants';
 import {
   addDocument,
   deleteDocument,
   getDataFromDBOne,
+  updateDocument,
 } from '../../api/mainApi';
+import { Disclosure } from '@headlessui/react';
 
 const AddReservation = () => {
-  const [category, setCategory] = useState('Reservation');
   const [addedInfo, setAddedInfo] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [docId, setDocId] = useState('');
   const router = useRouter();
   const [reservation, setReservation] = useState<IReservation>({
+    id: "",
     adminId: '',
     userId: '',
     name: '',
@@ -45,6 +46,7 @@ const AddReservation = () => {
     dateAddedString: new Date().toDateString(),
   });
   const [reservations, setReservations] = useState<IReservation[]>([]);
+  const [isEditRes, setIsEditRes] = useState(false);
 
   useEffect(() => {
     getReservations();
@@ -56,10 +58,25 @@ const AddReservation = () => {
         if (v !== null) {
           v.data.forEach((element) => {
             let d = element.data();
-            print(d);
-            setReservations;
+            setReservations(prevRes => [...prevRes, {
+              id: element.id,
+              adminId: d.adminId,
+              userId: d.userId,
+              name: d.name,
+              phoneNumber: d.phoneNumber,
+              email: d.email,
+              date: new Date(),
+              time: d.time,
+              peopleNumber: d.peopleNumber,
+              notes: d.notes,
+              category: d.category,
+              dateAdded: new Date(),
+              dateOfUpdate: new Date(),
+              dateAddedString: new Date().toDateString(),
+            }]);
           });
         }
+        setLoading(false);
       })
       .catch((e) => {
         console.error(e);
@@ -72,25 +89,40 @@ const AddReservation = () => {
 
   const addReservationDatabase = () => {
     setLoading(true);
-    addDocument(RESERVATION_COLLECTION, reservation)
-      .then((v) => {
-        setLoading(false);
-        toast.success('Reservation added successfully');
-      })
+    setReservations([]);
+    if (isEditRes) {
+      updateDocument(RESERVATION_COLLECTION, reservation.id, reservation)
+        .then((v) => {
+          setLoading(false);
+          getReservations();
+          toast.success('Reservation updated successfully');
+        })
+        .catch((e) => {
+          setLoading(false);
+          toast.error('There was an error, please try again');
+        });
+    } else {
+      addDocument(RESERVATION_COLLECTION, reservation)
+        .then((v) => {
 
-      .catch((e) => {
-        setLoading(false);
-        toast.error('There was an error, please try again');
-      });
-    getReservations();
+          getReservations();
+          toast.success('Reservation added successfully');
+        })
+        .catch((e) => {
+          getReservations();
+          toast.error('There was an error, please try again');
+        });
+    }
+
+
   };
 
-  const deleteItem = (id: string, pic: any) => {
+  const deleteItem = (id: string) => {
     var result = confirm('Are you sure you want to delete?');
     if (result) {
       //Logic to delete the item
       setLoading(true);
-
+      setReservations([]);
       deleteDocument(RESERVATION_COLLECTION, id)
         .then(() => {
           getReservations();
@@ -115,48 +147,50 @@ const AddReservation = () => {
                 type="text"
                 name="name"
                 value={reservation.name}
-                placeholder={'Name'}
+                placeholder={'Full Name'}
                 onChange={handleChange}
                 className="
-              w-full
-              rounded-[25px]
-              border-2
-              border-[#8b0e06]
-              py-3
-              px-5
-              bg-white
-              text-base text-body-color
-              placeholder-[#ACB6BE]
-              outline-none
-              focus-visible:shadow-none
-              focus:border-primary
-              "
+                  w-full
+                  rounded-[25px]
+                  border-2
+                  border-[#8b0e06]
+                  py-3
+                  px-5
+                  bg-white
+                  text-base text-body-color
+                  placeholder-[#ACB6BE]
+                  outline-none
+                  focus-visible:shadow-none
+                  focus:border-primary
+                "
               />
             </div>
             <div className="mb-6">
+              <p className='text-xs text-gray-400 text-center'>Phone Number</p>
               <input
-                type="number"
+                type="text"
                 name="phoneNumber"
                 value={reservation.phoneNumber}
                 placeholder={'Phone Number'}
                 onChange={handleChange}
                 className="
-              w-full
-              rounded-[25px]
-              border-2
-              border-[#8b0e06]
-              py-3
-              px-5
-              bg-white
-              text-base text-body-color
-              placeholder-[#ACB6BE]
-              outline-none
-              focus-visible:shadow-none
-              focus:border-primary
+                  w-full
+                  rounded-[25px]
+                  border-2
+                  border-[#8b0e06]
+                  py-3
+                  px-5
+                  bg-white
+                  text-base text-body-color
+                  placeholder-[#ACB6BE]
+                  outline-none
+                  focus-visible:shadow-none
+                  focus:border-primary
               "
               />
             </div>
             <div className="mb-6">
+              <p className='text-xs text-gray-400 text-center'>Date of reservation</p>
               <input
                 type="date"
                 // value={reservation.date}
@@ -180,66 +214,89 @@ const AddReservation = () => {
               />
             </div>
             <div className="mb-6">
+              <p className='text-xs text-gray-400 text-center'>Time of Reservation</p>
               <input
-                type="text"
+                type="time"
                 name="time"
                 value={reservation.time}
                 placeholder={'Time'}
                 onChange={handleChange}
                 className="
-              w-full
-              rounded-[25px]
-              border-2
-              border-[#8b0e06]
-              py-3
-              px-5
-              bg-white
-              text-base text-body-color
-              placeholder-[#ACB6BE]
-              outline-none
-              focus-visible:shadow-none
-              focus:border-primary
-              "
+                  w-full
+                  rounded-[25px]
+                  border-2
+                  border-[#8b0e06]
+                  py-3
+                  px-5
+                  bg-white
+                  text-base text-body-color
+                  placeholder-[#ACB6BE]
+                  outline-none
+                  focus-visible:shadow-none
+                  focus:border-primary
+                "
               />
             </div>
             <div className="mb-6">
+              <p className='text-xs text-gray-400 text-center'>Number of people for the reservation</p>
               <input
-                type="people"
+                type="number"
                 name="peopleNumber"
                 value={reservation.peopleNumber}
                 placeholder={'Number of People'}
                 onChange={handleChange}
                 className="
-              w-full
-              rounded-[25px]
-              border-2
-              border-[#8b0e06]
-              py-3
-              px-5
-              bg-white
-              text-base text-body-color
-              placeholder-[#ACB6BE]
-              outline-none
-              focus-visible:shadow-none
-              focus:border-primary
+                  w-full
+                  rounded-[25px]
+                  border-2
+                  border-[#8b0e06]
+                  py-3
+                  px-5
+                  bg-white
+                  text-base text-body-color
+                  placeholder-[#ACB6BE]
+                  outline-none
+                  focus-visible:shadow-none
+                  focus:border-primary
+                "
+              />
+            </div>
+            <div className="mb-6">
+              <textarea
+                name="notes"
+                value={reservation.notes}
+                placeholder={'Notes'}
+                onChange={handleChange}
+                className="
+                  w-full
+                  rounded-[20px]
+                  border-2
+                  border-[#8b0e06]
+                  py-3
+                  px-5
+                  bg-white
+                  text-base text-body-color
+                  placeholder-[#ACB6BE]
+                  outline-none
+                  focus-visible:shadow-none
+                  focus:border-primary
               "
               />
             </div>
-
             <div className="mb-6 w-full">
               <button
                 className=" w-full
-                                    rounded-[25px]
-                                    border-2
-                                    border-[#8b0e06]
-                                    py-3
-                                    px-5
-                                    bg-white
-                                    text-base text-body-color
-                                    placeholder-[#ACB6BE]
-                                    outline-none
-                                    focus-visible:shadow-none
-                                    focus:border-primary"
+                  rounded-[25px]
+                  border-2
+                  border-[#8b0e06]
+                  py-3
+                  px-5
+                  bg-white
+                  text-base text-body-color
+                  placeholder-[#ACB6BE]
+                  outline-none
+                  focus-visible:shadow-none
+                  focus:border-primary"
                 onClick={(e) => e.preventDefault()}
               >
                 <select
@@ -257,43 +314,38 @@ const AddReservation = () => {
                 </select>
               </button>
             </div>
-
             <div className="mb-6">
               <button
                 onClick={() => {
                   addReservationDatabase();
                 }}
                 className="
-                                font-bold
-                                w-full
-                                rounded-[25px]
-                                border-2
-                                border-[#8b0e06]
-                                border-primary
-                                py-3
-                                px-5
-                                bg-[#8b0e06]
-                                text-base
-                                text-white
-                                cursor-pointer
-                                hover:bg-opacity-90
-                                transition
+                       font-bold
+                       w-full
+                       rounded-[25px]
+                       border-2
+                       border-[#8b0e06]
+                       border-primary
+                       py-3
+                       px-5
+                       bg-[#8b0e06]
+                       text-base
+                       text-white
+                       cursor-pointer
+                       hover:bg-opacity-90
+                       transition
                                     "
               >
-                Add {category}
+                {isEditRes ? 'Update Reservation' : 'Add Reservation'}
               </button>
             </div>
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col max-h-[700px] overflow-y-auto">
             {reservations.map((v) => (
-              <div
-                onClick={() => {
-                  setReservation(v);
-                }}
-              >
-                <div className="flex flex-col shadow-xl rounded-[25px] p-8 w-[250px] ">
+              <div              >
+                <div className="flex flex-col shadow-xl rounded-[25px] p-8 w-full ">
                   <div className="flex flex-row-reverse">
-                    <button onClick={() => {}}>
+                    <button onClick={() => { deleteItem(v.id); }}>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
@@ -309,7 +361,7 @@ const AddReservation = () => {
                         />
                       </svg>
                     </button>
-                    <button onClick={() => {}}>
+                    <button onClick={() => { setIsEditRes(true); setReservation(v); }}>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
@@ -326,6 +378,22 @@ const AddReservation = () => {
                       </svg>
                     </button>
                   </div>
+                  <h1 className='font-bold text-xl text-[#8b0e06]'>Reservation Name: {v.name}</h1>
+                  <h1 className='font-bold text-sm'>Date: {v.dateAddedString}</h1>
+                  <h1 className='font-bold text-sm'>Time: {v.dateAddedString}</h1>
+                  <h1 className='font-bold text-sm'>Number of people: {v.peopleNumber}</h1>
+                  <h1 className='font-bold text-sm'>{v.category}</h1>
+                  <Disclosure>
+                    <Disclosure.Button className={'-ml-16 underline text-xs'}>
+                      See Order Details
+                    </Disclosure.Button>
+                    <Disclosure.Panel>
+                      <div className='flex flex-col shadow-xl p-4 rounded-[25px]'>
+                        <p className='text-xs'>{v.notes}</p>
+                      </div>
+                    </Disclosure.Panel>
+                  </Disclosure>
+
                 </div>
               </div>
             ))}

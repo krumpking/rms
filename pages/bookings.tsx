@@ -22,10 +22,8 @@ import { getForms } from '../app/api/formApi';
 import { Tab } from '@headlessui/react';
 import Data from '../app/components/data';
 import AddBookingEvent from '../app/components/reservations/availableReservations';
-import BasicCalendar from '../app/components/reservations/reservationsHistory';
 import AddReservation from '../app/components/reservations/addReservation';
 import AvailableReservations from '../app/components/reservations/availableReservations';
-import ReservationsHistory from '../app/components/reservations/reservationsHistory';
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
@@ -41,9 +39,9 @@ const Bookings = () => {
   const [formsSearch, setFormsSearch] = useState('');
   const [temp, setTemp] = useState<IForm[]>([]);
   const [tabs, setTabs] = useState([
-    'Add Reservation',
     'Available Reservations',
     'Reservations History',
+    'Add Reservation',
   ]);
 
   useEffect(() => {
@@ -52,25 +50,7 @@ const Bookings = () => {
 
     // checkPayment();
 
-    let role = getCookie(PERSON_ROLE);
-    var infoFromCookie = '';
-    if (getCookie(ADMIN_ID) == '') {
-      infoFromCookie = getCookie(COOKIE_ID);
-    } else {
-      infoFromCookie = getCookie(ADMIN_ID);
-    }
 
-    if (typeof role !== 'undefined') {
-      if (role !== '') {
-        var id = decrypt(infoFromCookie, COOKIE_ID);
-        var roleTitle = decrypt(role, id);
-        if (roleTitle == 'Viewer') {
-          // "Viewer" //"Editor"
-          router.push('/home');
-          toast.info('You do not have permission to access this page');
-        }
-      }
-    }
   }, []);
 
   // const checkPayment = async () => {
@@ -140,7 +120,7 @@ const Bookings = () => {
                         'ring-white m-1',
                         selected
                           ? 'bg-white shadow-md focus:outline-none'
-                          : 'text-blue-100 hover:bg-white/[0.12] hover:text-white focus:outline-none'
+                          : 'text-black hover:bg-white/[0.12] hover:text-white focus:outline-none'
                       )
                     }
                   >
@@ -155,23 +135,24 @@ const Bookings = () => {
                     'ring-white ring-opacity-60 ring-offset-2 focus:outline-none focus:ring-2'
                   )}
                 >
+                  <AvailableReservations isHistory={false} />
+                </Tab.Panel>
+                <Tab.Panel
+                  className={classNames(
+                    'rounded-xl bg-white p-3',
+                    'ring-white ring-opacity-60 ring-offset-2 focus:outline-none focus:ring-2'
+                  )}
+                >
+                  <AvailableReservations isHistory={true} />
+                </Tab.Panel>
+                <Tab.Panel
+                  className={classNames(
+                    'rounded-xl bg-white p-3',
+                    'ring-white ring-opacity-60 ring-offset-2 focus:outline-none focus:ring-2'
+                  )}
+                >
+
                   <AddReservation />
-                </Tab.Panel>
-                <Tab.Panel
-                  className={classNames(
-                    'rounded-xl bg-white p-3',
-                    'ring-white ring-opacity-60 ring-offset-2 focus:outline-none focus:ring-2'
-                  )}
-                >
-                  <AvailableReservations />
-                </Tab.Panel>
-                <Tab.Panel
-                  className={classNames(
-                    'rounded-xl bg-white p-3',
-                    'ring-white ring-opacity-60 ring-offset-2 focus:outline-none focus:ring-2'
-                  )}
-                >
-                  <ReservationsHistory />
                 </Tab.Panel>
               </Tab.Panels>
             </Tab.Group>

@@ -2,28 +2,22 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router';
-import { LIGHT_GRAY, URL_LOCK_ID } from '../../constants/constants';
-import ClientNav from '../clientNav';
-import ReactTable from 'react-table';
+import { AMDIN_FIELD } from '../../constants/constants';
 import Loader from '../loader';
-import { Dialog, Transition } from '@headlessui/react';
-import ReturnElements from '../returnElements';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
-import { Document, ImageRun, Packer, Paragraph, TextRun } from 'docx';
-import fs from 'fs';
-import { saveAs } from 'file-saver';
-import { getUrl } from '../../utils/getImageUrl';
-import { HexColorPicker } from 'react-colorful';
-import { getSpecificData } from '../../api/formApi';
+import { IReservation } from '../../types/reservationTypes';
+import { getDataFromDBOne } from '../../api/mainApi';
+import { RESERVATION_COLLECTION } from '../../constants/reservationConstants';
+import { searchStringInArray } from '../../utils/arrayM';
+import ReactPaginate from 'react-paginate';
+import { isAfter, isBefore, isEqual } from 'date-fns';
 import { print } from '../../utils/console';
-import { doc, updateDoc } from 'firebase/firestore';
 
 // var object = {};
 // var array = [];
 // var arrayOfObjects = [{},{},{}]
 
-const AvailableReservations = () => {
+const AvailableReservations = (props: { isHistory: boolean }) => {
+  const { isHistory } = props;
   const router = useRouter();
   const [label, setLabel] = useState<any[]>([
     'Name',
@@ -32,30 +26,179 @@ const AvailableReservations = () => {
     'Time',
     'Number of People',
   ]);
-  const [data, setData] = useState<any[]>([
-    {
-      name: 'John Banda',
-      phoneNumber: '0782231251',
-      date: '1 August 2023',
-      time: '21:15',
-      people: '20',
-    },
-    {
-      name: 'Ale Ma',
-      phoneNumber: '07822555',
-      date: '2 August 2023',
-      time: '21:30',
-      people: '30',
-    },
-  ]);
   const [loading, setLoading] = useState(false);
+  const [reservations, setReservations] = useState<IReservation[]>([]);
+  const [reservationsTemp, setReservationsTemp] = useState<IReservation[]>([]);
+  const [count, setCount] = useState(0);
+  const [pages, setPages] = useState(0);
+  const [start, setStart] = useState(0);
+  const [end, setEnd] = useState(10);
+  const [search, setSearch] = useState("");
 
-  const [excelData, setExcelData] = useState<any>([]);
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [columnLayout, setColumnLayout] = useState(true);
-  const [rowInfo, setRowInfo] = useState<any[]>([]);
-  const ref = React.createRef();
-  const [changedLayout, setChangedLayout] = useState(true);
+
+  useEffect(() => {
+    getReservations();
+  }, []);
+
+
+  const getReservations = () => {
+    getDataFromDBOne(RESERVATION_COLLECTION, AMDIN_FIELD, '')
+      .then((v) => {
+        if (v !== null) {
+          v.data.forEach((element) => {
+            let d = element.data();
+            let d1 = new Date(new Date().toDateString());
+            let d2 = new Date(d.dateAddedString);
+
+            if (isHistory) {
+              if (isBefore(d2, d1)) {
+                setReservations(prevRes => [...prevRes, {
+                  id: element.id,
+                  adminId: d.adminId,
+                  userId: d.userId,
+                  name: d.name,
+                  phoneNumber: d.phoneNumber,
+                  email: d.email,
+                  date: new Date(),
+                  time: d.time,
+                  peopleNumber: d.peopleNumber,
+                  notes: d.notes,
+                  category: d.category,
+                  dateAdded: new Date(),
+                  dateOfUpdate: new Date(),
+                  dateAddedString: new Date().toDateString(),
+                }]);
+                setReservationsTemp(prevRes => [...prevRes, {
+                  id: element.id,
+                  adminId: d.adminId,
+                  userId: d.userId,
+                  name: d.name,
+                  phoneNumber: d.phoneNumber,
+                  email: d.email,
+                  date: new Date(),
+                  time: d.time,
+                  peopleNumber: d.peopleNumber,
+                  notes: d.notes,
+                  category: d.category,
+                  dateAdded: new Date(),
+                  dateOfUpdate: new Date(),
+                  dateAddedString: new Date().toDateString(),
+                }]);
+              }
+
+            } else {
+              if (isEqual(d1, d2) || isAfter(d2, d1)) {
+                setReservations(prevRes => [...prevRes, {
+                  id: element.id,
+                  adminId: d.adminId,
+                  userId: d.userId,
+                  name: d.name,
+                  phoneNumber: d.phoneNumber,
+                  email: d.email,
+                  date: new Date(),
+                  time: d.time,
+                  peopleNumber: d.peopleNumber,
+                  notes: d.notes,
+                  category: d.category,
+                  dateAdded: new Date(),
+                  dateOfUpdate: new Date(),
+                  dateAddedString: new Date().toDateString(),
+                }]);
+                setReservationsTemp(prevRes => [...prevRes, {
+                  id: element.id,
+                  adminId: d.adminId,
+                  userId: d.userId,
+                  name: d.name,
+                  phoneNumber: d.phoneNumber,
+                  email: d.email,
+                  date: new Date(),
+                  time: d.time,
+                  peopleNumber: d.peopleNumber,
+                  notes: d.notes,
+                  category: d.category,
+                  dateAdded: new Date(),
+                  dateOfUpdate: new Date(),
+                  dateAddedString: new Date().toDateString(),
+                }]);
+              }
+
+            }
+
+
+
+          });
+          var numOfPages = Math.floor(v.count / 10);
+          if (v.count % 10 > 0) {
+            numOfPages++;
+          }
+          setPages(numOfPages);
+          setCount(v.count);
+        }
+
+
+
+        setLoading(false);
+      })
+      .catch((e) => {
+        console.error(e);
+      });
+  };
+
+
+  const handlePageClick = (event: { selected: number; }) => {
+    let val = event.selected + 1;
+    if (count / 10 + 1 === val) {
+      setStart(count - (count % 10));
+      setEnd(count);
+    } else {
+      setStart(Math.ceil((val * 10) - 10));
+      setEnd(val * 10);
+    }
+  };
+
+  const handleKeyDown = (event: { key: string; }) => {
+
+    if (event.key === 'Enter') {
+      searchFor();
+    }
+  };
+
+  const searchFor = () => {
+    setReservationsTemp([]);
+
+    setLoading(true);
+    if (search !== '') {
+
+      let res: IReservation[] = searchStringInArray(reservations, search);
+
+      if (res.length > 0) {
+        setTimeout(() => {
+          setReservationsTemp(res);
+          setLoading(false);
+        }, 1500);
+
+      } else {
+        toast.info(`${search} not found `);
+        setTimeout(() => {
+          setReservationsTemp(reservations);
+          setLoading(false);
+        }, 1500);
+
+
+      }
+
+
+    } else {
+
+      setTimeout(() => {
+        setReservationsTemp(reservations);
+        setLoading(false);
+      }, 1500);
+
+    }
+  }
+
+
 
   return (
     <div>
@@ -78,7 +221,7 @@ const AvailableReservations = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.map((value: any, index: number) => {
+                  {reservationsTemp.map((value: any, index: number) => {
                     return (
                       <tr
                         key={index}
@@ -88,40 +231,35 @@ const AvailableReservations = () => {
                       >
                         <td>{value.name}</td>
                         <td>{value.phoneNumber}</td>
-                        <td>{value.date}</td>
+                        <td>{value.dateAddedString}</td>
                         <td>{value.time}</td>
-                        <td>{value.people}</td>
+                        <td>{value.peopleNumber}</td>
                       </tr>
                     );
                   })}
                 </tbody>
               </table>
+              <div>
+                {reservationsTemp.length > 0 ? <div className='flex w-full'>
+                  <ReactPaginate
+                    pageClassName="border-2 border-[#8b0e06] px-2 py-1 rounded-full"
+                    previousLinkClassName="border-2 border-[#8b0e06] px-2 py-2 rounded-[25px] bg-[#8b0e06] text-white font-bold"
+                    nextLinkClassName="border-2 border-[#8b0e06] px-2 py-2 rounded-[25px] bg-[#8b0e06] text-white font-bold"
+                    breakLabel="..."
+                    breakClassName=""
+                    containerClassName="flex flex-row space-x-4 content-center items-center "
+                    activeClassName="bg-[#8b0e06] text-white"
+                    nextLabel="next"
+                    onPageChange={handlePageClick}
+                    pageRangeDisplayed={1}
+                    pageCount={pages}
+                    previousLabel="previous"
+                    renderOnZeroPageCount={() => null}
+                  />
+                </div> : <p></p>}
+              </div>
             </div>
-            <div>
-              <button
-                onClick={() => {
-                  setLoading(true);
-                }}
-                className="
-                                font-bold
-                                        w-ful
-                                        rounded-[25px]
-                                        border-2
-                                        border-[#8b0e06]
-                                        border-primary
-                                        py-3
-                                        px-10
-                                        bg-[#8b0e06]
-                                        text-base 
-                                        text-white
-                                        cursor-pointer
-                                        hover:bg-opacity-90
-                                        transition
-                                    "
-              >
-                Update
-              </button>
-            </div>
+
           </div>
         )}
       </div>
