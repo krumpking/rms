@@ -47,6 +47,9 @@ export const URL_LOCK_ID = 'AaM2a1VHtTXZWjcVw7hjrsM7aR8SJ6L5OL00rYUdf';
 export const SOLO_PACKAGE = 'Solo';
 export const TEAM_PACKAGE = 'Team';
 export const ENTERPRISE_PACKAGE = 'Enterprise';
+export const SOLO_PACKAGE_PRICE = 9;
+export const TEAM_PACKAGE_PRICE = 29;
+export const ENTERPRISE_PACKAGE_PRICE = 49;
 
 
 export const TEMPLATES = [

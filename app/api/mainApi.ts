@@ -25,6 +25,21 @@ export const uploadFile = (path: string, file: File): Promise<UploadResult> => {
 };
 
 
+// Read All Documents
+
+export const getDataFromAll = async (collectionName: any) => {
+  const q = query(collection(firestore, collectionName), orderBy("date", "desc"));
+  const snapshot = await getCountFromServer(q);
+  if (snapshot.data().count > 0) {
+    const querySnapshot = await getDocs(q);
+    return { data: querySnapshot, count: snapshot.data().count };
+
+  } else {
+    return null;
+  }
+}
+
+
 
 // Read Many Documents
 

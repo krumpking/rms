@@ -47,6 +47,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
     const [userId, setUserId] = useState("");
     const [search, setSearch] = useState("");
     const [reservation, setReservation] = useState({
+        id: "",
         adminId: "",
         userId: "",
         name: "",
@@ -931,7 +932,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                             <h1 className='mb-6'>{info.email}</h1>
                             <h1 className='mb-6'>{info.phone}</h1>
                             <h1 className='mb-6'>{info.address}</h1>
-                            <h1 className='mb-6'>&copy;2023</h1>
+                            <h1 className='mb-6'>&copy;2023 {info.serviceProviderName}</h1>
 
                         </div>
                     </div>

@@ -4,7 +4,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router';
 import { getCookie } from 'react-use-cookie';
-import { ADMIN_ID, AMDIN_FIELD, COOKIE_ID, LIGHT_GRAY } from '../../constants/constants';
+import { ADMIN_ID, AMDIN_FIELD, LIGHT_GRAY } from '../../constants/constants';
 import Loader from '../loader';
 import { decrypt } from '../../utils/crypto';
 import { ICategory, IMenuItem } from '../../types/menuTypes';
@@ -34,13 +34,7 @@ const OrderHistory = () => {
     useEffect(() => {
         document.body.style.backgroundColor = LIGHT_GRAY;
 
-        var infoFromCookie = '';
-        if (getCookie(ADMIN_ID) == '') {
-            infoFromCookie = getCookie(COOKIE_ID);
-        } else {
-            infoFromCookie = getCookie(ADMIN_ID);
-        }
-        // setAdminId(decrypt(infoFromCookie, COOKIE_ID));
+
 
 
         getOrders();
@@ -72,7 +66,11 @@ const OrderHistory = () => {
                         tableNo: d.tableNO,
                         date: d.date,
                         dateString: d.dateString,
-                        totalCost: d.totalCost
+                        totalCost: d.totalCost,
+                        customerEmail: d.email,
+                        customerPhone: d.phone,
+                        customerAddress: d.customerAddress,
+                        deliveryLocation: d.deliveryLocation
                     }]);
 
                 });
@@ -161,7 +159,7 @@ const OrderHistory = () => {
             <div className="bg-white rounded-[30px] p-4 ">
                 {loading ? (
                     <div className="w-full flex flex-col items-center content-center">
-                        <Loader />
+                        <Loader color={''} />
                     </div>
                 ) : (
                     <div className="flex flex-col  overflow-y-scroll  w-full p-4">
