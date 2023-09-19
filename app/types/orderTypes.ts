@@ -17,4 +17,7 @@ export type IOrder = {
     tableNo: string,
     date: Date,
     dateString: string,
+    deliveryDate: Date,
+    deliveryDateString: string,
+    deliveryTime: string
 }

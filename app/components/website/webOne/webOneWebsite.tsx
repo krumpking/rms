@@ -71,7 +71,6 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
         email: '',
         message: ""
     });
-    const [view, setView] = useState<any>(<p>Hi</p>)
     const [addItems, setAddItems] = useState<any[]>([]);
     const [index, setIndex] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
@@ -94,6 +93,9 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
         tableNo: "",
         date: new Date(),
         dateString: new Date().toDateString(),
+        deliveryDate: new Date,
+        deliveryDateString: "",
+        deliveryTime: ""
 
 
     });
@@ -451,7 +453,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 
         } else {
             setLoading(false);
-            alert("Ensure you enter all details")
+            toast.error("Ensure you enter all details");
         }
 
     }
@@ -1144,7 +1146,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                                 </div>
 
 
-                                : <div style={{ borderColor: info.themeMainColor }} className="border rounded-md h-full w-full flex flex-col items-center m-4 p-4">
+                                : <div style={{ borderColor: info.themeMainColor }} className="border rounded-md h-fit w-full flex flex-col items-center m-4 p-4">
                                     <div className={'mb-2 w-full'}>
                                         <input
                                             type="string"
@@ -1214,6 +1216,76 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                                         "
                                         />
                                     </div>
+                                    <button
+                                        className='font-bold rounded-md border-2 bg-white px-4 py-3 w-full mb-2'
+                                        style={{ borderColor: info.themeMainColor }}
+                                        onClick={(e) => e.preventDefault()}>
+                                        <select
+                                            // value={order.deliveryMethod}
+                                            onChange={handleChangeOrder}
+                                            name="deliveryMethod"
+                                            className='bg-white w-full'
+                                            data-required="1"
+                                            required>
+                                            <option value="Delivery" hidden>
+                                                Select Delivery Method
+                                            </option>
+                                            {deliveryMethods.map(v => (
+                                                <option value={v} >
+                                                    {v}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </button>
+                                    <div className={'mb-2 w-full'}>
+                                        <p className='text-center text-xs'>Date of {order.deliveryMethod}</p>
+                                        <input
+                                            type="date"
+                                            // value={order.deliveryDate}
+                                            placeholder={`Date of ${order.deliveryMethod}`}
+                                            name="deliveryDate"
+                                            onChange={handleChangeOrder}
+                                            style={{ borderColor: info.themeMainColor }}
+                                            className="
+                                                w-full
+                                                rounded-md
+                                                border-2
+                                                py-3
+                                                px-5
+                                                bg-white
+                                                text-base text-body-color
+                                                placeholder-[#ACB6BE]
+                                                outline-none
+                                                focus-visible:shadow-none
+                                                focus:border-primary
+                                        "
+                                        />
+                                    </div>
+                                    <div className={'mb-2 w-full'}>
+                                        <p className='text-center text-xs'>Time of {order.deliveryMethod}</p>
+                                        <input
+                                            type="time"
+                                            // value={order.deliveryDate}
+                                            placeholder={`Date of ${order.deliveryMethod}`}
+                                            name="deliveryTime"
+                                            onChange={handleChangeOrder}
+                                            style={{ borderColor: info.themeMainColor }}
+                                            className="
+                                                w-full
+                                                rounded-md
+                                                border-2
+                                                py-3
+                                                px-5
+                                                bg-white
+                                                text-base text-body-color
+                                                placeholder-[#ACB6BE]
+                                                outline-none
+                                                focus-visible:shadow-none
+                                                focus:border-primary
+                                        "
+                                        />
+                                    </div>
+
                                     <div className='mb-2 overflow-y-auto max-h-54 w-full'>
                                         <div>
                                             <div className='flex flex-row justify-between shadow-md m-4 p-4'>
@@ -1245,27 +1317,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                                             ))}
                                         </div>
                                     </div>
-                                    <button
-                                        className='font-bold rounded-md border-2 bg-white px-4 py-3 w-full mb-2'
-                                        style={{ borderColor: info.themeMainColor }}
-                                        onClick={(e) => e.preventDefault()}>
-                                        <select
-                                            // value={order.deliveryMethod}
-                                            onChange={handleChangeOrder}
-                                            name="deliveryMethod"
-                                            className='bg-white w-full'
-                                            data-required="1"
-                                            required>
-                                            <option value="Delivery" hidden>
-                                                Select Delivery Method
-                                            </option>
-                                            {deliveryMethods.map(v => (
-                                                <option value={v} >
-                                                    {v}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </button>
+
                                     {order.deliveryMethod == "Delivery" ?
                                         <div className='w-full'>
                                             <div className={'mb-2 w-full'}>

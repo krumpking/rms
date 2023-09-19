@@ -6,11 +6,13 @@ import Link from 'next/link';
 import PrimaryButton from '../../primaryButton';
 import MainCarousel from '../../mainCarousel';
 import Nav from './nav';
+import { useRouter } from 'next/router';
 
 
 
 
 const Header = () => {
+    const router = useRouter();
 
     return (
         <div className="w-screen h-screen bg-cover  bg-headerImage bg-no-repeat flex flex-col">
@@ -22,6 +24,7 @@ const Header = () => {
                     <p>FoodiesBooth will take care of all your operations, from menu creation, order management, stock management, cash management, staff management.You focus on what you do best<span style={{ color: PRIMARY_COLOR }}> Cooking, Baking and Serving</span></p>
                     <div className='flex flex-row'>
                         <button
+                            onClick={() => { router.push('/signup') }}
                             style={{ backgroundColor: PRIMARY_COLOR }}
                             className='font-bold
                                         w-full
@@ -39,6 +42,7 @@ const Header = () => {
 
                         </button>
                         <button
+                            onClick={() => { router.push('#services') }}
                             style={{ borderColor: PRIMARY_COLOR, color: PRIMARY_COLOR }}
                             className='
 
@@ -65,6 +69,7 @@ const Header = () => {
                     <p>Never waste hunger, make each bite a memory, by ordering from the <span style={{ color: PRIMARY_COLOR }}>best Food Businesses</span> in the country.</p>
                     <div className='flex flex-row'>
                         <button
+                            onClick={() => { router.push('/booths') }}
                             style={{ backgroundColor: PRIMARY_COLOR }}
                             className='font-bold
                                         w-full
@@ -82,6 +87,7 @@ const Header = () => {
 
                         </button>
                         <button
+                            onClick={() => { router.push('/booths') }}
                             style={{ borderColor: PRIMARY_COLOR, color: PRIMARY_COLOR }}
                             className='
 

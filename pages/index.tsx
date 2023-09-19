@@ -1,12 +1,8 @@
 import type { NextPage } from 'next'
 import React, { useState, useEffect } from 'react'
 import { ENTERPRISE_PACKAGE, ENTERPRISE_PACKAGE_PRICE, FOURTH_COLOR, PRIMARY_COLOR, SECONDARY_COLOR, SOLO_PACKAGE, SOLO_PACKAGE_PRICE, TEAM_PACKAGE, TEAM_PACKAGE_PRICE, THIRD_COLOR, WHATSAPP_CONTACT } from '../app/constants/constants';
-import Nav from '../app/components/welcomePage/header/nav';
 import Header from '../app/components/welcomePage/header/header';
-import Carousel from '../app/components/carousel';
 import Link from 'next/link';
-import Script from 'next/script';
-import YouTube from "react-youtube";
 import { useRouter } from 'next/router';
 import { print } from '../app/utils/console';
 import Loader from '../app/components/loader';
@@ -18,6 +14,7 @@ import ShowImage from '../app/components/showImage';
 import { IWebsiteOneInfo } from '../app/types/websiteTypes';
 import { WEBSITE_INFO_COLLECTION } from '../app/constants/websiteConstants';
 import { Disclosure, Switch } from '@headlessui/react';
+import { SocialIcon } from 'react-social-icons'
 
 
 
@@ -116,7 +113,8 @@ const Home: NextPage = () => {
       answer: 'FoodiesBooth is built to handle millions of users without problems, built on top of one of the best infrastructures in the world.It can handle volumes of any s'
     },
 
-  ])
+  ]);
+  const [socials, setSetsocials] = useState<any[]>(['www.instagram.com', 'www.tiktok.com', 'www.facebook.com', 'www.twitter.com']);
 
 
   useEffect(() => {
@@ -230,19 +228,19 @@ const Home: NextPage = () => {
               <div className='flex flex-col p-4' id="menu">
                 <div className='flex justify-between content-center items-center mb-6'>
                   <h1 className='text-2xl'>Market Place</h1>
-                  <div className='flex flex-row space-x-4 max-w-[800px] overflow-x-auto' onClick={() => { router.push("/market") }}>
+                  <div className='flex flex-row space-x-4 max-w-[800px] overflow-x-auto' onClick={() => { router.push("/booths") }}>
                     <h1 className='underline'>See all</h1>
                   </div>
                 </div>
                 <div className='grid grid-cols-4 gap-4 mb-6'>
                   {meals.slice(0, 8).map((v) => (
                     <div className='flex flex-col shadow-2xl rounded-[25px]'>
-                      <ShowImage src={`/${"webfrontId"}/${MEAL_STORAGE_REF}/${v.pic.thumbnail}`} alt={'Meal Item'} style={'rounded-md h-64 w-full'} />
+                      <ShowImage src={`/${"webfrontId"}/${MEAL_STORAGE_REF}/${v.pic.thumbnail}`} alt={'Meal Item'} style={'rounded-[25px] h-64 w-full'} />
                       <h1 className='font-bold text-4xl px-4'>{v.title}</h1>
                       <div className='flex flex-row justify-between p-4 items-center'>
                         <h1 className='font-bold text-xl'>{v.price}USD</h1>
                         <button
-                          onClick={() => { router.push('/market') }}
+                          onClick={() => { router.push('/booths') }}
                           className='py-2 px-5 text-white rounded-[25px] w-1/2'
                           style={{ backgroundColor: PRIMARY_COLOR }}
                         >
@@ -268,7 +266,7 @@ const Home: NextPage = () => {
                             <p className='text-md'>{v.aboutUsInfo.slice(0, 52)}...</p>
                           </div>
                           <button
-                            onClick={() => { }}
+                            onClick={() => { router.push("/booths") }}
                             className='relative rounded-full p-2'
                             style={{ backgroundColor: PRIMARY_COLOR }} >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6 text-white">
@@ -412,98 +410,14 @@ const Home: NextPage = () => {
                   <a><p className='text-white underline'>Privacy Policy</p></a>
                 </div>
                 <div>
-                  <p className='text-white'>&copy;2023 FoodiesBooth</p>
+                  <h1 className='text-2xl text-white'>FoodiesBooth</h1>
+                  <p className='text-white'>&copy;2023 </p>
                 </div>
                 <div>
                   <div className="grid grid-cols-4 gap-4">
-                    {/* <!--Facebook Button --> */}
-
-                    <button id="facebook" className="bg-white  sticky duration-500 border-2 border-blue-600 fixed  w-12 transform hover:-translate-y-3   h-12 text-2xl rounded-full hover:bg-blue-600 hover:text-white text-blue-600 ">
-                      <i className="fab fa-facebook-f"></i>
-                    </button>
-
-
-
-                    {/* <!--İnstagram Button --> */}
-
-                    <button id="instagram" className=" border-2 hover:border-0 border-pink-500 bg-gradient-to-b text-2xl hover:from-indigo-600 hover:via-pink-600 hover:to-yellow-500 min-w-wull hover:text-white bg-white text-pink-600 w-12 h-12  transform hover:-translate-y-3 rounded-full duration-500 ">
-                      <i className="fab fa-instagram"></i>
-                    </button>
-
-
-                    {/* <!--Whatsapp Button --> */}
-                    <button id="whatsapp" className="bg-white duration-500    w-12 h-12 border-2 rounded-full border-green-600 transform hover:-translate-y-3  text-2xl text-green-500 hover:bg-green-600 hover:text-white">
-                      <i className="fab fa-whatsapp"></i>
-                    </button>
-
-
-                    {/* <!--Twitter Button --> */}
-                    <button id="twitter" className="bg-white  transform hover:-translate-y-3  border-2 w-12 h-12 rounded-full duration-500 text-blue-400 border-blue-400 hover:bg-blue-400 hover:text-white text-2xl">
-                      <i className="fab fa-twitter"></i>
-                    </button>
-
-                    {/* <!--YouTube Button --> */}
-                    <button id="youtube" className="bg-white transform hover:-translate-y-3  border-2 w-12 h-12 rounded-full duration-500 text-red-500 border-red-500 hover:bg-red-500 hover:text-white text-2xl">
-                      <i className="fab fa-youtube"></i>
-                    </button>
-
-                    {/* <!--Snapchat Button--> */}
-                    <button id="snapchat" className="bg-white transform hover:-translate-y-3  border-2 w-12 h-12 rounded-full duration-500 text-yellow-300 border-yellow-300 hover:bg-yellow-300 hover:text-white text-2xl">
-                      <i className="fab fa-snapchat-ghost"></i>
-                    </button>
-
-                    {/* <!--Linkedin Button--> */}
-                    <button id="linkedin" className="bg-white transform hover:-translate-y-3  border-2 w-12 h-12 rounded-full duration-500 text-blue-500 border-blue-500  hover:bg-blue-500 hover:text-white text-2xl">
-                      <i className="fab fa-linkedin-in"></i>
-                    </button>
-
-                    {/* <!--Tiktok Button--> */}
-                    <button id="tiktok" className="bg-white transform hover:-translate-y-3  border-2 w-12 h-12 rounded-full duration-500 text-black border-black hover:bg-black hover:text-white text-2xl">
-                      <i className="fab fa-tiktok"></i>
-                    </button>
-
-                    {/* <!--Twitter Button --> */}
-                    <button id="telegram" className="bg-white  transform hover:-translate-y-3  border-2 w-12 h-12 rounded-full duration-500 text-blue-400 border-blue-400 hover:bg-blue-400 hover:text-white text-2xl">
-                      <i className="fab fa-telegram-plane"></i>
-                    </button>
-
-                    {/* <!--Pinterest Button --> */}
-                    <button id="pinterest" className="bg-white transform hover:-translate-y-3  border-2 w-12 h-12 rounded-full duration-500 text-red-500 border-red-500 hover:bg-red-500 hover:text-white text-2xl">
-                      <i className="fab fa-pinterest-p"></i>
-                    </button>
-
-                    {/* <!--Spotify Button --> */}
-                    <button id="spotify" className="bg-white transform hover:-translate-y-3  border-2 w-12 h-12 rounded-full duration-500 text-green-500 border-green-500 hover:bg-green-500 hover:text-white text-2xl">
-                      <i className="fab fa-spotify"></i>
-                    </button>
-
-                    {/* <!--Discord Button --> */}
-                    <button id="discord" className="bg-white transform hover:-translate-y-3  border-2 w-12 h-12 rounded-full duration-500 text-indigo-500 border-indigo-500 hover:bg-indigo-500 hover:text-white text-2xl">
-                      <i className="fab fa-discord"></i>
-                    </button>
-
-
-                    {/* <!--Reddit Button --> */}
-                    <button id="reddit" className="bg-white transform hover:-translate-y-3  border-2 w-12 h-12 rounded-full duration-500 text-yellow-600 border-yellow-600 hover:bg-yellow-600 hover:text-white text-2xl">
-                      <i className="fab fa-reddit-alien"></i>
-                    </button>
-
-                    {/* <!--Google Plus Button --> */}
-                    <button id="googleplus" className="bg-white transform hover:-translate-y-3  border-2 w-12 h-12 rounded-full duration-500 text-red-500 border-red-500 hover:bg-red-500 hover:text-white text-2xl">
-                      <i className="fab fa-google-plus-g"></i>
-                    </button>
-
-                    {/* <!--Skype Button --> */}
-                    <button id="skype" className="bg-white  transform hover:-translate-y-3  border-2 w-12 h-12 rounded-full duration-500 text-blue-400 border-blue-400 hover:bg-blue-400 hover:text-white text-2xl">
-                      <i className="fab fa-skype"></i>
-                    </button>
-
-                    {/* <!--Line Button --> */}
-                    <button id="line" className="bg-white transform hover:-translate-y-3  border-2 w-12 h-12 rounded-full duration-500 text-green-400 border-green-400 hover:bg-green-400 hover:text-white text-2xl">
-                      <i className="fab fa-line"></i>
-                    </button>
-
-
+                    {socials.map((v) => (
+                      <SocialIcon url={v} />
+                    ))}
                   </div>
                 </div>
               </div>

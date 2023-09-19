@@ -14,7 +14,7 @@ const Nav = () => {
 
         {
             name: 'Market Place',
-            url: '/market',
+            url: '/booths',
         },
         {
             name: 'Services',

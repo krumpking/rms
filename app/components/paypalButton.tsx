@@ -4,10 +4,9 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Random from "../utils/random";
 import { getCookie } from "react-use-cookie";
-import { COOKIE_ID, COOKIE_PHONE, PRIMARY_COLOR } from "../constants/constants";
+import { COOKIE_PHONE, PRIMARY_COLOR } from "../constants/constants";
 import { decrypt } from "../utils/crypto";
 import { checkAffiliate } from "../api/affiliateApi";
-import { addPayment } from "../api/paymentApi";
 import { IPayments } from "../types/paymentTypes";
 import { addDocument } from "../api/mainApi";
 import { PAYMENTS_COLLECTION } from "../constants/paymentConstants";
@@ -45,10 +44,8 @@ const PaypalCheckoutButton = (props: { payment: IPayments, isReservationPayment:
             // Display success message, modal or redirect user to success page
             alert("Thank you for your purchase!");
             toast.success('Payment received successfully');
-            var id = "";
-            if (getCookie(COOKIE_ID) !== "") {
-                id = decrypt(getCookie(COOKIE_ID), COOKIE_ID);
-            }
+
+            let userId = "";
 
             if (isReservationPayment) {
 
@@ -56,7 +53,7 @@ const PaypalCheckoutButton = (props: { payment: IPayments, isReservationPayment:
                 const newPayment = {
                     ...payment,
                     id: Random.randomString(13, "abcdefghijkhlmnopqrstuvwxz123456789"),
-                    userId: id,
+                    userId: userId,
                     date: new Date(),
                     dateString: new Date().toDateString,
                     amount: amount,
