@@ -2,8 +2,11 @@ import { getCookie } from "react-use-cookie";
 import { print } from "./console";
 import { decrypt } from "./crypto";
 import { numberWithCommas } from "./stringM";
-import { ADMIN_ID, COOKIE_ID } from "../constants/constants";
+import { ADMIN_ID } from "../constants/constants";
+import { useAuthIds } from "../components/authHook";
 
+
+const { adminId, userId, access } = useAuthIds();
 
 
 export function findOccurrences(array: any[], value: any): number {
@@ -223,15 +226,8 @@ export function searchStringInArrayOfObjects(members: any[], searchString: strin
         for (const key in member) {
             let k: string = member[key];
             if (k.length > 70) {
-                var infoFromCookie = "";
-                if (getCookie(ADMIN_ID) == "") {
-                    infoFromCookie = getCookie(COOKIE_ID);
-                } else {
-                    infoFromCookie = getCookie(ADMIN_ID);
-                }
-                let id = decrypt(infoFromCookie, COOKIE_ID);
-                k = decrypt(k, id);
-                if (k === searchString) {
+
+                if (adminId === searchString) {
                     if (!containsObject(member, matches)) {
                         matches.push(member);
                     }

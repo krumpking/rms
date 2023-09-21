@@ -13,7 +13,10 @@ export const checkPaymentStatus = async () => {
     const v = await getPayments();
     if (v !== null) {
         v.data.forEach(element => {
-            const diff = DateMethods.diffDatesDays(element.data().date, new Date().toString());
+
+            const diff = DateMethods.diffDatesDays(element.data().paymentDateString, new Date().toString());
+            print(diff);
+            print(diff < element.data().duration);
             if (diff < element.data().duration) {
                 result = true;
                 return;

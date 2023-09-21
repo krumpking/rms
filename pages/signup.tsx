@@ -146,10 +146,12 @@ const SignUp = () => {
                 const payment: IPayments = {
                     id: Random.randomString(13, "abcdefghijkhlmnopqrstuvwxz123456789"),
                     adminId: userId,
-                    duration: 7,
+                    duration: 30,
                     userId: userId,
-                    date: subDays(new Date(), 23),
-                    dateString: new Date().toDateString(),
+                    dateAdded: new Date(),
+                    dateAddedString: new Date().toDateString(),
+                    paymentDate: subDays(new Date(), 23),
+                    paymentDateString: subDays(new Date(), 23).toDateString(),
                     package: ENTERPRISE_PACKAGE,
                     amount: 0,
                     refCode: ""

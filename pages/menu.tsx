@@ -11,6 +11,7 @@ import AddMenuItem from '../app/components/menu/addMenuItem';
 import CreateMeal from '../app/components/menu/createMeal';
 import Meal from '../app/components/menu/meal';
 import AppAccess from '../app/components/accessLevel';
+import { useAuthIds } from '../app/components/authHook';
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
@@ -25,17 +26,14 @@ const Menu = () => {
     'Create Category',
 
   ]);
-  const [accessArray, setAccessArray] = useState<any[]>([
-    'menu', 'orders', 'move-from-pantry', 'move-from-kitchen', 'cash-in',
-    'cash-out', 'cash-report', 'add-stock', 'confirm-stock', 'move-to-served', 'add-reservation', 'available-reservations',
-    'staff-scheduling', 'website', 'payments', 'stock-overview']);
+  const { adminId, userId, access } = useAuthIds();
 
   useEffect(() => {
     document.body.style.backgroundColor = LIGHT_GRAY;
   }, []);
 
   return (
-    <AppAccess access={accessArray} component={'menu'}>
+    <AppAccess access={access} component={'menu'}>
       <div>
         <div>
           <div className="flex flex-col ">
@@ -45,7 +43,7 @@ const Menu = () => {
 
             {loading ? (
               <div className="flex flex-col justify-center items-center w-full col-span-9">
-                <Loader />
+                <Loader color={''} />
               </div>
             ) : (
               <div className="bg-white col-span-8 my-8 rounded-[30px] flex flex-col p-8">

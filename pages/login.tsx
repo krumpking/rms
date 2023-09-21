@@ -13,8 +13,11 @@ import { decrypt, encrypt } from '../app/utils/crypto';
 import { COOKIE_AFFILIATE_NUMBER } from '../app/constants/affilliateConstants';
 import { ADMIN_COLLECTION } from '../app/constants/userConstants';
 import { getDataFromDBOne } from '../app/api/mainApi';
+import { DELIVERERS_COLLECTION } from '../app/constants/deliveryConstants';
+import { print } from '../app/utils/console';
 
-const Login = () => {
+const Login = (props: { changeIndex: (index: number) => void, isDeliveryService: boolean }) => {
+    const { changeIndex, isDeliveryService } = props;
     const [phone, setPhone] = useState("");
     const [accessCode, setAccessCode] = useState("");
     const [sent, setSent] = useState(false);
@@ -56,53 +59,91 @@ const Login = () => {
                 const user = result.user;
                 const userId = user.uid;
 
-                getDataFromDBOne(ADMIN_COLLECTION, "contact", phone).then(async (v) => {
+                if (isDeliveryService) {
+                    getDataFromDBOne(DELIVERERS_COLLECTION, "contact", phone).then(async (v) => {
 
-                    if (v == null) {
-                        toast.warn('User not found, please Sign Up');
-                        router.push({
-                            pathname: '/signup',
-                        });
-                    } else {
+                        if (v == null) {
+                            toast.error('You are not approved to access this page');
 
-                        v.data.forEach((doc) => {
+                        } else {
 
-                            let d = doc.data();
-                            setCookie(USER_ID, encrypt(userId, ADMIN_ID), {
-                                days: 1,
-                                SameSite: 'Strict',
-                                Secure: true,
+                            v.data.forEach((doc) => {
+
+                                let d = doc.data();
+                                setCookie(USER_ID, encrypt(userId, ADMIN_ID), {
+                                    days: 1,
+                                    SameSite: 'Strict',
+                                    Secure: true,
+                                });
+                                setCookie(ADMIN_ID, encrypt(userId, ADMIN_ID), {
+                                    days: 1,
+                                    SameSite: 'Strict',
+                                    Secure: true,
+                                });
+
                             });
-                            setCookie(ADMIN_ID, encrypt(d.adminId, ADMIN_ID), {
-                                days: 1,
-                                SameSite: 'Strict',
-                                Secure: true,
+
+                            changeIndex(1);
+
+                        }
+
+
+                    }).catch((e) => {
+                        toast.error('There was an error getting your profile, please try again');
+                        console.error(e);
+
+                    });
+                } else {
+                    getDataFromDBOne(ADMIN_COLLECTION, "contact", phone).then(async (v) => {
+
+                        if (v == null) {
+                            toast.warn('User not found, please Sign Up');
+                            router.push({
+                                pathname: '/signup',
                             });
-                            let accessKeys: string[] = [];
+                        } else {
 
-                            d.access.forEach((element: any) => {
-                                accessKeys.push(encrypt(element, ADMIN_ID));
+                            v.data.forEach((doc) => {
+
+                                let d = doc.data();
+                                setCookie(USER_ID, encrypt(userId, ADMIN_ID), {
+                                    days: 1,
+                                    SameSite: 'Strict',
+                                    Secure: true,
+                                });
+                                setCookie(ADMIN_ID, encrypt(d.adminId, ADMIN_ID), {
+                                    days: 1,
+                                    SameSite: 'Strict',
+                                    Secure: true,
+                                });
+                                let accessKeys: string[] = [];
+
+                                d.access.forEach((element: any) => {
+                                    accessKeys.push(encrypt(element, ADMIN_ID));
+                                });
+                                setCookie(ACCESS, accessKeys.toString(), {
+                                    days: 1,
+                                    SameSite: 'Strict',
+                                    Secure: true,
+                                });
                             });
-                            setCookie(ACCESS, accessKeys.toString(), {
-                                days: 1,
-                                SameSite: 'Strict',
-                                Secure: true,
+
+                            router.push({
+                                pathname: '/home'
                             });
-                        });
+                            setLoading(false);
 
-                        router.push({
-                            pathname: '/home'
-                        });
-                        setLoading(false);
-
-                    }
+                        }
 
 
-                }).catch((e) => {
-                    toast.error('There was an error getting your profile, please try again');
-                    console.error(e);
+                    }).catch((e) => {
+                        toast.error('There was an error getting your profile, please try again');
+                        console.error(e);
 
-                });
+                    });
+                }
+
+
                 // success
 
 

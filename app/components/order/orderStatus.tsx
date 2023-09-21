@@ -11,8 +11,8 @@ import { ICategory, IMenuItem } from '../../types/menuTypes';
 import ShowImage from '../showImage';
 import { useDropzone } from 'react-dropzone';
 import imageCompression from 'browser-image-compression';
-import { addDocument, deleteDocument, deleteFile, getDataFromDBOne, updateDocument, uploadFile } from '../../api/mainApi';
-import { MENU_CAT_COLLECTION, MENU_ITEM_COLLECTION, MENU_STORAGE_REF } from '../../constants/menuConstants';
+import { addDocument, deleteDocument, deleteFile, getDataFromDBOne, getDataFromDBTwo, updateDocument, uploadFile } from '../../api/mainApi';
+import { MENU_CAT_COLLECTION, MENU_ITEM_COLLECTION, MENU_STORAGE_REF, ORDER_DELIVERED, ORDER_IN_PREP, ORDER_READY, ORDER_SHIPPED } from '../../constants/menuConstants';
 import { print } from '../../utils/console';
 import { Dialog, Disclosure, Transition } from '@headlessui/react';
 import { IOrder } from '../../types/orderTypes';
@@ -21,13 +21,15 @@ import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { getOrdersStatus } from '../../api/orderApi';
 import { searchStringInArray } from '../../utils/arrayM';
+import { useAuthIds } from '../authHook';
 
 
 
-const OrderStatus = () => {
+const OrderStatus = (props: { level: number }) => {
+    const { level } = props;
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    const [adminId, setAdminId] = useState('adminId');
+    const { adminId, userId, access } = useAuthIds();
     const [orders, setOrders] = useState<IOrder[]>([]);
     const [ordersSto, setOrdersSto] = useState<IOrder[]>([]);
     const [search, setSearch] = useState("");
@@ -44,7 +46,15 @@ const OrderStatus = () => {
 
     const getOrders = () => {
 
-        getOrdersStatus(ORDER_COLLECTION, AMDIN_FIELD, adminId).then((v) => {
+        let fieldTwo = "Sent"
+        if (level == 1) {
+            fieldTwo = "In Prep"
+        } else if (level == 2) {
+            fieldTwo = "Ready"
+        }
+
+
+        getDataFromDBTwo(ORDER_COLLECTION, AMDIN_FIELD, adminId, "statusCode", fieldTwo).then((v) => {
 
             if (v !== null) {
 
@@ -66,10 +76,15 @@ const OrderStatus = () => {
                         date: d.date,
                         dateString: d.dateString,
                         totalCost: d.totalCost,
-                        deliveryLocation: null,
-                        customerAddress: "",
-                        customerEmail: "",
-                        customerPhone: ""
+                        deliveryLocation: d.deliveryLocation,
+                        customerAddress: d.customerAddress,
+                        customerEmail: d.customerEmail,
+                        customerPhone: d.customerPhone,
+                        deliveredSignature: d.deliveredSignature,
+                        deliverer: d.deliverer,
+                        deliveryDate: d.deliveryDate,
+                        deliveryDateString: d.deliveryDateString,
+                        deliveryTime: d.deliveryTime
                     }]);
 
                 });
@@ -103,30 +118,34 @@ const OrderStatus = () => {
     }
 
 
-    const orderReady = (d: any) => {
+
+
+
+    const updateOrder = (v: any) => {
+        setLoading(true);
+
+        let updateStatus = ORDER_IN_PREP;
+        let status = 50;
+        if (level == 1) {
+            updateStatus = ORDER_READY;
+            status = 96;
+        } else if (level == 2) {
+            if (v.deliveryMethod == 'Delivery') {
+                updateStatus = ORDER_SHIPPED;
+                status = 99;
+            } else {
+                updateStatus = ORDER_DELIVERED;
+                status = 100;
+            }
+        }
+
         let order = {
-            status: 100,
-            statusCode: 'Ready'
+            status: status,
+            statusCode: updateStatus
         }
         setOrders([]);
-        updateDocument(ORDER_COLLECTION, d.id, order).then((v) => {
-            getOrders();
-        }).catch((e: any) => {
-            getOrders();
-            console.error(e);
-            toast.error('There was an error please try again');
-        });
-    }
-
-
-
-    const chefReceived = (d: any) => {
-        let order = {
-            status: 25,
-            statusCode: 'Chef Received'
-        }
-        setOrders([]);
-        updateDocument(ORDER_COLLECTION, d.id, order).then((v) => {
+        updateDocument(ORDER_COLLECTION, v.id, order).then((v) => {
+            toast.success('Order Successfully updated');
             getOrders();
         }).catch((e: any) => {
             getOrders();
@@ -177,6 +196,24 @@ const OrderStatus = () => {
         }
     }
 
+    const getButtonText = (v: IOrder) => {
+        switch (level) {
+            case 0:
+
+                return 'Move Order In Prep';
+            case 1:
+                return 'Order Ready';
+            case 2:
+                if (v.deliveryMethod == 'Delivery') {
+                    return 'Order Shipped'
+                } else {
+                    return 'Order Served'
+                }
+
+            default:
+                return 'Move Order In Prep';
+        }
+    }
 
 
     return (
@@ -225,34 +262,34 @@ const OrderStatus = () => {
                                             </button>
                                         </div>
                                         <h1 className='font-bold text-xl text-[#8b0e06]'>Order No: {v.orderNo}</h1>
-                                        <h1 className='font-bold text-sm'>Due: {v.totalCost}USD</h1>
+                                        <h1 className='font-bold text-sm'>Due: {v.totalCost.toFixed(2)}USD</h1>
                                         <h1 className='font-bold text-sm'>{v.customerName}</h1>
-                                        <div className='flex flex-row justify-between space-x-2'>
-                                            <div className='w-25 h-25'>
-                                                <CircularProgressbar value={v.status} text={`${v.status}%`}
-                                                    styles={buildStyles({
-                                                        // Rotation of path and trail, in number of turns (0-1)
-                                                        rotation: 0,
-                                                        // Whether to use rounded or flat corners on the ends - can use 'butt' or 'round'
-                                                        strokeLinecap: 'round',
-                                                        // Text size
-                                                        textSize: '11px',
-                                                        // How long animation takes to go from one percentage to another, in seconds
-                                                        pathTransitionDuration: 0.5,
-                                                        // Can specify path transition in more detail, or remove it entirely
-                                                        // pathTransition: 'none',
-                                                        // Colors
-                                                        pathColor: `#8b0e06`,
-                                                        textColor: '#f88',
-                                                        trailColor: '#d6d6d6',
-                                                        backgroundColor: '#8b0e06',
-                                                    })} />
-                                            </div>
-                                            <button
-                                                onClick={() => {
-                                                    v.status <= 25 ? orderReady(v) : chefReceived(v)
-                                                }}
-                                                className="
+
+                                        <div className='w-25 h-25 my-2'>
+                                            <CircularProgressbar value={v.status} text={`${v.status}%`}
+                                                styles={buildStyles({
+                                                    // Rotation of path and trail, in number of turns (0-1)
+                                                    rotation: 0,
+                                                    // Whether to use rounded or flat corners on the ends - can use 'butt' or 'round'
+                                                    strokeLinecap: 'round',
+                                                    // Text size
+                                                    textSize: '11px',
+                                                    // How long animation takes to go from one percentage to another, in seconds
+                                                    pathTransitionDuration: 0.5,
+                                                    // Can specify path transition in more detail, or remove it entirely
+                                                    // pathTransition: 'none',
+                                                    // Colors
+                                                    pathColor: `#8b0e06`,
+                                                    textColor: '#f88',
+                                                    trailColor: '#d6d6d6',
+                                                    backgroundColor: '#8b0e06',
+                                                })} />
+                                        </div>
+                                        <button
+                                            onClick={() => {
+                                                updateOrder(v)
+                                            }}
+                                            className="
                                                 font-bold
                                                 w-full
                                                 rounded-[25px]
@@ -262,18 +299,18 @@ const OrderStatus = () => {
                                                 py-3
                                                 px-10
                                                 bg-[#8b0e06]
-                                                text-base 
+                                                text-xs 
                                                 text-white
                                                 cursor-pointer
                                                 hover:bg-opacity-90
                                                 transition
                                             "
-                                            >
-                                                {v.status < 25 ? 'Next' : 'Ready'}
-                                            </button>
-                                        </div>
+                                        >
+
+                                            {getButtonText(v)}
+                                        </button>
                                         <Disclosure>
-                                            <Disclosure.Button className={'-ml-16 underline text-xs'}>
+                                            <Disclosure.Button className={' underline text-xs'}>
                                                 See Order Details
                                             </Disclosure.Button>
                                             <Disclosure.Panel>

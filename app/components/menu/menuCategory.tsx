@@ -4,14 +4,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router';
 import { getCookie } from 'react-use-cookie';
-import { ADMIN_ID, AMDIN_FIELD, COOKIE_ID, LIGHT_GRAY } from '../../constants/constants';
+import { ADMIN_ID, AMDIN_FIELD, LIGHT_GRAY, PRIMARY_COLOR } from '../../constants/constants';
 import Loader from '../loader';
-import { createId } from '../../utils/stringM';
-import { Iinfo } from '../../types/infoTypes';
-import { addResInfo, getResInfo } from '../../api/infoApi';
-import { decrypt } from '../../utils/crypto';
-import { setDate } from 'date-fns';
-import { checkEmptyOrNull } from '../../utils/objectM';
 import { ICategory } from '../../types/menuTypes';
 import ShowImage from '../showImage';
 import { useDropzone } from 'react-dropzone';
@@ -19,29 +13,22 @@ import imageCompression from 'browser-image-compression';
 import { CATEGORY_STORAGE_REF, MENU_CAT_COLLECTION } from '../../constants/menuConstants';
 import { addDocument, deleteDocument, deleteFile, getDataFromDBOne, uploadFile } from '../../api/mainApi';
 import { Dialog, Transition } from '@headlessui/react';
+import { useAuthIds } from '../authHook';
 
 const AddMenuCategory = () => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const [adminId, setAdminId] = useState('adminId');
   const [categories, setCategories] = useState<ICategory[]>([]);
-  const [webfrontId, setWebfrontId] = useState("");
   const [title, setTitle] = useState("");
   const [files, setFiles] = useState<any[]>([]);
   const [docId, setDocId] = useState("");
   const [open, setOpen] = useState(false);
+  const { adminId, userId, access } = useAuthIds();
 
   useEffect(() => {
     document.body.style.backgroundColor = LIGHT_GRAY;
 
-    var infoFromCookie = '';
-    if (getCookie(ADMIN_ID) == '') {
-      infoFromCookie = getCookie(COOKIE_ID);
-    } else {
-      infoFromCookie = getCookie(ADMIN_ID);
-    }
-    // setAdminId(decrypt(infoFromCookie, COOKIE_ID));
-    setWebfrontId("webfrontId");
+
 
     getCategories();
   }, []);
@@ -77,7 +64,7 @@ const AddMenuCategory = () => {
 
 
   const addCategory = async () => {
-
+    setOpen(false);
     setLoading(true);
     const name = files[0].name;
 
@@ -93,7 +80,7 @@ const AddMenuCategory = () => {
 
 
 
-      await uploadFile(`${webfrontId}/${CATEGORY_STORAGE_REF}/${name}`, files[0]);
+      await uploadFile(`${adminId}/${CATEGORY_STORAGE_REF}/${name}`, files[0]);
       const info = name.split('_');
 
 
@@ -101,14 +88,14 @@ const AddMenuCategory = () => {
         const compressedFile = await imageCompression(files[0], options);
 
         // Thumbnail
-        await uploadFile(`${webfrontId}/${CATEGORY_STORAGE_REF}/thumbnail_${name}`, compressedFile);
+        await uploadFile(`${adminId}/${CATEGORY_STORAGE_REF}/thumbnail_${name}`, compressedFile);
 
 
 
 
         let category: ICategory = {
           id: 'id',
-          adminId: "adminId",
+          adminId: adminId,
           category: title,
           pic: {
             original: name,
@@ -116,7 +103,7 @@ const AddMenuCategory = () => {
           },
           date: new Date(),
           dateString: new Date().toDateString(),
-          userId: "id"
+          userId: userId
         }
         setCategories([]);
 
@@ -171,8 +158,8 @@ const AddMenuCategory = () => {
     if (result) {
       setLoading(true);
       setCategories([]);
-      deleteFile(`${webfrontId}/${CATEGORY_STORAGE_REF}/${pic.original}`);
-      deleteFile(`${webfrontId}/${CATEGORY_STORAGE_REF}/${pic.thumbnail}`);
+      deleteFile(`${adminId}/${CATEGORY_STORAGE_REF}/${pic.original}`);
+      deleteFile(`${adminId}/${CATEGORY_STORAGE_REF}/${pic.thumbnail}`);
       deleteDocument(MENU_CAT_COLLECTION, id).then(() => {
         getCategories();
       }).catch((e: any) => {
@@ -189,7 +176,7 @@ const AddMenuCategory = () => {
       <div className="bg-white rounded-[30px] p-4">
         {loading ? (
           <div className="w-full flex flex-col items-center content-center">
-            <Loader />
+            <Loader color={''} />
           </div>
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-5 overflow-y-scroll max-h-[700px] w-full gap-4 p-4">
@@ -198,7 +185,7 @@ const AddMenuCategory = () => {
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" className="w-16 h-16">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
-                Add Menu Item
+                Add Category
               </div>
             </div>
             {categories.map((v) => {
@@ -214,7 +201,7 @@ const AddMenuCategory = () => {
 
                     </button>
                   </div>
-                  <ShowImage src={`/${webfrontId}/menu-category/${v.pic.thumbnail}`} alt={'Menu Category'} style={'rounded-[25px] h-20 w-full'} />
+                  <ShowImage src={`/${adminId}/menu-category/${v.pic.thumbnail}`} alt={'Menu Category'} style={'rounded-[25px] h-20 w-full'} />
                   <h1 className='font-bold text-2xl'>{v.category}</h1>
                 </div>
               )
@@ -302,7 +289,7 @@ const AddMenuCategory = () => {
 
 
                   </div>
-                  {files.length > 0 ? <p className='bg-green-600 text-white w-full rounded-[25px] p-4'>{files.length} Image{files.length > 1 ? 's' : ''} Added</p> : <p></p>}
+                  {files.length > 0 ? <p className='text-white w-full rounded-[25px] p-4' style={{ backgroundColor: PRIMARY_COLOR }}>{files.length} Image{files.length > 1 ? 's' : ''} Added</p> : <p></p>}
                   <div className="mb-6 w-full">
                     <input
                       type="text"

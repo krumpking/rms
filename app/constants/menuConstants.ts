@@ -25,3 +25,8 @@ export const MENU_CAT_STORAGE_REF = 'menu-category';
 
 export const CATEGORY_STORAGE_REF = 'menu-category';
 
+export const ORDER_JUST_ADDED = 'Sent';
+export const ORDER_IN_PREP = 'In Prep';
+export const ORDER_READY = 'Ready';
+export const ORDER_SHIPPED = 'Order Shipped';
+export const ORDER_DELIVERED = 'Delivered';

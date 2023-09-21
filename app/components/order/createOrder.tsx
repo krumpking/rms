@@ -4,7 +4,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router';
 import { getCookie } from 'react-use-cookie';
-import { ADMIN_ID, AMDIN_FIELD, COOKIE_ID, LIGHT_GRAY } from '../../constants/constants';
+import { ADMIN_ID, AMDIN_FIELD, LIGHT_GRAY } from '../../constants/constants';
 import Loader from '../loader';
 import { decrypt } from '../../utils/crypto';
 import { ICategory, IMeal, IMenuItem } from '../../types/menuTypes';
@@ -12,26 +12,20 @@ import ShowImage from '../showImage';
 import { useDropzone } from 'react-dropzone';
 import imageCompression from 'browser-image-compression';
 import { addDocument, deleteDocument, deleteFile, getDataFromDBOne, updateDocument, uploadFile } from '../../api/mainApi';
-import { MEAL_ITEM_COLLECTION, MEAL_STORAGE_REF, MENU_CAT_COLLECTION, MENU_CAT_STORAGE_REF, MENU_ITEM_COLLECTION, MENU_STORAGE_REF } from '../../constants/menuConstants';
+import { MEAL_ITEM_COLLECTION, MEAL_STORAGE_REF, MENU_CAT_COLLECTION, MENU_CAT_STORAGE_REF, MENU_ITEM_COLLECTION, MENU_STORAGE_REF, ORDER_JUST_ADDED } from '../../constants/menuConstants';
 import { print } from '../../utils/console';
 import { Dialog, Transition } from '@headlessui/react';
 import { findOccurrences, findOccurrencesObjectId, searchStringInArray } from '../../utils/arrayM';
 import { createId } from '../../utils/stringM';
 import { ORDER_COLLECTION } from '../../constants/orderConstants';
 import { IOrder } from '../../types/orderTypes';
+import { useAuthIds } from '../authHook';
 
 const CreateOrder = () => {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    const [adminId, setAdminId] = useState('adminId');
+    const { adminId, userId, access } = useAuthIds();
     const [categories, setCategories] = useState<ICategory[]>([]);
-    const [webfrontId, setWebfrontId] = useState("");
-    const [title, setTitle] = useState("");
-    const [files, setFiles] = useState<any[]>([]);
-    const [docId, setDocId] = useState("");
-    const [description, setDescription] = useState("");
-    const [price, setPrice] = useState(0);
-    const [category, setCategory] = useState("");
     const [meals, setMeals] = useState<IMeal[]>([]);
     const [mealsSto, setMealsSto] = useState<IMeal[]>([]);
     const [menuItems, setMenuItems] = useState<IMenuItem[]>([]);
@@ -56,18 +50,11 @@ const CreateOrder = () => {
     useEffect(() => {
         document.body.style.backgroundColor = LIGHT_GRAY;
 
-        var infoFromCookie = '';
-        if (getCookie(ADMIN_ID) == '') {
-            infoFromCookie = getCookie(COOKIE_ID);
-        } else {
-            infoFromCookie = getCookie(ADMIN_ID);
-        }
-        // setAdminId(decrypt(infoFromCookie, COOKIE_ID));
-        setWebfrontId("webfrontId");
-
         getCategories();
         getMeals();
         getMenuItems();
+        getOrders();
+
     }, []);
 
 
@@ -204,6 +191,20 @@ const CreateOrder = () => {
         });
     }
 
+    const getOrders = () => {
+        getDataFromDBOne(ORDER_COLLECTION, AMDIN_FIELD, adminId).then((v) => {
+            let oN = 1;
+            if (v !== null) {
+                oN = v.count + 1;
+            }
+            setOrderNo(oN);
+        }).catch((e) => {
+            console.error(e);
+            setLoading(true);
+        });
+
+    }
+
 
 
     const getTotal = () => {
@@ -213,7 +214,7 @@ const CreateOrder = () => {
             total += el.price;
         });
         // setFinalTotal(total);
-        return total;
+        return total.toFixed(2);
     }
 
     const removeItem = (v: any) => {
@@ -261,7 +262,6 @@ const CreateOrder = () => {
         let index = 0;
         for (let i = 0; i < displayedItems.length; i++) {
             if (displayedItems[i].id === v.id) {
-                print(displayedItems[i].id === v.id);
                 count = displayedItems[i].count + 1;
                 index = i;
                 return;
@@ -359,51 +359,52 @@ const CreateOrder = () => {
             total += el.price;
         });
 
-        getDataFromDBOne(ORDER_COLLECTION, AMDIN_FIELD, adminId).then((v) => {
 
-            if (v !== null) {
-                let oN: number = v.count + 1;
-                const order: IOrder = {
-                    id: "id",
-                    orderNo: oN,
-                    adminId: "adminId",
-                    userId: "userId",
-                    items: addItems,
-                    status: 5,
-                    statusCode: 'Received',
-                    totalCost: total,
-                    deliveryMethod: 'Pick Up',
-                    clientId: "clientId",
-                    customerName: customerName,
-                    tableNo: tableNo,
-                    date: new Date(),
-                    dateString: new Date().toDateString(),
-                    customerEmail: "",
-                    customerPhone: "",
-                    customerAddress: ""
-                }
+        const order: IOrder = {
+            id: "id",
+            orderNo: orderNo,
+            adminId: adminId,
+            userId: userId,
+            items: addItems,
+            status: 5,
+            statusCode: ORDER_JUST_ADDED,
+            totalCost: total,
+            deliveryMethod: 'Dine In',
+            clientId: "clientId",
+            customerName: customerName,
+            tableNo: tableNo,
+            date: new Date(),
+            dateString: new Date().toDateString(),
+            customerEmail: "",
+            customerPhone: "",
+            customerAddress: "",
+            deliveryDate: new Date(),
+            deliveryDateString: new Date().toDateString(),
+            deliveryLocation: null,
+            deliveryTime: "",
+            deliverer: "",
+            deliveredSignature: null
+        }
 
 
 
-                addDocument(ORDER_COLLECTION, order).then((v) => {
-
-                    setLoading(false);
-                    toast.success("Meal Added Successfully");
-
-                }).catch((e: any) => {
-                    setLoading(false);
-
-                    console.error(e);
-                    toast.error('There was an error please try again');
-                });
-
-            }
+        addDocument(ORDER_COLLECTION, order).then((v) => {
+            setDisplayedItems([]);
+            setAddItems([]);
+            setCustomerName("");
+            setTableNo("");
+            setLoading(false);
+            toast.success("Order added successfully");
+            getOrders();
+        }).catch((e: any) => {
             setLoading(false);
 
-        }).catch((e) => {
             console.error(e);
-            setLoading(true);
+            toast.error('There was an error please try again');
         });
+        setLoading(false);
+
+
 
 
 
@@ -490,7 +491,7 @@ const CreateOrder = () => {
                                             onClick={() => {
                                                 addItemsToMeal(v);
                                             }}>
-                                            <ShowImage src={`/${webfrontId}/${MEAL_STORAGE_REF}/${v.pic.thumbnail}`} alt={'Menu Item'} style={'rounded-[25px] h-20 w-full'} />
+                                            <ShowImage src={`/${adminId}/${MEAL_STORAGE_REF}/${v.pic.thumbnail}`} alt={'Menu Item'} style={'rounded-[25px] h-20 w-full'} />
                                             <div className='flex flex-row justify-between'>
                                                 <h1 className='font-bold text-sm'>{v.title}</h1>
                                                 <h1 className='font-bold text-sm'>{v.price}USD</h1>
@@ -504,7 +505,7 @@ const CreateOrder = () => {
                                             onClick={() => {
                                                 addItemsToMeal(v);
                                             }}>
-                                            <ShowImage src={`/${webfrontId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`} alt={'Menu Item'} style={'rounded-[25px] h-20 w-full'} />
+                                            <ShowImage src={`/${adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`} alt={'Menu Item'} style={'rounded-[25px] h-20 w-full'} />
                                             <div className='flex flex-row justify-between'>
                                                 <h1 className='font-bold text-sm'>{v.title}</h1>
                                                 <h1 className='font-bold text-sm'>{v.price}USD</h1>
@@ -570,9 +571,21 @@ const CreateOrder = () => {
                                         onKeyDown={handleKeyDown}
                                     />
                                 </div>
+
+                                <div className='flex flex-row justify-between shadow-md m-4 p-4 rounded-[25px]'>
+                                    <p className="text-xs"> Item</p>
+                                    <div className='flex justify-between space-x-2'>
+                                        <p className="text-xs" >No of Items</p>
+                                        <p className="text-xs">Price</p>
+                                        <p className="text-xs">Total</p>
+                                        <p className="text-xs w-4"></p>
+                                    </div>
+
+                                </div>
+
                                 <div className='overflow-y-scroll'>
                                     {displayedItems.map((v: any) => (
-                                        <div className='flex flex-row justify-between shadow-sm m-4 p-4'>
+                                        <div className='flex flex-row justify-between shadow-sm m-4 p-4 rounded-[25px]'>
                                             <h1>{v.itemName}</h1>
                                             <div className='flex justify-between space-x-4'>
                                                 <h1>{getCount(v.id)}</h1>

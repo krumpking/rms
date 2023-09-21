@@ -60,7 +60,8 @@ const MarketPlace = (props: { adminId: string, info: IWebsiteOneInfo, changeInde
         dateString: new Date().toDateString(),
         deliveryDate: new Date(),
         deliveryDateString: "",
-        deliveryTime: ""
+        deliveryTime: "",
+        deliverer: "",
 
 
     });
@@ -746,8 +747,9 @@ const MarketPlace = (props: { adminId: string, info: IWebsiteOneInfo, changeInde
                                                 "
                                         />
                                     </div>
+                                    <p>Tap your location</p>
                                     < div >
-                                        <p>Tap your location</p>
+
                                         <MapPicker defaultLocation={DEFAULT_LOCATION}
                                             zoom={DEFAULT_ZOOM}
                                             // mapTypeId={createId()}

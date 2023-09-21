@@ -1,0 +1,1 @@
+export const DELIVERERS_COLLECTION = 'approved-drivers';

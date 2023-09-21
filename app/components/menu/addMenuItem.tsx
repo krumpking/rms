@@ -4,7 +4,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router';
 import { getCookie } from 'react-use-cookie';
-import { ADMIN_ID, AMDIN_FIELD, COOKIE_ID, LIGHT_GRAY } from '../../constants/constants';
+import { ADMIN_ID, AMDIN_FIELD, LIGHT_GRAY, PRIMARY_COLOR } from '../../constants/constants';
 import Loader from '../loader';
 import { decrypt } from '../../utils/crypto';
 import { ICategory, IMenuItem } from '../../types/menuTypes';
@@ -15,13 +15,13 @@ import { addDocument, deleteDocument, deleteFile, getDataFromDBOne, updateDocume
 import { MENU_CAT_COLLECTION, MENU_ITEM_COLLECTION, MENU_STORAGE_REF } from '../../constants/menuConstants';
 import { print } from '../../utils/console';
 import { Dialog, Transition } from '@headlessui/react';
+import { useAuthIds } from '../authHook';
 
 const AddMenuItem = () => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const [adminId, setAdminId] = useState('adminId');
+  const { adminId, userId, access } = useAuthIds();
   const [categories, setCategories] = useState<ICategory[]>([]);
-  const [webfrontId, setWebfrontId] = useState("");
   const [title, setTitle] = useState("");
   const [files, setFiles] = useState<any[]>([]);
   const [docId, setDocId] = useState("");
@@ -40,15 +40,6 @@ const AddMenuItem = () => {
 
   useEffect(() => {
     document.body.style.backgroundColor = LIGHT_GRAY;
-
-    var infoFromCookie = '';
-    if (getCookie(ADMIN_ID) == '') {
-      infoFromCookie = getCookie(COOKIE_ID);
-    } else {
-      infoFromCookie = getCookie(ADMIN_ID);
-    }
-    // setAdminId(decrypt(infoFromCookie, COOKIE_ID));
-    setWebfrontId("webfrontId");
 
     getCategories();
     getMenuItems();
@@ -144,7 +135,7 @@ const AddMenuItem = () => {
 
 
 
-        await uploadFile(`${webfrontId}/${MENU_STORAGE_REF}/${name}`, files[0]);
+        await uploadFile(`${adminId}/${MENU_STORAGE_REF}/${name}`, files[0]);
         const info = name.split('_');
 
 
@@ -152,14 +143,14 @@ const AddMenuItem = () => {
           const compressedFile = await imageCompression(files[0], options);
 
           // Thumbnail
-          await uploadFile(`${webfrontId}/${MENU_STORAGE_REF}/thumbnail_${name}`, compressedFile);
+          await uploadFile(`${adminId}/${MENU_STORAGE_REF}/thumbnail_${name}`, compressedFile);
 
 
 
 
           let menuItem: IMenuItem = {
             id: 'id',
-            adminId: "adminId",
+            adminId: adminId,
             title: title,
             description: description,
             category: category,
@@ -170,7 +161,7 @@ const AddMenuItem = () => {
             discount: 0,
             date: new Date(),
             dateString: new Date().toDateString(),
-            userId: "id",
+            userId: userId,
             price: price
           }
 
@@ -258,15 +249,15 @@ const AddMenuItem = () => {
 
         const compressedFile = await imageCompression(files[0], options);
 
-        await uploadFile(`${webfrontId}/${MENU_STORAGE_REF}/${name}`, files[0]);
+        await uploadFile(`${adminId}/${MENU_STORAGE_REF}/${name}`, files[0]);
         const info = name.split('_');
 
         // Thumbnail
-        await uploadFile(`${webfrontId}/${MENU_STORAGE_REF}/thumbnail_${name}`, compressedFile);
+        await uploadFile(`${adminId}/${MENU_STORAGE_REF}/thumbnail_${name}`, compressedFile);
 
 
-        deleteFile(`${webfrontId}/${MENU_STORAGE_REF}/${editItem.pic.original}`);
-        deleteFile(`${webfrontId}/${MENU_STORAGE_REF}/${editItem.pic.thumbnail}`);
+        deleteFile(`${adminId}/${MENU_STORAGE_REF}/${editItem.pic.original}`);
+        deleteFile(`${adminId}/${MENU_STORAGE_REF}/${editItem.pic.thumbnail}`);
 
       } catch (e) {
         console.error(e);
@@ -321,8 +312,8 @@ const AddMenuItem = () => {
     if (result) {
       //Logic to delete the item
       setLoading(true);
-      deleteFile(`${webfrontId}/${MENU_STORAGE_REF}/${pic.original}`);
-      deleteFile(`${webfrontId}/${MENU_STORAGE_REF}/${pic.thumbnail}`);
+      deleteFile(`${adminId}/${MENU_STORAGE_REF}/${pic.original}`);
+      deleteFile(`${adminId}/${MENU_STORAGE_REF}/${pic.thumbnail}`);
       deleteDocument(MENU_ITEM_COLLECTION, id).then(() => {
         getMenuItems();
       }).catch((e: any) => {
@@ -338,7 +329,7 @@ const AddMenuItem = () => {
       <div className="bg-white rounded-[30px] p-4 ">
         {loading ? (
           <div className="w-full flex flex-col items-center content-center">
-            <Loader />
+            <Loader color={''} />
           </div>
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-5 overflow-y-scroll max-h-[700px] w-full gap-4 p-4">
@@ -373,7 +364,7 @@ const AddMenuItem = () => {
                     </button>
 
                   </div>
-                  <ShowImage src={`/${webfrontId}/menu-item/${v.pic.thumbnail}`} alt={'Menu Item'} style={'rounded-[25px] h-20 w-full'} />
+                  <ShowImage src={`/${adminId}/menu-item/${v.pic.thumbnail}`} alt={'Menu Item'} style={'rounded-[25px] h-20 w-full'} />
                   <div className='flex flex-row justify-between'>
                     <h1 className='font-bold text-sm'>{v.title}</h1>
                     <h1 className='font-bold text-sm'>{v.price}USD</h1>
@@ -464,7 +455,7 @@ const AddMenuItem = () => {
 
 
                   </div>
-                  {files.length > 0 ? <p className='bg-green-600 text-white w-full rounded-[25px] p-4'>{files.length} Image{files.length > 1 ? 's' : ''} Added</p> : <p></p>}
+                  {files.length > 0 ? <p className='text-white w-full rounded-[25px] p-4' style={{ backgroundColor: PRIMARY_COLOR }}>{files.length} Image{files.length > 1 ? 's' : ''} Added</p> : <p></p>}
                   <div className="mb-6 w-full">
                     <input
                       type="text"
@@ -541,10 +532,12 @@ const AddMenuItem = () => {
                     <p className='text-xs text-gray-400 text-center'>Price in USD</p>
                     <input
                       type="number"
+                      min={0}
+                      step={0.01}
                       value={price}
                       placeholder={'Price in USD'}
                       onChange={(e) => {
-                        setPrice(parseInt(e.target.value));
+                        setPrice(parseFloat(e.target.value));
                       }}
                       className="
                          w-full
