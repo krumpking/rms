@@ -34,8 +34,6 @@ const Booths = () => {
     const [deliveryMethods, setDeliveryMethods] = useState(['Pick Up', 'Delivery']);
     const [deliveryCost, setDeliveryCost] = useState(0);
     const [location, setLocation] = useState(DEFAULT_LOCATION);
-    const [adminId, setAdminId] = useState("adminId");
-    const [userId, setUserId] = useState("userId");
     const [order, setOrder] = useState<IOrder>({
         id: "",
         adminId: "adminId",
@@ -57,7 +55,9 @@ const Booths = () => {
         dateString: new Date().toDateString(),
         deliveryDate: new Date,
         deliveryDateString: "",
-        deliveryTime: ""
+        deliveryTime: "",
+        deliveredSignature: null,
+        deliverer: ""
 
     });
     const [addItems, setAddItems] = useState<any[]>([]);
@@ -214,7 +214,7 @@ const Booths = () => {
         switch (index) {
             case 0:
                 return (
-                    <BoothsComp adminId={adminId} changeIndex={(info: IWebsiteOneInfo, index: number) => {
+                    <BoothsComp changeIndex={(info: IWebsiteOneInfo, index: number) => {
                         setIndex(index);
                         setInfo(info);
                     }} />
@@ -222,7 +222,7 @@ const Booths = () => {
                 )
             case 1:
 
-                return <MarketPlace adminId={adminId} info={info} changeIndex={(index: number) => {
+                return <MarketPlace info={info} changeIndex={(index: number) => {
                     setIndex(index);
                 }} />
 

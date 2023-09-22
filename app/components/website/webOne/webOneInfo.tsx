@@ -16,6 +16,7 @@ import { AMDIN_FIELD } from '../../../constants/constants';
 import { print } from '../../../utils/console';
 import { createId } from '../../../utils/stringM';
 import MapPicker from 'react-google-map-picker';
+import { useAuthIds } from '../../authHook';
 
 const WebOneWebsiteInfo = () => {
     const [loading, setLoading] = useState(true);
@@ -71,8 +72,7 @@ const WebOneWebsiteInfo = () => {
     const [colorPrimary, setColorPrimary] = useState("#aabbcc");
     const [colorSec, setColorSecondary] = useState("#aabbcc");
     const [reservation, setReservation] = useState(false);
-    const [adminId, setAdminId] = useState("adminId");
-    const [userId, setUserId] = useState("userId");
+    const { adminId, userId, access } = useAuthIds();
     const [location, setLocation] = useState(DEFAULT_LOCATION);
 
 
@@ -234,8 +234,8 @@ const WebOneWebsiteInfo = () => {
 
                     let newInfo: IWebsiteOneInfo = {
                         ...info,
-                        adminId: "adminId",
-                        userId: "",
+                        adminId: adminId,
+                        userId: userId,
                         logo: {
                             original: name,
                             thumbnail: `thumbnail_${name}`,
@@ -255,7 +255,7 @@ const WebOneWebsiteInfo = () => {
                             original: contactImageFile.name,
                             thumbnail: `thumbnail_${contactImageFile.name}`
                         },
-
+                        mapLocation: location
 
                     }
 
@@ -662,6 +662,7 @@ const WebOneWebsiteInfo = () => {
                                 required
                             />
                         </div>
+                        <p>Click to select your location</p>
                         <div className="mb-6 w-full">
                             <MapPicker defaultLocation={DEFAULT_LOCATION}
                                 zoom={DEFAULT_ZOOM}
@@ -671,9 +672,10 @@ const WebOneWebsiteInfo = () => {
                                 apiKey={MAP_API} />
                         </div>
                         <div className="mb-6 w-full">
+                            <p>Delivery  Cost</p>
                             <input
-                                type="text"
-                                name="address"
+                                type="number"
+                                name="deliveryCost"
                                 value={info.deliveryCost}
                                 placeholder={"Delivery Cost per KM in USD"}
                                 onChange={handleChange}

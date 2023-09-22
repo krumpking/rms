@@ -15,8 +15,8 @@ import ShowImage from '../showImage';
 
 
 
-const BoothsComp = (props: { adminId: string, changeIndex: (info: IWebsiteOneInfo, index: number) => void }) => {
-    const { adminId, changeIndex } = props
+const BoothsComp = (props: { changeIndex: (info: IWebsiteOneInfo, index: number) => void }) => {
+    const { changeIndex } = props
     const [loading, setLoading] = useState(false);
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
@@ -234,7 +234,7 @@ const BoothsComp = (props: { adminId: string, changeIndex: (info: IWebsiteOneInf
 
                                         </div>
                                         <div className='absolute -top-10 -left-10 right-10 z-10 '>
-                                            <ShowImage src={`/${"webfrontid"}/logo/${v.logo.thumbnail}`} alt={'Logo'} style={'rounded-full h-20 w-20 '} />
+                                            <ShowImage src={`/${v.websiteName}/logo/${v.logo.thumbnail}`} alt={'Logo'} style={'rounded-full h-20 w-20 '} />
                                         </div>
                                     </div>
                                 ))}

@@ -27,6 +27,7 @@ import { usePayPalScriptReducer } from '@paypal/react-paypal-js';
 import PaypalCheckoutButton from '../../paypalButton';
 import { IPayments } from '../../../types/paymentTypes';
 import { CONTACT_COLLECTION } from '../../../constants/contactConstats';
+import { useAuthIds } from '../../authHook';
 
 
 interface MyProps {
@@ -41,10 +42,6 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
     const [mealsSto, setMealsSto] = useState<IMeal[]>([]);
     const [menuItems, setMenuItems] = useState<IMenuItem[]>([]);
     const [menuItemsSto, setMenuItemsSto] = useState<IMenuItem[]>([]);
-    const [webfrontname, setWebfrontname] = useState("webfrontId");
-    const [websiteName, setWebsiteName] = useState("websitename");
-    const [adminId, setAdminId] = useState("adminId");
-    const [userId, setUserId] = useState("");
     const [search, setSearch] = useState("");
     const [reservation, setReservation] = useState({
         id: "",
@@ -95,9 +92,9 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
         dateString: new Date().toDateString(),
         deliveryDate: new Date,
         deliveryDateString: "",
-        deliveryTime: ""
-
-
+        deliveryTime: "",
+        deliveredSignature: null,
+        deliverer: ""
     });
     const [displayedItems, setDisplayedItems] = useState<any>([]);
     const [deliveryMethods, setDeliveryMethods] = useState(['Pick Up', 'Delivery']);
@@ -110,8 +107,10 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
         id: "",
         adminId: "",
         userId: "",
-        date: new Date(),
-        dateString: new Date().toDateString(),
+        dateAdded: new Date(),
+        dateAddedString: new Date().toDateString(),
+        paymentDateString: new Date().toDateString(),
+        paymentDate: new Date(),
         amount: 10,
         duration: 0,
         refCode: '',
@@ -121,6 +120,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 
 
     useEffect(() => {
+        print(info);
         getMeals();
         getMenuItems();
     }, []);
@@ -131,7 +131,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 
     const getMeals = () => {
 
-        getDataFromDBOne(MEAL_ITEM_COLLECTION, AMDIN_FIELD, adminId).then((v) => {
+        getDataFromDBOne(MEAL_ITEM_COLLECTION, AMDIN_FIELD, info.adminId).then((v) => {
 
             if (v !== null) {
 
@@ -182,7 +182,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 
     const getMenuItems = () => {
 
-        getDataFromDBOne(MENU_ITEM_COLLECTION, AMDIN_FIELD, adminId).then((v) => {
+        getDataFromDBOne(MENU_ITEM_COLLECTION, AMDIN_FIELD, info.adminId).then((v) => {
 
             if (v !== null) {
                 v.data.forEach(element => {
@@ -318,7 +318,9 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
         });
 
         if (order.deliveryMethod == "Delivery") {
-            let dis = computeDistanceBetween(new LatLng(location.lat, location.lng), new LatLng(info.mapLocation.latitude, info.mapLocation.longitude));
+            print(info.mapLocation);
+            print(location);
+            let dis = computeDistanceBetween(new LatLng(location.lat, location.lng), new LatLng(info.mapLocation.lat, info.mapLocation.lng));
             let d = info.deliveryCost * (dis / 1000);
             d.toFixed(2)
             total += d;
@@ -394,8 +396,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 
     const getDeliveryCost = () => {
 
-
-        let dis = computeDistanceBetween(new LatLng(location.lat, location.lng), new LatLng(info.mapLocation.latitude, info.mapLocation.longitude));
+        let dis = computeDistanceBetween(new LatLng(location.lat, location.lng), new LatLng(info.mapLocation.lat, info.mapLocation.lng));
         let d = info.deliveryCost * (dis / 1000);
         return d.toFixed(2);
 
@@ -407,7 +408,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
         setLoading(true);
         if (order.customerEmail !== "" && order.customerName !== "" && order.customerPhone !== "") {
 
-            getDataFromDBOne(ORDER_COLLECTION, AMDIN_FIELD, adminId).then((v) => {
+            getDataFromDBOne(ORDER_COLLECTION, AMDIN_FIELD, info.adminId).then((v) => {
 
                 if (v !== null) {
                     let oN: number = v.count + 1;
@@ -429,7 +430,9 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                         deliveryMethod: "Delivery",
                         deliveryLocation: location,
                         date: new Date(),
-                        dateString: new Date().toDateString()
+                        dateString: new Date().toDateString(),
+                        adminId: info.adminId,
+                        userId: info.userId
 
                     }
 
@@ -468,7 +471,6 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
             dateString: new Date().toDateString(),
             dateAddedString: new Date().toDateString(),
         }
-        print(newRes);
         setReservation(newRes);
         setIsReservationPayment(true);
         setIsOpen(true);
@@ -479,8 +481,8 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
             ...contact,
             date: new Date(),
             dateString: new Date().toDateString(),
-            adminId: adminId,
-            userId: userId
+            adminId: info.adminId,
+            userId: info.userId
         }
 
         addDocument(CONTACT_COLLECTION, newContact).then((v) => {
@@ -574,7 +576,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 
                                         </div>
                                         <div className='absolute -top-10 -left-10 right-10 z-10 '>
-                                            <ShowImage src={`/${webfrontname}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`} alt={'Menu Item'} style={'rounded-full h-20 w-20 '} />
+                                            <ShowImage src={`/${info.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`} alt={'Menu Item'} style={'rounded-full h-20 w-20 '} />
                                         </div>
                                     </div>
                                 ))}
@@ -605,7 +607,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                             <div className='grid grid-cols-4 gap-4 mb-6'>
                                 {menuItems.slice(0, 4).map((v) => (
                                     <div className='flex flex-col shadow-2xl rounded-md'>
-                                        <ShowImage src={`/${webfrontname}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`} alt={'Menu Item'} style={'rounded-md h-64 w-full'} />
+                                        <ShowImage src={`/${info.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`} alt={'Menu Item'} style={'rounded-md h-64 w-full'} />
                                         <h1 className='font-bold text-4xl px-4'>{v.title}</h1>
                                         <div className='flex flex-row justify-between p-4 items-center'>
                                             <h1 className='font-bold text-xl'>{v.price}USD</h1>
@@ -621,7 +623,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                                 ))}
                                 {meals.slice(0, 4).map((v) => (
                                     <div className='flex flex-col shadow-2xl rounded-md'>
-                                        <ShowImage src={`/${webfrontname}/${MEAL_STORAGE_REF}/${v.pic.thumbnail}`} alt={'Menu Item'} style={'rounded-md h-64 w-full'} />
+                                        <ShowImage src={`/${info.adminId}/${MEAL_STORAGE_REF}/${v.pic.thumbnail}`} alt={'Menu Item'} style={'rounded-md h-64 w-full'} />
                                         <h1 className='font-bold text-4xl px-4'>{v.title}</h1>
                                         <div className='flex flex-row justify-between p-4 items-center'>
                                             <h1 className='font-bold text-xl'>{v.price}USD</h1>
@@ -915,11 +917,11 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                         </div>
                         <div className='w-full'>
                             <MapPicker
-                                defaultLocation={{ lat: info.mapLocation.latitude, lng: info.mapLocation.longitude }}
+                                defaultLocation={{ lat: info.mapLocation.lat, lng: info.mapLocation.lng }}
                                 zoom={14}
                                 // mapTypeId={createId()}
                                 style={{ height: '500px', width: "100%" }}
-                                onChangeLocation={handleChangeLocation}
+                                // onChangeLocation={handleChangeLocation}
                                 apiKey={MAP_API} />
 
                         </div>
@@ -973,7 +975,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                 </div >;
             case 1:
                 return <div className='relative'>
-                    <div className='border rounded-md w-full h-screen' style={{ borderColor: info.themeMainColor }}>
+                    <div className='border rounded-md w-full h-fit' style={{ borderColor: info.themeMainColor }}>
                         <div style={{ backgroundColor: info.themeMainColor }} className='h-12 p-2'>
                             <button
                                 onClick={() => { setIndex(0) }}>
@@ -1041,7 +1043,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                             <div className='grid grid-cols-4 gap-4 mb-6'>
                                 {menuItems.map((v) => (
                                     <div className='flex flex-col shadow-2xl rounded-md'>
-                                        <ShowImage src={`/${webfrontname}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`} alt={'Menu Item'} style={'rounded-md h-64 w-full'} />
+                                        <ShowImage src={`/${info.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`} alt={'Menu Item'} style={'rounded-md h-64 w-full'} />
                                         <h1 className='font-bold text-4xl px-4'>{v.title}</h1>
                                         <div className='flex flex-row justify-between p-4 items-center'>
                                             <h1 className='font-bold text-xl'>{v.price}USD</h1>
@@ -1057,7 +1059,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                                 ))}
                                 {meals.map((v) => (
                                     <div className='flex flex-col shadow-2xl rounded-md'>
-                                        <ShowImage src={`/${webfrontname}/${MEAL_STORAGE_REF}/${v.pic.thumbnail}`} alt={'Menu Item'} style={'rounded-md h-64 w-full'} />
+                                        <ShowImage src={`/${info.adminId}/${MEAL_STORAGE_REF}/${v.pic.thumbnail}`} alt={'Menu Item'} style={'rounded-md h-64 w-full'} />
                                         <h1 className='font-bold text-4xl px-4'>{v.title}</h1>
                                         <div className='flex flex-row justify-between p-4 items-center'>
                                             <h1 className='font-bold text-xl'>{v.price}USD</h1>

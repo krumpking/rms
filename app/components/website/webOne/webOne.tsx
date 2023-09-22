@@ -8,24 +8,20 @@ import { Tab } from '@headlessui/react';
 import WebOneWebsite from './webOneWebsite';
 import WebOneWebsiteInfo from './webOneInfo';
 import { IWebsiteOneInfo } from '../../../types/websiteTypes';
+import { getDataFromDBOne } from '../../../api/mainApi';
+import { INFO_COLLECTION } from '../../../constants/infoConstants';
+import { AMDIN_FIELD } from '../../../constants/constants';
+import { useAuthIds } from '../../authHook';
+import { WEBSITE_COLLECTION, WEBSITE_INFO_COLLECTION } from '../../../constants/websiteConstants';
 
 function classNames(...classes: string[]) {
     return classes.filter(Boolean).join(' ');
 }
 
 const Web1 = () => {
-    const [surname, setSurname] = useState('');
-    const [position, setPosition] = useState('');
-    const [name, setName] = useState('');
-    const [gender, setGender] = useState('');
-    const [date, setDate] = useState('');
-    const [address, setAddress] = useState('');
-    const [number, setNumber] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [email, setEmail] = useState('');
-    const [account, setAccount] = useState('');
-    const [bank, setBank] = useState('');
-    const router = useRouter();
+    const { adminId, userId, access } = useAuthIds();
+    const [loading, setLoading] = useState(true);
+
     const [tabs, setTabs] = useState(['Website', 'Website Info']);
     const [info, setInfo] = useState<IWebsiteOneInfo>({
         id: "",
@@ -65,6 +61,57 @@ const Web1 = () => {
         mapLocation: {}
 
     });
+
+
+    useEffect(() => {
+
+        getInfo();
+
+
+    }, []);
+
+    const getInfo = () => {
+        getDataFromDBOne(WEBSITE_INFO_COLLECTION, AMDIN_FIELD, adminId).then((v) => {
+            if (v !== null) {
+                v.data.forEach((el) => {
+                    let d = el.data();
+                    setInfo({
+                        id: el.id,
+                        websiteName: d.websiteName,
+                        adminId: d.adminId,
+                        userId: d.userId,
+                        logo: d.logo,
+                        serviceProviderName: d.serviceProvider,
+                        headerTitle: d.headerTitle,
+                        headerText: d.headerText,
+                        aboutUsImage: d.aboutUsImage,
+                        aboutUsTitle: d.aboutUsTitle,
+                        aboutUsInfo: d.aboutUsInfo,
+                        themeMainColor: d.themeMainColor,
+                        themeSecondaryColor: d.themeSecondaryColor,
+                        headerImage: d.headerImage,
+                        reservation: d.reservation,
+                        contactUsImage: d.contactUsImage,
+                        email: d.email,
+                        address: d.adress,
+                        phone: d.phone,
+                        date: d.date,
+                        dateString: d.dateString,
+                        deliveryCost: d.deliveryCost,
+                        mapLocation: d.mapLocation
+                    });
+                });
+
+            }
+            setLoading(false);
+        }).catch((e) => {
+            console.error(e);
+            toast.error('There was an error, please try again');
+        })
+    }
+
+
+
 
 
 

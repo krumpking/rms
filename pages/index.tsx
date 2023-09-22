@@ -235,7 +235,7 @@ const Home: NextPage = () => {
                 <div className='grid grid-cols-4 gap-4 mb-6'>
                   {meals.slice(0, 8).map((v) => (
                     <div className='flex flex-col shadow-2xl rounded-[25px]'>
-                      <ShowImage src={`/${"webfrontId"}/${MEAL_STORAGE_REF}/${v.pic.thumbnail}`} alt={'Meal Item'} style={'rounded-[25px] h-64 w-full'} />
+                      <ShowImage src={`/${v.adminId}/${MEAL_STORAGE_REF}/${v.pic.thumbnail}`} alt={'Meal Item'} style={'rounded-[25px] h-64 w-full'} />
                       <h1 className='font-bold text-4xl px-4'>{v.title}</h1>
                       <div className='flex flex-row justify-between p-4 items-center'>
                         <h1 className='font-bold text-xl'>{v.price}USD</h1>
@@ -277,7 +277,7 @@ const Home: NextPage = () => {
 
                       </div>
                       <div className='absolute -top-10 -left-10 right-10 z-10 '>
-                        <ShowImage src={`/${"webfrontid"}/logo/${v.logo.thumbnail}`} alt={'Logo'} style={'rounded-full h-20 w-20 '} />
+                        <ShowImage src={`/${v.websiteName}/logo/${v.logo.thumbnail}`} alt={'Logo'} style={'rounded-full h-20 w-20 '} />
                       </div>
                     </div>
                   ))}

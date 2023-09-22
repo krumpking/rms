@@ -272,7 +272,7 @@ const CreateMeal = () => {
             if (displayedItems[i].id === v.id) {
                 count = displayedItems[i].count + 1;
                 index = i;
-                return;
+                break;
             }
         }
         if (count > 0) {

@@ -23,10 +23,7 @@ import { useAuthIds } from '../app/components/authHook';
 
 
 const Payments = () => {
-    const [phone, setPhone] = useState("");
-    const [accessCode, setAccessCode] = useState(0);
-    const [sent, setSent] = useState(false);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const router = useRouter();
     const [{ isPending }] = usePayPalScriptReducer();
     const [payments, setPayments] = useState<IPayments[]>([]);
@@ -34,8 +31,10 @@ const Payments = () => {
         id: "",
         adminId: "",
         userId: "",
-        date: new Date(),
-        dateString: new Date().toDateString(),
+        dateAdded: new Date(),
+        dateAddedString: new Date().toDateString(),
+        paymentDate: new Date(),
+        paymentDateString: new Date().toDateString(),
         amount: 0,
         duration: 0,
         refCode: '',
@@ -51,10 +50,6 @@ const Payments = () => {
     const [lastPaymentDate, setLastPaymentDate] = useState("");
     const [nextPaymentDate, setNextPaymentDate] = useState("");
     const [promoCode, setPromoCode] = useState("");
-    const [accessArray, setAccessArray] = useState<any[]>([
-        'menu', 'orders', 'move-from-pantry', 'move-from-kitchen', 'cash-in',
-        'cash-out', 'cash-report', 'add-stock', 'confirm-stock', 'move-to-served', 'add-reservation', 'available-reservations',
-        'staff-scheduling', 'website', 'payments', 'stock-overview']);
     const [category, setCategory] = useState(['Solo', 'Small Team', 'Enterprise']);
     const [duration, setDuration] = useState([30, 90, 365]);
     const { adminId, userId, access } = useAuthIds();
@@ -93,8 +88,10 @@ const Payments = () => {
                     id: Random.randomString(13, "abcdefghijkhlmnopqrstuvwxz123456789"),
                     userId: userId,
                     adminId: adminId,
-                    date: new Date(),
-                    dateString: new Date().toDateString(),
+                    dateAdded: new Date(),
+                    dateAddedString: new Date().toDateString(),
+                    paymentDate: new Date(),
+                    paymentDateString: new Date().toDateString(),
                     amount: 0,
                     refCode: ""
                 }
@@ -343,7 +340,7 @@ const Payments = () => {
                                                                 </button>
                                                             </td>
                                                             <td className="p-2 whitespace-nowrap">
-                                                                <p className="text-left font-medium ">{v.dateString}</p>
+                                                                <p className="text-left font-medium ">{v.paymentDateString}</p>
                                                             </td>
                                                             <td className="p-2 whitespace-nowrap">
                                                                 <p className="text-sm text-center">{v.amount}</p>

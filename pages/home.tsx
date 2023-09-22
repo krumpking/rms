@@ -19,7 +19,7 @@ import { print } from '../app/utils/console';
 import Joyride from 'react-joyride';
 import Script from 'next/script';
 import { useAuthIds } from '../app/components/authHook';
-import { getDataFromDBOne } from '../app/api/mainApi';
+import { getDataFromDBOne, getDataFromDBTwo } from '../app/api/mainApi';
 import { ORDER_COLLECTION } from '../app/constants/orderConstants';
 import { IMeal, IMenuItem } from '../app/types/menuTypes';
 import { getOrdersStatus } from '../app/api/orderApi';
@@ -149,9 +149,12 @@ const Home = () => {
 
 
     const getOrders = () => {
-        getOrdersStatus(ORDER_COLLECTION, AMDIN_FIELD, adminId).then((v: any) => {
+        let fieldTwo = "Sent";
+        getDataFromDBTwo(ORDER_COLLECTION, AMDIN_FIELD, adminId, "statusCode", fieldTwo).then((v) => {
+
             if (v !== null) {
-                v.data.forEach((element: any) => {
+
+                v.data.forEach(element => {
                     let d = element.data();
 
                     setOrders(orders => [...orders, {
@@ -170,7 +173,7 @@ const Home = () => {
                         dateString: d.dateString,
                         totalCost: d.totalCost,
                         deliveryLocation: d.deliveryLocation,
-                        customerAddress: d.cutomerAddress,
+                        customerAddress: d.customerAddress,
                         customerEmail: d.customerEmail,
                         customerPhone: d.customerPhone,
                         deliveredSignature: d.deliveredSignature,
@@ -178,10 +181,12 @@ const Home = () => {
                         deliveryDate: d.deliveryDate,
                         deliveryDateString: d.deliveryDateString,
                         deliveryTime: d.deliveryTime
-
                     }]);
 
                 });
+
+
+
 
             }
             setLoading(false);
@@ -469,22 +474,22 @@ const Home = () => {
                                 </div>
                                 <div className='grid grid-cols-2 border-r-2'>
                                     <div className='flex flex-col items-center'>
-                                        <h1 className='text-md'>{totalUSD}</h1>
+                                        <h1 className='text-md'>{totalUSD.toFixed(2)}</h1>
                                         <h1>USD Transactions</h1>
                                     </div>
                                     <div className='flex flex-col items-center'>
-                                        <h1 className='text-md'>{totalZWL}</h1>
+                                        <h1 className='text-md'>{totalZWL.toFixed(2)}</h1>
                                         <h1>ZWL Transactions</h1>
                                     </div>
 
                                 </div>
                                 <div className='grid grid-cols-2 border-r-2'>
                                     <div className='flex flex-col items-center'>
-                                        <h1 className='text-md'>{totalRecUSD}</h1>
+                                        <h1 className='text-md'>{totalRecUSD.toFixed(2)}</h1>
                                         <h1>USD Received</h1>
                                     </div>
                                     <div className='flex flex-col items-center'>
-                                        <h1 className='text-md'>{totalRecZWL}</h1>
+                                        <h1 className='text-md'>{totalRecZWL.toFixed(2)}</h1>
                                         <h1>ZWL Received</h1>
                                     </div>
 
@@ -493,11 +498,11 @@ const Home = () => {
                                 <div className='grid grid-cols-2'>
 
                                     <div className='flex flex-col items-center'>
-                                        <h1 className='text-md'>{totalSpentUSD}</h1>
+                                        <h1 className='text-md'>{totalSpentUSD.toFixed(2)}</h1>
                                         <h1>USD Spent</h1>
                                     </div>
                                     <div className='flex flex-col items-center'>
-                                        <h1 className='text-md'>{totalSpentZWL}</h1>
+                                        <h1 className='text-md'>{totalSpentZWL.toFixed(2)}</h1>
                                         <h1>ZWL Spent</h1>
                                     </div>
                                 </div>

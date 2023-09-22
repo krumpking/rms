@@ -24,8 +24,8 @@ import Loader from '../loader';
 
 
 
-const MarketPlace = (props: { adminId: string, info: IWebsiteOneInfo, changeIndex: (index: number) => void }) => {
-    const { adminId, info, changeIndex } = props
+const MarketPlace = (props: { info: IWebsiteOneInfo, changeIndex: (index: number) => void }) => {
+    const { info, changeIndex } = props
     const [loading, setLoading] = useState(false);
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
@@ -62,12 +62,11 @@ const MarketPlace = (props: { adminId: string, info: IWebsiteOneInfo, changeInde
         deliveryDateString: "",
         deliveryTime: "",
         deliverer: "",
+        deliveredSignature: null,
 
 
     });
     const [addItems, setAddItems] = useState<any[]>([]);
-    const [websiteName, setWebsiteName] = useState("websitename");
-    const [webfrontname, setWebfrontname] = useState("webfrontId");
     const [loadDist, setLoadDist] = useState(false);
     const [booths, setBooths] = useState<IWebsiteOneInfo[]>([]);
 
@@ -88,7 +87,7 @@ const MarketPlace = (props: { adminId: string, info: IWebsiteOneInfo, changeInde
 
     const getMeals = () => {
 
-        getDataFromDBOne(MEAL_ITEM_COLLECTION, AMDIN_FIELD, adminId).then((v) => {
+        getDataFromDBOne(MEAL_ITEM_COLLECTION, AMDIN_FIELD, info.adminId).then((v) => {
 
             if (v !== null) {
 
@@ -139,7 +138,7 @@ const MarketPlace = (props: { adminId: string, info: IWebsiteOneInfo, changeInde
 
     const getMenuItems = () => {
 
-        getDataFromDBOne(MENU_ITEM_COLLECTION, AMDIN_FIELD, adminId).then((v) => {
+        getDataFromDBOne(MENU_ITEM_COLLECTION, AMDIN_FIELD, info.adminId).then((v) => {
 
             if (v !== null) {
                 v.data.forEach(element => {
@@ -262,7 +261,7 @@ const MarketPlace = (props: { adminId: string, info: IWebsiteOneInfo, changeInde
         });
 
         if (order.deliveryMethod == "Delivery") {
-            let dis = computeDistanceBetween(new LatLng(location.lat, location.lng), new LatLng(info.mapLocation.latitude, info.mapLocation.longitude));
+            let dis = computeDistanceBetween(new LatLng(location.lat, location.lng), new LatLng(info.mapLocation.lat, info.mapLocation.lng));
             let d = info.deliveryCost * (dis / 1000);
             d.toFixed(2)
             total += d;
@@ -343,7 +342,7 @@ const MarketPlace = (props: { adminId: string, info: IWebsiteOneInfo, changeInde
         setLoading(true);
         if (order.customerEmail !== "" && order.customerName !== "" && order.customerPhone !== "") {
 
-            getDataFromDBOne(ORDER_COLLECTION, AMDIN_FIELD, adminId).then((v) => {
+            getDataFromDBOne(ORDER_COLLECTION, AMDIN_FIELD, info.adminId).then((v) => {
 
                 if (v !== null) {
                     let oN: number = v.count + 1;
@@ -397,7 +396,7 @@ const MarketPlace = (props: { adminId: string, info: IWebsiteOneInfo, changeInde
     const getDeliveryCost = () => {
 
 
-        let dis = computeDistanceBetween(new LatLng(location.lat, location.lng), new LatLng(info.mapLocation.latitude, info.mapLocation.longitude));
+        let dis = computeDistanceBetween(new LatLng(location.lat, location.lng), new LatLng(info.mapLocation.lat, info.mapLocation.lng));
         let d = 1 * (dis / 1000);
         return 3;
 
@@ -483,7 +482,7 @@ const MarketPlace = (props: { adminId: string, info: IWebsiteOneInfo, changeInde
                                 <div className='grid grid-cols-4 gap-4 mb-6'>
                                     {menuItems.map((v) => (
                                         <div className='flex flex-col shadow-2xl rounded-[25px]'>
-                                            <ShowImage src={`/${webfrontname}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`} alt={'Menu Item'} style={'rounded-[25px] h-64 w-full'} />
+                                            <ShowImage src={`/${v.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`} alt={'Menu Item'} style={'rounded-[25px] h-64 w-full'} />
                                             <h1 className='font-bold text-4xl px-4'>{v.title}</h1>
                                             <div className='flex flex-row justify-between p-4 items-center'>
                                                 <h1 className='font-bold text-xl'>{v.price}USD</h1>
@@ -499,7 +498,7 @@ const MarketPlace = (props: { adminId: string, info: IWebsiteOneInfo, changeInde
                                     ))}
                                     {meals.map((v) => (
                                         <div className='flex flex-col shadow-2xl rounded-[25px]'>
-                                            <ShowImage src={`/${webfrontname}/${MEAL_STORAGE_REF}/${v.pic.thumbnail}`} alt={'Menu Item'} style={'rounded-[25px] h-64 w-full'} />
+                                            <ShowImage src={`/${v.adminId}/${MEAL_STORAGE_REF}/${v.pic.thumbnail}`} alt={'Menu Item'} style={'rounded-[25px] h-64 w-full'} />
                                             <h1 className='font-bold text-4xl px-4'>{v.title}</h1>
                                             <div className='flex flex-row justify-between p-4 items-center'>
                                                 <h1 className='font-bold text-xl'>{v.price}USD</h1>

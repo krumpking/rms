@@ -4,7 +4,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router';
 import { getCookie } from 'react-use-cookie';
-import { ADMIN_ID, AMDIN_FIELD, COOKIE_ID, LIGHT_GRAY } from '../../constants/constants';
+import { ADMIN_ID, AMDIN_FIELD, LIGHT_GRAY } from '../../constants/constants';
 import Loader from '../loader';
 import { decrypt } from '../../utils/crypto';
 import { ICategory, IMenuItem } from '../../types/menuTypes';
@@ -24,6 +24,7 @@ import { ILog, IShift } from '../../types/staffTypes';
 import { SHIFT_COLLECTION } from '../../constants/staffConstants';
 import DateMethods from '../../utils/date';
 import { differenceInHours } from 'date-fns';
+import { useAuthIds } from '../authHook';
 
 
 
@@ -31,8 +32,6 @@ import { differenceInHours } from 'date-fns';
 const Logs = () => {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    const [adminId, setAdminId] = useState('');
-    const [webfrontId, setWebfrontId] = useState("");
     const [logs, setLogs] = useState<ILog[]>([]);
     const [logsTemp, setLogsTemp] = useState<ILog[]>([]);
     const [open, setOpen] = useState(false);
@@ -43,31 +42,17 @@ const Logs = () => {
     const [start, setStart] = useState(0);
     const [end, setEnd] = useState(10);
     const [search, setSearch] = useState("");
-    const [accessArray, setAccessArray] = useState<any[]>([
-        'menu', 'orders', 'move-from-pantry', 'move-from-kitchen', 'cash-in',
-        'cash-out', 'cash-report', 'add-stock', 'confirm-stock', 'move-to-served', 'add-reservation', 'available-reservations',
-        'staff-scheduling', 'approve-schedule', 'website', 'payments', 'staff-logs']);
+    const { adminId, userId, access } = useAuthIds();
 
 
     useEffect(() => {
         document.body.style.backgroundColor = LIGHT_GRAY;
-
-        var infoFromCookie = '';
-        if (getCookie(ADMIN_ID) == '') {
-            infoFromCookie = getCookie(COOKIE_ID);
-        } else {
-            infoFromCookie = getCookie(ADMIN_ID);
-        }
-        // setAdminId(decrypt(infoFromCookie, COOKIE_ID));
-        setWebfrontId("webfrontId");
 
 
         getShifts();
     }, []);
 
     const getShifts = () => {
-        print('Here it is');
-        print(logs.length);
         getDataFromDBTwo(SHIFT_COLLECTION, AMDIN_FIELD, adminId, 'confirmed', true).then((v) => {
 
             if (v !== null) {
@@ -210,13 +195,13 @@ const Logs = () => {
 
 
     return (
-        <AppAccess access={accessArray} component={'approve-schedule'}>
+        <AppAccess access={access} component={'approve-schedule'}>
 
             <div className="bg-white rounded-[30px] p-4  ">
                 <div>
                     {loading ? (
                         <div className="w-full flex flex-col items-center content-center">
-                            <Loader />
+                            <Loader color={''} />
                         </div>
                     ) : (
                         <div className="flex flex-col overflow-y-scroll max-h-[700px] w-full gap-4 p-4">

@@ -6,15 +6,14 @@ import { print } from '../../utils/console';
 import React from 'react';
 import { useRouter } from 'next/router';
 import { getCookie } from 'react-use-cookie';
-import { ADMIN_ID, AMDIN_FIELD, COOKIE_ID } from '../../constants/constants';
-import { decrypt, encrypt } from '../../utils/crypto';
-import { getMyEvents } from '../../api/bookingsApi';
-import { IAttendee } from '../../types/bookingsTypes';
+import { ADMIN_ID, AMDIN_FIELD } from '../../constants/constants';
+
 import Head from 'next/head';
 import { getDataFromDBTwo } from '../../api/mainApi';
 import { SHIFT_COLLECTION } from '../../constants/staffConstants';
 import DateMethods from '../../utils/date';
 import { addDays } from 'date-fns';
+import { useAuthIds } from '../authHook';
 
 const localizer = momentLocalizer(moment);
 
@@ -58,7 +57,7 @@ const BasicCalendar = () => {
     );
     const router = useRouter();
     const [events, setEvents] = useState<any[]>([]);
-    const [adminId, setAdminId] = useState("");
+    const { adminId, userId, access } = useAuthIds();
 
 
     useEffect(() => {

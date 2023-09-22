@@ -4,9 +4,9 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router';
 import { getCookie } from 'react-use-cookie';
-import { ADMIN_ID, AMDIN_FIELD, COOKIE_ID, LIGHT_GRAY } from '../../constants/constants';
+import { ADMIN_ID, AMDIN_FIELD, LIGHT_GRAY } from '../../constants/constants';
 import Loader from '../loader';
-import { addDocument, deleteDocument, deleteFile, getDataFromDBOne, getDataFromDBTwo, updateDocument, uploadFile } from '../../api/mainApi';
+import { addDocument, deleteDocument, deleteFile, getDataFromDBOne, getDataFromDBThree, getDataFromDBTwo, updateDocument, uploadFile } from '../../api/mainApi';
 import { print } from '../../utils/console';
 import { Dialog, Transition } from '@headlessui/react';
 import { IStockCategory, IStockItem } from '../../types/stockTypes';
@@ -14,6 +14,7 @@ import { STOCK_CATEGORY_REF, STOCK_ITEM_COLLECTION } from '../../constants/stock
 import { containsObject, findOccurrences, findOccurrencesObjectId, searchStringInArray } from '../../utils/arrayM';
 import ReactPaginate from 'react-paginate';
 import AppAccess from '../accessLevel';
+import { useAuthIds } from '../authHook';
 
 interface MyProps {
   status: string,
@@ -24,11 +25,10 @@ interface MyProps {
 const AvailableStock: FC<MyProps> = ({ status }) => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const [adminId, setAdminId] = useState('adminId');
+  const { adminId, userId, access } = useAuthIds();
   const [categories, setCategories] = useState<IStockCategory[]>([]);
   const [stockItems, setStockItems] = useState<IStockItem[]>([]);
   const [edit, setEdit] = useState(false);
-  const [webfrontId, setWebfrontId] = useState("");
   const [setNoOfItems, setSetNoOfItems] = useState(false);
   const [editItem, setEditItem] = useState<any>({
     category: "",
@@ -49,7 +49,7 @@ const AvailableStock: FC<MyProps> = ({ status }) => {
     dateString: new Date().toDateString(),
     dateOfUpdate: new Date().toDateString(),
     status: 'Pantry',
-    confirmed: false
+    confirmed: true
   });
   const [labels, setLabels] = useState<string[]>(['TRANSACTION DATE', 'TITLE', 'DETAILS', 'CATEGORY', 'NUMBER OF ITEMS']);
   const [selectedTrans, setSelectedTrans] = useState<IStockCategory[]>([]);
@@ -60,24 +60,12 @@ const AvailableStock: FC<MyProps> = ({ status }) => {
   const [start, setStart] = useState(0);
   const [end, setEnd] = useState(10);
   const [search, setSearch] = useState("");
-  const [accessArray, setAccessArray] = useState<any[]>([
-    'menu', 'orders', 'move-from-pantry', 'move-from-kitchen', 'cash-in',
-    'cash-out', 'cash-report', 'add-stock', 'confirm-stock', 'move-to-served', 'add-reservation', 'available-reservations',
-    'staff-scheduling', 'website', 'payments']);
   const [component, setComponent] = useState("");
+
 
 
   useEffect(() => {
     document.body.style.backgroundColor = LIGHT_GRAY;
-
-    var infoFromCookie = '';
-    if (getCookie(ADMIN_ID) == '') {
-      infoFromCookie = getCookie(COOKIE_ID);
-    } else {
-      infoFromCookie = getCookie(ADMIN_ID);
-    }
-    // setAdminId(decrypt(infoFromCookie, COOKIE_ID));
-    setWebfrontId("webfrontId");
     switch (status) {
       case 'Pantry':
         setComponent('move-from-pantry');
@@ -107,7 +95,7 @@ const AvailableStock: FC<MyProps> = ({ status }) => {
 
 
 
-    getDataFromDBTwo(STOCK_ITEM_COLLECTION, AMDIN_FIELD, adminId, 'status', status).then((v) => {
+    getDataFromDBThree(STOCK_ITEM_COLLECTION, AMDIN_FIELD, adminId, 'status', status, 'confirmed', true).then((v) => {
 
       if (v !== null) {
 
@@ -124,7 +112,7 @@ const AvailableStock: FC<MyProps> = ({ status }) => {
             itemNumber: d.itemNumber,
             date: d.date,
             dateString: d.dateString,
-            dateOfUpdate: d.dateOdUpdate,
+            dateOfUpdate: d.dateOfUpdate,
             status: d.status,
             confirmed: d.confirmed
           }]);
@@ -140,10 +128,13 @@ const AvailableStock: FC<MyProps> = ({ status }) => {
             itemNumber: d.itemNumber,
             date: d.date,
             dateString: d.dateString,
-            dateOfUpdate: d.dateOdUpdate,
-            status: 'Pantry',
-            confirmed: false
+            dateOfUpdate: d.dateOfUpdate,
+            status: d.status,
+            confirmed: d.confirmed
           }]);
+
+
+
 
         });
         var numOfPages = Math.floor(v.count / 10);
@@ -166,7 +157,6 @@ const AvailableStock: FC<MyProps> = ({ status }) => {
 
   const getReadyToUpdate = (v: IStockItem) => {
 
-
     if (status !== 'Served') {
       setOpen(true);
       setStockItem(v);
@@ -175,6 +165,9 @@ const AvailableStock: FC<MyProps> = ({ status }) => {
 
 
   }
+
+
+
 
   const sendStockItems = async () => {
 
@@ -213,7 +206,7 @@ const AvailableStock: FC<MyProps> = ({ status }) => {
 
       // });
     } else if (stockItem.itemNumber == numberOfItems) {
-      setStockItems([]);
+      setStockItemsTemp([]);
       let newItem = { ...stockItem, status: updateStatus, dateOfUpdate: new Date().toDateString(), itemNumber: numberOfItems }
       //Logic to delete the item
       updateDocument(STOCK_ITEM_COLLECTION, stockItem.id, newItem).then((v) => {
@@ -299,24 +292,24 @@ const AvailableStock: FC<MyProps> = ({ status }) => {
 
 
   return (
-    <AppAccess access={accessArray} component={component}>
-      <div>
-        <div className="bg-white rounded-[30px] p-4 ">
-          {loading ? (
-            <div className="w-full flex flex-col items-center content-center">
-              <Loader />
-            </div>
-          ) : (
-            <div className="flex flex-col overflow-y-scroll max-h-[700px] w-full gap-4 p-4">
-              <div className=''>
-                <input
-                  type="text"
-                  value={search}
-                  placeholder={"Search"}
-                  onChange={(e) => {
-                    setSearch(e.target.value);
-                  }}
-                  className="
+
+    <div>
+      <div className="bg-white rounded-[30px] p-4 ">
+        {loading ? (
+          <div className="w-full flex flex-col items-center content-center">
+            <Loader color={''} />
+          </div>
+        ) : (<AppAccess access={access} component={component}>
+          <div className="flex flex-col overflow-y-scroll max-h-[700px] w-full gap-4 p-4">
+            <div className=''>
+              <input
+                type="text"
+                value={search}
+                placeholder={"Search"}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                }}
+                className="
                       w-full
                       rounded-[25px]
                       border-2
@@ -330,115 +323,116 @@ const AvailableStock: FC<MyProps> = ({ status }) => {
                       focus-visible:shadow-none
                       focus:border-primary
                   "
-                  onKeyDown={handleKeyDown}
-                />
-              </div>
-              <table className="table  border-separate space-y-6 text-sm w-full">
-                <thead className="bg-[#8b0e06] text-white font-bold0">
-                  <tr>
-                    {labels.map((v: any, index) => (
-                      <th key={v.label} className={`text-left`}>{v}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {
-                    stockItemsTemp.slice(start, end).map((value, index) => {
-                      return (
-                        <tr key={index}
-                          onClick={() => { getReadyToUpdate(value) }}
-                          className={'odd:bg-white even:bg-slate-50  hover:cursor-pointer hover:bg-[#8b0e06] hover:text-white'}>
-                          <td className='text-left' >{value.dateString}</td>
-                          <td className='text-left' >{value.title}</td>
-                          <td className='text-left' >{value.details}</td>
-                          <td className='text-left col-span-3' >{value.category}</td>
-                          <td className='text-left' >{value.itemNumber}</td>
-
-                        </tr>
-                      )
-                    })
-                  }
-                </tbody>
-              </table>
-              <div>
-                {stockItemsTemp.length > 0 ? <div className='flex w-full'>
-                  <ReactPaginate
-                    pageClassName="border-2 border-[#8b0e06] px-2 py-1 rounded-full"
-                    previousLinkClassName="border-2 border-[#8b0e06] px-2 py-2 rounded-[25px] bg-[#8b0e06] text-white font-bold"
-                    nextLinkClassName="border-2 border-[#8b0e06] px-2 py-2 rounded-[25px] bg-[#8b0e06] text-white font-bold"
-                    breakLabel="..."
-                    breakClassName=""
-                    containerClassName="flex flex-row space-x-4 content-center items-center "
-                    activeClassName="bg-[#8b0e06] text-white"
-                    nextLabel="next"
-                    onPageChange={handlePageClick}
-                    pageRangeDisplayed={1}
-                    pageCount={pages}
-                    previousLabel="previous"
-                    renderOnZeroPageCount={() => null}
-                  />
-                </div> : <p></p>}
-              </div>
-
+                onKeyDown={handleKeyDown}
+              />
             </div>
-          )}
-        </div>
+            <table className="table  border-separate space-y-6 text-sm w-full">
+              <thead className="bg-[#8b0e06] text-white font-bold0">
+                <tr>
+                  {labels.map((v: any, index) => (
+                    <th key={v.label} className={`text-left`}>{v}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {
+                  stockItemsTemp.slice(start, end).map((value, index) => {
+                    return (
+                      <tr key={index}
+                        onClick={() => { getReadyToUpdate(value) }}
+                        className={'odd:bg-white even:bg-slate-50  hover:cursor-pointer hover:bg-[#8b0e06] hover:text-white'}>
+                        <td className='text-left' >{value.dateString}</td>
+                        <td className='text-left' >{value.title}</td>
+                        <td className='text-left' >{value.details}</td>
+                        <td className='text-left col-span-3' >{value.category}</td>
+                        <td className='text-left' >{value.itemNumber}</td>
 
-        <Transition appear show={open} as={Fragment}>
-          <Dialog
-            as="div"
-            className="fixed inset-0 z-10 overflow-y-auto"
-            onClose={() => setOpen(false)}
-          >
-            <div className="min-h-screen px-4 text-center backdrop-blur-sm ">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0"
-                enterTo="opacity-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
-              >
-                <Dialog.Overlay className="fixed inset-0" />
-              </Transition.Child>
+                      </tr>
+                    )
+                  })
+                }
+              </tbody>
+            </table>
+            <div>
+              {stockItemsTemp.length > 0 ? <div className='flex w-full'>
+                <ReactPaginate
+                  pageClassName="border-2 border-[#8b0e06] px-2 py-1 rounded-full"
+                  previousLinkClassName="border-2 border-[#8b0e06] px-2 py-2 rounded-[25px] bg-[#8b0e06] text-white font-bold"
+                  nextLinkClassName="border-2 border-[#8b0e06] px-2 py-2 rounded-[25px] bg-[#8b0e06] text-white font-bold"
+                  breakLabel="..."
+                  breakClassName=""
+                  containerClassName="flex flex-row space-x-4 content-center items-center "
+                  activeClassName="bg-[#8b0e06] text-white"
+                  nextLabel="next"
+                  onPageChange={handlePageClick}
+                  pageRangeDisplayed={1}
+                  pageCount={pages}
+                  previousLabel="previous"
+                  renderOnZeroPageCount={() => null}
+                />
+              </div> : <p></p>}
+            </div>
 
-              <span
-                className="inline-block h-screen align-middle"
-                aria-hidden="true"
-              >
-                &#8203;
-              </span>
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
-                <div className="bg-white my-8 inline-block w-full max-w-md transform overflow-hidden rounded-2xl p-6 text-left align-middle shadow-xl transition-all">
+          </div>
+        </AppAccess>
+        )}
+      </div>
 
-                  <Dialog.Title
-                    as="h3"
-                    className="text-sm font-medium leading-6 text-gray-900 m-4"
-                  >
+      <Transition appear show={open} as={Fragment}>
+        <Dialog
+          as="div"
+          className="fixed inset-0 z-10 overflow-y-auto"
+          onClose={() => setOpen(false)}
+        >
+          <div className="min-h-screen px-4 text-center backdrop-blur-sm ">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <Dialog.Overlay className="fixed inset-0" />
+            </Transition.Child>
 
-                    Type Number of items to move
-                  </Dialog.Title>
-                  <div className="flex flex-col items-center space-y-2 w-full">
+            <span
+              className="inline-block h-screen align-middle"
+              aria-hidden="true"
+            >
+              &#8203;
+            </span>
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <div className="bg-white my-8 inline-block w-full max-w-md transform overflow-hidden rounded-2xl p-6 text-left align-middle shadow-xl transition-all">
 
-                    <div className="mb-6 w-full">
-                      <input
-                        type="number"
-                        value={numberOfItems}
-                        placeholder={'No of Items to move'}
-                        onChange={(e) => {
-                          setNumberOfItems(parseInt(e.target.value));
-                        }}
-                        name="itemNumber"
-                        className="
+                <Dialog.Title
+                  as="h3"
+                  className="text-sm font-medium leading-6 text-gray-900 m-4"
+                >
+
+                  Type Number of items to move
+                </Dialog.Title>
+                <div className="flex flex-col items-center space-y-2 w-full">
+
+                  <div className="mb-6 w-full">
+                    <input
+                      type="number"
+                      value={numberOfItems}
+                      placeholder={'No of Items to move'}
+                      onChange={(e) => {
+                        setNumberOfItems(parseInt(e.target.value));
+                      }}
+                      name="itemNumber"
+                      className="
                           w-full
                           rounded-[25px]
                           border-2
@@ -452,14 +446,14 @@ const AvailableStock: FC<MyProps> = ({ status }) => {
                           focus-visible:shadow-none
                           focus:border-primary
                         "
-                        required
-                      />
-                    </div>
-                    <button
-                      onClick={() => {
-                        sendStockItems();
-                      }}
-                      className="
+                      required
+                    />
+                  </div>
+                  <button
+                    onClick={() => {
+                      sendStockItems();
+                    }}
+                    className="
                       w-full
                        font-bold
                        rounded-[25px]
@@ -475,22 +469,22 @@ const AvailableStock: FC<MyProps> = ({ status }) => {
                        hover:bg-opacity-90
                        transition
                    "
-                    >
-                      Move
+                  >
+                    Move
 
-                    </button>
-                  </div>
-
-
+                  </button>
                 </div>
-              </Transition.Child>
-            </div>
-          </Dialog>
-        </Transition>
 
-        <ToastContainer position="top-right" autoClose={5000} />
-      </div>
-    </AppAccess>
+
+              </div>
+            </Transition.Child>
+          </div>
+        </Dialog>
+      </Transition>
+
+      <ToastContainer position="top-right" autoClose={5000} />
+    </div>
+
 
   );
 };

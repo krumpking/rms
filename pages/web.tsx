@@ -11,21 +11,17 @@ import { Dialog, Transition } from '@headlessui/react';
 import { addDocument, getOneDocument, updateDocument } from '../app/api/mainApi';
 import { WEBSITE_COLLECTION } from '../app/constants/websiteConstants';
 import WebOne from '../app/components/website/webOne/webOne';
+import { useAuthIds } from '../app/components/authHook';
 
 
 
 
 
 const WebFront = () => {
-    const [phone, setPhone] = useState("");
-    const [accessCode, setAccessCode] = useState("");
     const [sent, setSent] = useState(false);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
-    const [accessArray, setAccessArray] = useState<any[]>([
-        'menu', 'orders', 'move-from-pantry', 'move-from-kitchen', 'cash-in',
-        'cash-out', 'cash-report', 'add-stock', 'confirm-stock', 'move-to-served', 'add-reservation', 'available-reservations',
-        'staff-scheduling', 'website', 'payments', 'stock-overview', 'receipting',]);
+    const { adminId, userId, access } = useAuthIds();
     const [webs, setWebs] = useState<IWebsite[]>([{
         id: "",
         websiteId: "",
@@ -50,7 +46,7 @@ const WebFront = () => {
         dateString: ""
     });
     const [open, setOpen] = useState(false);
-    const [adminId, setAdminId] = useState("adminId");
+
 
 
 
@@ -133,7 +129,7 @@ const WebFront = () => {
 
     return (
 
-        <AppAccess access={accessArray} component={'website'}>
+        <AppAccess access={access} component={'website'}>
             <div>
                 <div className='flex flex-col'>
 

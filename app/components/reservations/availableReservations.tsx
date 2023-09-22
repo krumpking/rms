@@ -11,6 +11,7 @@ import { searchStringInArray } from '../../utils/arrayM';
 import ReactPaginate from 'react-paginate';
 import { isAfter, isBefore, isEqual } from 'date-fns';
 import { print } from '../../utils/console';
+import { useAuthIds } from '../authHook';
 
 // var object = {};
 // var array = [];
@@ -34,6 +35,7 @@ const AvailableReservations = (props: { isHistory: boolean }) => {
   const [start, setStart] = useState(0);
   const [end, setEnd] = useState(10);
   const [search, setSearch] = useState("");
+  const { adminId, userId, access } = useAuthIds();
 
 
   useEffect(() => {
@@ -42,7 +44,7 @@ const AvailableReservations = (props: { isHistory: boolean }) => {
 
 
   const getReservations = () => {
-    getDataFromDBOne(RESERVATION_COLLECTION, AMDIN_FIELD, '')
+    getDataFromDBOne(RESERVATION_COLLECTION, AMDIN_FIELD, adminId)
       .then((v) => {
         if (v !== null) {
           v.data.forEach((element) => {

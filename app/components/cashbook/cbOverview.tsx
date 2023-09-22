@@ -16,6 +16,7 @@ import ShowImage from '../showImage';
 import OrderedItems from '../order/orderedItems';
 import ReactPaginate from 'react-paginate';
 import AppAccess from '../accessLevel';
+import { useAuthIds } from '../authHook';
 
 const CBOverview = () => {
     const [loading, setLoading] = useState(false);
@@ -24,7 +25,7 @@ const CBOverview = () => {
     const [transactions, setTransactions] = useState<ITransaction[]>([]);
     const [transactionsSto, setTransactionsSto] = useState<ITransaction[]>([]);
     const [transactionsStoOther, setTransactionsStoOther] = useState<ITransaction[]>([]);
-    const [adminId, setAdminId] = useState("adminId");
+    const { adminId, userId, access } = useAuthIds();
     const [totalUSD, setTotalUSD] = useState(0);
     const [totalZWL, setTotalZWL] = useState(0);
     const [totalRecUSD, setTotalRecUSD] = useState(0);
@@ -35,16 +36,11 @@ const CBOverview = () => {
     const [open, setOpen] = useState(false);
     const [selectedTrans, setSelectedTrans] = useState<any>();
     const [cat, setCat] = useState(['All time', 'Today', 'This Week', 'This Month', 'This Quarter', 'This Year'])
-    const [webfrontId, setWebfrontId] = useState("webfrontId");
+
     const [start, setStart] = useState(0);
     const [end, setEnd] = useState(10);
     const [pages, setPages] = useState(0);
     const [count, setCount] = useState(0);
-    const [accessArray, setAccessArray] = useState<any[]>([
-        'menu', 'orders', 'move-from-pantry', 'move-from-kitchen', 'cash-in',
-        'cash-out', 'cash-report', 'add-stock', 'confirm-stock', 'move-to-served', 'add-reservation', 'available-reservations',
-        'staff-scheduling', 'website', 'payments']);
-
     useEffect(() => {
 
 
@@ -272,15 +268,15 @@ const CBOverview = () => {
 
     const getAvail = (key: string) => {
         if (key == 'USD') {
-            return totalRecUSD - totalSpentUSD;
+            return (totalRecUSD - totalSpentUSD).toFixed(2);
         } else {
-            return totalRecZWL - totalSpentZWL;
+            return (totalRecZWL - totalSpentZWL).toFixed(2);
         }
     }
 
 
     return (
-        <AppAccess access={accessArray} component={'cash-report'}>
+        <AppAccess access={access} component={'cash-report'}>
             <div>
                 {loading ? (
                     <div className="flex flex-col items-center content-center">
@@ -343,22 +339,22 @@ const CBOverview = () => {
                             </div>
                             <div className='grid grid-cols-2 border-r-2'>
                                 <div className='flex flex-col items-center'>
-                                    <h1 className='text-md'>{totalUSD}</h1>
+                                    <h1 className='text-md'>{totalUSD.toFixed(2)}</h1>
                                     <h1>USD Transactions</h1>
                                 </div>
                                 <div className='flex flex-col items-center'>
-                                    <h1 className='text-md'>{totalZWL}</h1>
+                                    <h1 className='text-md'>{totalZWL.toFixed(2)}</h1>
                                     <h1>ZWL Transactions</h1>
                                 </div>
 
                             </div>
                             <div className='grid grid-cols-2 border-r-2'>
                                 <div className='flex flex-col items-center'>
-                                    <h1 className='text-md'>{totalRecUSD}</h1>
+                                    <h1 className='text-md'>{totalRecUSD.toFixed(2)}</h1>
                                     <h1>USD Received</h1>
                                 </div>
                                 <div className='flex flex-col items-center'>
-                                    <h1 className='text-md'>{totalRecZWL}</h1>
+                                    <h1 className='text-md'>{totalRecZWL.toFixed(2)}</h1>
                                     <h1>ZWL Received</h1>
                                 </div>
 
@@ -367,11 +363,11 @@ const CBOverview = () => {
                             <div className='grid grid-cols-2'>
 
                                 <div className='flex flex-col items-center'>
-                                    <h1 className='text-md'>{totalSpentUSD}</h1>
+                                    <h1 className='text-md'>{totalSpentUSD.toFixed(2)}</h1>
                                     <h1>USD Spent</h1>
                                 </div>
                                 <div className='flex flex-col items-center'>
-                                    <h1 className='text-md'>{totalSpentZWL}</h1>
+                                    <h1 className='text-md'>{totalSpentZWL.toFixed(2)}</h1>
                                     <h1>ZWL Spent</h1>
                                 </div>
                             </div>
@@ -379,7 +375,7 @@ const CBOverview = () => {
                         <div>
                             {open ?
 
-                                <div className='flex flex-col items-center m-4 shadow-2xl rounded-md border-4 border-[#8b0e06] font-bold max-h-[700px] overflow-y-scroll'>
+                                <div className='flex flex-col items-center m-4 shadow-2xl rounded-[25px] border-4 border-[#8b0e06] font-bold max-h-[700px] overflow-y-scroll'>
                                     <button className='bg-[#8b0e06] text-center p-4 w-full'
                                         onClick={() => {
                                             setOpen(false);
@@ -390,7 +386,7 @@ const CBOverview = () => {
 
                                     </button>
 
-                                    {selectedTrans.file === null ? <p></p> : <ShowImage src={`/${webfrontId}/${CASHBOOOK_STORAGE_REF}/${selectedTrans.file.thumbnail}`} alt={'Payment File'} style={'w-full h-64'} />}
+                                    {selectedTrans.file === null ? <p></p> : <ShowImage src={`/${adminId}/${CASHBOOOK_STORAGE_REF}/${selectedTrans.file.thumbnail}`} alt={'Payment File'} style={'w-full h-64'} />}
                                     {selectedTrans.transactionType === "Sale" ? <OrderedItems id={selectedTrans.details} /> : <p>{selectedTrans.details}</p>}
                                 </div>
                                 : <div className="overflow-auto lg:overflow-visible h-screen shadow-lg p-8 rounded-[25px]">

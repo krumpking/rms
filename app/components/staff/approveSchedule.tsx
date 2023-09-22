@@ -4,7 +4,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router';
 import { getCookie } from 'react-use-cookie';
-import { ADMIN_ID, AMDIN_FIELD, COOKIE_ID, LIGHT_GRAY } from '../../constants/constants';
+import { ADMIN_ID, AMDIN_FIELD, LIGHT_GRAY } from '../../constants/constants';
 import Loader from '../loader';
 import { decrypt } from '../../utils/crypto';
 import { ICategory, IMenuItem } from '../../types/menuTypes';
@@ -22,6 +22,7 @@ import ReactPaginate from 'react-paginate';
 import AppAccess from '../accessLevel';
 import { IShift } from '../../types/staffTypes';
 import { SHIFT_COLLECTION } from '../../constants/staffConstants';
+import { useAuthIds } from '../authHook';
 
 
 
@@ -29,7 +30,7 @@ import { SHIFT_COLLECTION } from '../../constants/staffConstants';
 const ConfirmSchedule = () => {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    const [adminId, setAdminId] = useState('');
+    const { adminId, userId, access } = useAuthIds();
     const [webfrontId, setWebfrontId] = useState("");
     const [shifts, setShifts] = useState<IShift[]>([]);
     const [shiftsTemp, setShiftsTemp] = useState<IShift[]>([]);
@@ -60,23 +61,11 @@ const ConfirmSchedule = () => {
     const [start, setStart] = useState(0);
     const [end, setEnd] = useState(10);
     const [search, setSearch] = useState("");
-    const [accessArray, setAccessArray] = useState<any[]>([
-        'menu', 'orders', 'move-from-pantry', 'move-from-kitchen', 'cash-in',
-        'cash-out', 'cash-report', 'add-stock', 'confirm-stock', 'move-to-served', 'add-reservation', 'available-reservations',
-        'staff-scheduling', 'approve-schedule', 'website', 'payments',]);
+
 
 
     useEffect(() => {
         document.body.style.backgroundColor = LIGHT_GRAY;
-
-        var infoFromCookie = '';
-        if (getCookie(ADMIN_ID) == '') {
-            infoFromCookie = getCookie(COOKIE_ID);
-        } else {
-            infoFromCookie = getCookie(ADMIN_ID);
-        }
-        // setAdminId(decrypt(infoFromCookie, COOKIE_ID));
-        setWebfrontId("webfrontId");
 
 
         getShifts();
@@ -102,7 +91,7 @@ const ConfirmSchedule = () => {
                         startTime: d.startTime,
                         endTime: d.endTime,
                         role: d.role,
-                        confirmed: false,
+                        confirmed: d.confirmed,
                         dateOfUpdate: d.dateOfUpdate,
                     }]);
 
@@ -118,7 +107,7 @@ const ConfirmSchedule = () => {
                         startTime: d.startTime,
                         endTime: d.endTime,
                         role: d.role,
-                        confirmed: false,
+                        confirmed: d.confirmed,
                         dateOfUpdate: d.dateOfUpdate,
                     }]);
 
@@ -262,13 +251,13 @@ const ConfirmSchedule = () => {
 
 
     return (
-        <AppAccess access={accessArray} component={'approve-schedule'}>
+        <AppAccess access={access} component={'approve-schedule'}>
             <div className='relative'>
                 <div className="bg-white rounded-[30px] p-4  ">
                     <div>
                         {loading ? (
                             <div className="w-full flex flex-col items-center content-center">
-                                <Loader />
+                                <Loader color={''} />
                             </div>
                         ) : (
                             <div className="flex flex-col overflow-y-scroll max-h-[700px] w-full gap-4 p-4">

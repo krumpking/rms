@@ -14,6 +14,7 @@ import { useDropzone } from 'react-dropzone';
 import imageCompression from 'browser-image-compression';
 import ShowImage from '../showImage';
 import AppAccess from '../accessLevel';
+import { useAuthIds } from '../authHook';
 
 const Expenses = () => {
 
@@ -25,14 +26,9 @@ const Expenses = () => {
     const [source, setSource] = useState("");
     const [categories, setCategories] = useState<string[]>(['cash', 'online', 'debit card', 'credit card', 'cheque']);
     const [category, setCategory] = useState("");
-    const [adminId, setAdminId] = useState("adminId");
     const [transactions, setTransactions] = useState<ITransaction[]>([]);
     const [files, setFiles] = useState<any[]>([]);
-    const [webfrontId, setWebfrontId] = useState("webfrontId");
-    const [accessArray, setAccessArray] = useState<any[]>([
-        'menu', 'orders', 'move-from-pantry', 'move-from-kitchen', 'cash-in',
-        'cash-out', 'cash-report', 'add-stock', 'confirm-stock', 'move-to-served', 'add-reservation', 'available-reservations',
-        'staff-scheduling', 'website', 'payments']);
+    const { adminId, userId, access } = useAuthIds();
 
     useEffect(() => {
         getExpenses();
@@ -95,7 +91,7 @@ const Expenses = () => {
 
 
 
-                await uploadFile(`${webfrontId}/${CASHBOOOK_STORAGE_REF}/${name}`, files[0]);
+                await uploadFile(`${adminId}/${CASHBOOOK_STORAGE_REF}/${name}`, files[0]);
                 const info = name.split('_');
 
 
@@ -103,7 +99,7 @@ const Expenses = () => {
                 const compressedFile = await imageCompression(files[0], options);
 
                 // Thumbnail
-                await uploadFile(`${webfrontId}/${CASHBOOOK_STORAGE_REF}/thumbnail_${name}`, compressedFile);
+                await uploadFile(`${adminId}/${CASHBOOOK_STORAGE_REF}/thumbnail_${name}`, compressedFile);
                 let transaction: ITransaction = {
                     id: "id",
                     adminId: adminId,
@@ -162,11 +158,11 @@ const Expenses = () => {
 
 
     return (
-        <AppAccess access={accessArray} component={'cash-out'}>
+        <AppAccess access={access} component={'cash-out'}>
             <div>
                 {loading ? (
                     <div className="flex flex-col items-center content-center">
-                        <Loader />
+                        <Loader color={''} />
                     </div>
                 ) : (
                     <div className="bg-white rounded-[30px] p-4  grid grid-cols-2 gap-4">
@@ -174,11 +170,12 @@ const Expenses = () => {
                             <div className='mb-6'>
                                 <p>Amount</p>
                                 <input
-                                    type="text"
+                                    type="number"
+                                    step={0.01}
                                     value={amount}
                                     placeholder={"amount"}
                                     onChange={(e) => {
-                                        setAmount(parseInt(e.target.value));
+                                        setAmount(parseFloat(e.target.value));
                                     }}
                                     className="
                                         w-full
@@ -355,7 +352,7 @@ const Expenses = () => {
 
                                                     <p className='text-xs'>{v.details}</p>
                                                     <p className='text-xs'>{v.paymentMode}</p>
-                                                    <ShowImage src={`/${webfrontId}/${CASHBOOOK_STORAGE_REF}/${v.file.thumbnail}`} alt={'Payment File'} style={'w-full h-64'} />
+                                                    <ShowImage src={`/${adminId}/${CASHBOOOK_STORAGE_REF}/${v.file.thumbnail}`} alt={'Payment File'} style={'w-full h-64'} />
 
                                                 </div>
 

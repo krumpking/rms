@@ -21,7 +21,6 @@ interface MyProps {
 const WebsiteHandler: FC<MyProps> = ({ business }) => {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    const [adminId, setAdminId] = useState("adminId");
     const [website, setWebsite] = useState<IWebsite>({
         id: "",
         websiteId: "",
@@ -40,11 +39,12 @@ const WebsiteHandler: FC<MyProps> = ({ business }) => {
     }, []);
 
     const getWebsiteInfo = () => {
-
-        getDataFromDBTwo(WEBSITE_COLLECTION, AMDIN_FIELD, adminId, "websiteName", business).then((v) => {
+        print(business);
+        getDataFromDBOne(WEBSITE_COLLECTION, "websiteName", business).then((v) => {
             if (v !== null) {
                 v.data.forEach((el) => {
                     let d = el.data();
+
                     setWebsite({
                         id: d.id,
                         websiteId: d.websiteId,
@@ -56,58 +56,60 @@ const WebsiteHandler: FC<MyProps> = ({ business }) => {
                         date: d.date,
                         dateString: d.dateString
                     });
-                });
 
-                getDataFromDBOne(WEBSITE_INFO_COLLECTION, AMDIN_FIELD, adminId).then((v) => {
+                    getDataFromDBOne(WEBSITE_INFO_COLLECTION, AMDIN_FIELD, d.adminId).then((v) => {
 
-                    if (v !== null) {
+                        if (v !== null) {
 
-                        v.data.forEach(element => {
-                            let d = element.data();
+                            v.data.forEach(element => {
+                                let d = element.data();
 
-                            setInfo({
-                                id: element.id,
-                                websiteName: d.websiteName,
-                                adminId: d.adminId,
-                                userId: d.userId,
-                                logo: d.logo,
-                                serviceProviderName: d.serviceProviderName,
-                                headerImage: d.headerImage,
-                                headerTitle: d.headerTitle,
-                                headerText: d.headerText,
-                                aboutUsImage: d.aboutUsImage,
-                                aboutUsTitle: d.aboutUsTitle,
-                                aboutUsInfo: d.aboutUsInfo,
-                                themeMainColor: d.themeMainColor,
-                                themeSecondaryColor: d.themeSecondaryColor,
-                                reservation: d.reservation,
-                                contactUsImage: d.contactUsImage,
-                                email: d.email,
-                                address: d.address,
-                                phone: d.phone,
-                                date: d.date,
-                                dateString: d.dateString,
-                                deliveryCost: d.deliveryCost,
-                                mapLocation: d.mapLocation
+                                setInfo({
+                                    id: element.id,
+                                    websiteName: d.websiteName,
+                                    adminId: d.adminId,
+                                    userId: d.userId,
+                                    logo: d.logo,
+                                    serviceProviderName: d.serviceProviderName,
+                                    headerImage: d.headerImage,
+                                    headerTitle: d.headerTitle,
+                                    headerText: d.headerText,
+                                    aboutUsImage: d.aboutUsImage,
+                                    aboutUsTitle: d.aboutUsTitle,
+                                    aboutUsInfo: d.aboutUsInfo,
+                                    themeMainColor: d.themeMainColor,
+                                    themeSecondaryColor: d.themeSecondaryColor,
+                                    reservation: d.reservation,
+                                    contactUsImage: d.contactUsImage,
+                                    email: d.email,
+                                    address: d.address,
+                                    phone: d.phone,
+                                    date: d.date,
+                                    dateString: d.dateString,
+                                    deliveryCost: d.deliveryCost,
+                                    mapLocation: d.mapLocation
+                                });
+
                             });
 
-                        });
 
-
-                        setLoading(false);
+                            setLoading(false);
 
 
 
 
-                    } else {
-                        setLoading(false);
-                    }
+                        } else {
+                            setLoading(false);
+                        }
 
 
-                }).catch((e) => {
-                    console.error(e);
-                    setLoading(true);
+                    }).catch((e) => {
+                        console.error(e);
+                        setLoading(true);
+                    });
                 });
+
+
 
             } else {
                 router.push("/");

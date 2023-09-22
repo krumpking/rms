@@ -47,7 +47,7 @@ const CashBook = () => {
 
                 {loading ?
                     <div className='flex flex-col justify-center items-center w-full col-span-9'>
-                        <Loader />
+                        <Loader color={''} />
                     </div>
 
                     :

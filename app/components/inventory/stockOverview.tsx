@@ -20,6 +20,7 @@ import { STOCK_CATEGORY_REF, STOCK_ITEM_COLLECTION } from '../../constants/stock
 import { containsObject, findOccurrences, findOccurrencesObjectId, searchStringInArray } from '../../utils/arrayM';
 import ReactPaginate from 'react-paginate';
 import AppAccess from '../accessLevel';
+import { useAuthIds } from '../authHook';
 
 
 
@@ -27,17 +28,15 @@ import AppAccess from '../accessLevel';
 const StockOverview = () => {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    const [adminId, setAdminId] = useState('adminId');
     const [categories, setCategories] = useState<IStockCategory[]>([]);
-
-    const [webfrontId, setWebfrontId] = useState("");
+    const { adminId, userId, access } = useAuthIds();
     const [title, setTitle] = useState("");
     const [files, setFiles] = useState<any[]>([]);
     const [docId, setDocId] = useState("");
     const [description, setDescription] = useState("");
     const [price, setPrice] = useState(0);
     const [category, setCategory] = useState("");
-    const [stockItems, setStockItems] = useState<IStockItem[]>([]);
+    const [stockItems, setStockItems] = useState<any[]>([]);
     const [edit, setEdit] = useState(false);
     const [editItem, setEditItem] = useState<any>({
         category: "",
@@ -60,25 +59,21 @@ const StockOverview = () => {
         status: 'Pantry',
         confirmed: false
     });
-    const [labels, setLabels] = useState<string[]>(['TRANSACTION DATE', 'TITLE', 'DETAILS', 'STATUS', 'NUMBER OF ITEMS']);
+    const [labels, setLabels] = useState<string[]>(['TITLE', 'DETAILS', 'NUMBER OF ITEMS']);
     const [selectedTrans, setSelectedTrans] = useState<IStockCategory[]>([]);
-    const [stockItemsTemp, setStockItemsTemp] = useState<IStockItem[]>([]);
+    const [stockItemsTemp, setStockItemsTemp] = useState<any[]>([]);
     const [count, setCount] = useState(0);
     const [pages, setPages] = useState(0);
     const [start, setStart] = useState(0);
     const [end, setEnd] = useState(10);
     const [search, setSearch] = useState("");
-    const [accessArray, setAccessArray] = useState<any[]>([
-        'menu', 'orders', 'move-from-pantry', 'move-from-kitchen', 'cash-in',
-        'cash-out', 'cash-report', 'add-stock', 'confirm-stock', 'move-to-served', 'add-reservation', 'available-reservations',
-        'staff-scheduling', 'website', 'payments', 'stock-overview']);
+    const [kitchenCount, setKitchenCount] = useState(0);
+    const [pantryCount, setPantryCount] = useState(0);
+    const [servedCount, setServedCount] = useState(0);
+
 
     useEffect(() => {
         document.body.style.backgroundColor = LIGHT_GRAY;
-
-        setWebfrontId("webfrontId");
-
-
         getStockItems();
     }, []);
 
@@ -90,42 +85,92 @@ const StockOverview = () => {
         getDataFromDBOne(STOCK_ITEM_COLLECTION, AMDIN_FIELD, adminId).then((v) => {
 
             if (v !== null) {
-
+                let display: any[] = [];
+                let served = 0;
+                let kitchen = 0;
+                let pantry = 0;
                 v.data.forEach(element => {
-                    let d = element.data();
-                    setStockItems(stockItems => [...stockItems, {
-                        id: element.id,
-                        adminId: d.adminId,
-                        userId: d.userId,
-                        transactionType: d.transactionType,
-                        category: d.category,
-                        title: d.title,
-                        details: d.details,
-                        itemNumber: d.itemNumber,
-                        date: d.date,
-                        dateString: d.dateString,
-                        dateOfUpdate: d.dateOdUpdate,
-                        status: d.status,
-                        confirmed: d.confirmed
-                    }]);
+                    let v = element.data();
 
-                    setStockItemsTemp(stockItems => [...stockItems, {
-                        id: element.id,
-                        adminId: d.adminId,
-                        userId: d.userId,
-                        transactionType: d.transactionType,
-                        category: d.category,
-                        title: d.title,
-                        details: d.details,
-                        itemNumber: d.itemNumber,
-                        date: d.date,
-                        dateString: d.dateString,
-                        dateOfUpdate: d.dateOdUpdate,
-                        status: d.status,
-                        confirmed: false
-                    }]);
+                    if (v.status === 'Kitchen') {
+                        kitchen++;
+                    } else if (v.status === 'Pantry') {
+                        pantry++;
+                    } else if (v.status === 'Served') {
+                        served++;
+                    }
+
+                    let count = 0;
+                    let index = 0;
+                    for (let i = 0; i < display.length; i++) {
+
+                        if (display[i].title === v.title) {
+                            count = display[i].itemNumber + 1;
+                            index = i;
+                            break;
+                        }
+                    }
+
+                    if (count > 0) {
+
+                        display[index] = {
+                            details: display[index].details,
+                            id: display[index].id,
+                            title: display[index].title,
+                            itemNumber: count
+                        };
+
+                    } else {
+                        display.push({
+                            id: v.id,
+                            dateString: v.dateOfUpdate,
+                            title: v.title,
+                            details: v.details,
+                            itemNumber: 1
+                        })
+                    }
+
+                    // setStockItems((prevItems) => [...prevItems, display]);
+                    // setStockItemsTemp((prevItems) => [...prevItems, display]);
+                    // setStockItems(stockItems => [...stockItems, {
+                    //     id: element.id,
+                    //     adminId: d.adminId,
+                    //     userId: d.userId,
+                    //     transactionType: d.transactionType,
+                    //     category: d.category,
+                    //     title: d.title,
+                    //     details: d.details,
+                    //     itemNumber: d.itemNumber,
+                    //     date: d.date,
+                    //     dateString: d.dateString,
+                    //     dateOfUpdate: d.dateOdUpdate,
+                    //     status: d.status,
+                    //     confirmed: d.confirmed
+                    // }]);
+
+                    // setStockItemsTemp(stockItems => [...stockItems, {
+                    //     id: element.id,
+                    //     adminId: d.adminId,
+                    //     userId: d.userId,
+                    //     transactionType: d.transactionType,
+                    //     category: d.category,
+                    //     title: d.title,
+                    //     details: d.details,
+                    //     itemNumber: d.itemNumber,
+                    //     date: d.date,
+                    //     dateString: d.dateString,
+                    //     dateOfUpdate: d.dateOdUpdate,
+                    //     status: d.status,
+                    //     confirmed: false
+                    // }]);
+
 
                 });
+                setStockItems(display);
+                setStockItemsTemp(display);
+                setKitchenCount(kitchen);
+                setPantryCount(pantry);
+                setServedCount(served);
                 var numOfPages = Math.floor(v.count / 10);
                 if (v.count % 10 > 0) {
                     numOfPages++;
@@ -206,13 +251,12 @@ const StockOverview = () => {
     }
 
 
-    const getItems = (status: string) => {
-        return stockItems.filter((item) => item.status === status).length;
-    }
+
+
 
 
     return (
-        <AppAccess access={accessArray} component={'stock-overview'}>
+        <AppAccess access={access} component={'stock-overview'}>
             <div>
                 <div className="bg-white rounded-[30px] p-4 ">
                     {loading ? (
@@ -227,15 +271,15 @@ const StockOverview = () => {
                                     <h1>Stock Items</h1>
                                 </div>
                                 <div className='flex flex-col items-center border-r-2'>
-                                    <h1 className='text-md'>{getItems('Served')}</h1>
+                                    <h1 className='text-md'>{servedCount}</h1>
                                     <h1>Items Served</h1>
                                 </div>
                                 <div className='flex flex-col items-center border-r-2'>
-                                    <h1 className='text-md'>{getItems('Kitchen')}</h1>
+                                    <h1 className='text-md'>{kitchenCount}</h1>
                                     <h1>Items in the Kitchen</h1>
                                 </div>
                                 <div className='flex flex-col items-center'>
-                                    <h1 className='text-md'>{getItems('Pantry')}</h1>
+                                    <h1 className='text-md'>{pantryCount}</h1>
                                     <h1>Items in the Pantry</h1>
                                 </div>
 
@@ -280,10 +324,8 @@ const StockOverview = () => {
                                             return (
                                                 <tr key={index}
                                                     className={'odd:bg-white even:bg-slate-50  hover:cursor-pointer hover:bg-[#8b0e06] hover:text-white'}>
-                                                    <td className='text-left' >{value.dateString}</td>
                                                     <td className='text-left' >{value.title}</td>
                                                     <td className='text-left' >{value.details}</td>
-                                                    <td className='text-left col-span-3' >{value.status}</td>
                                                     <td className='text-left' >{value.itemNumber}</td>
 
                                                 </tr>

@@ -3,12 +3,13 @@ import Link from 'next/link';
 import React, { FC, useEffect, useState } from 'react'
 import { Audio } from 'react-loader-spinner';
 import Drawer from './drawer';
-import { ADMIN_ID, COOKIE_EMAIL, COOKIE_ID, COOKIE_NAME, COOKIE_ORGANISATION, COOKIE_PHONE, DOWNLOAD_APP, PERSON_ROLE, PRIMARY_COLOR, URL_LOCK_ID, WHATSAPP_CONTACT } from '../constants/constants';
+import { ADMIN_ID, COOKIE_EMAIL, COOKIE_NAME, COOKIE_ORGANISATION, COOKIE_PHONE, DOWNLOAD_APP, PRIMARY_COLOR, URL_LOCK_ID, USER_ID, WHATSAPP_CONTACT } from '../constants/constants';
 import { getCookie, setCookie } from 'react-use-cookie';
 import { decrypt } from '../utils/crypto';
 import { COOKIE_AFFILIATE_NUMBER } from '../constants/affilliateConstants';
 import { print } from '../utils/console';
 import { useRouter } from 'next/router';
+import { getAuth, signOut } from 'firebase/auth';
 
 
 interface MyProps {
@@ -47,15 +48,23 @@ const ClientNav: FC<MyProps> = ({ organisationName, url }) => {
 
 
     const logout = () => {
-        setCookie(COOKIE_NAME, "");
-        setCookie(COOKIE_PHONE, "");
-        setCookie(COOKIE_ORGANISATION, "");
-        setCookie(COOKIE_EMAIL, "");
-        setCookie(COOKIE_ID, "");
-        setCookie(ADMIN_ID, "");
-        setCookie(PERSON_ROLE, "");
-        setCookie(URL_LOCK_ID, "");
-        router.push("/login");
+
+        const auth = getAuth();
+        signOut(auth).then(() => {
+            // Sign-out successful.
+            setCookie(COOKIE_NAME, "");
+            setCookie(COOKIE_PHONE, "");
+            setCookie(COOKIE_ORGANISATION, "");
+            setCookie(COOKIE_EMAIL, "");
+            setCookie(ADMIN_ID, "");
+            setCookie(USER_ID, "");
+            router.push("/login");
+        }).catch((error) => {
+            // An error happened.
+            console.error(error);
+
+        });
+
 
     }
 
