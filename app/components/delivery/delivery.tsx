@@ -3,7 +3,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router';
 import Loader from '../loader';
-import { getDataFromDBTwo, updateDocument } from '../../api/mainApi';
+import { getDataFromDBOne, getDataFromDBTwo, updateDocument } from '../../api/mainApi';
 import { ORDER_COLLECTION } from '../../constants/orderConstants';
 import { IOrder } from '../../types/orderTypes';
 import { AMDIN_FIELD, PRIMARY_COLOR } from '../../constants/constants';
@@ -74,7 +74,7 @@ const DeliveryComponent = (props: { changeIndex: (index: number) => void }) => {
 
     const getOrders = () => {
 
-        getDataFromDBTwo(ORDER_COLLECTION, AMDIN_FIELD, adminId, "deliveryMethod", "Delivery").then((v) => {
+        getDataFromDBOne(ORDER_COLLECTION, "deliveryMethod", "Delivery").then((v) => {
 
             if (v !== null) {
 

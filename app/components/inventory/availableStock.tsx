@@ -61,6 +61,8 @@ const AvailableStock: FC<MyProps> = ({ status }) => {
   const [end, setEnd] = useState(10);
   const [search, setSearch] = useState("");
   const [component, setComponent] = useState("");
+  const [bin, setBin] = useState(false);
+
 
 
 
@@ -174,20 +176,25 @@ const AvailableStock: FC<MyProps> = ({ status }) => {
     setOpen(false);
     setLoading(true);
     let updateStatus = 'Pantry';
-    switch (status) {
-      case 'Pantry':
-        updateStatus = 'Kitchen';
-        break;
-      case 'Kitchen':
-        updateStatus = 'Served';
-        break;
-      default:
-        updateStatus = 'Pantry';
-        break;
+    if (bin) {
+      updateStatus = 'Binned';
+    } else {
+      switch (status) {
+        case 'Pantry':
+          updateStatus = 'Kitchen';
+          break;
+        case 'Kitchen':
+          updateStatus = 'Served';
+          break;
+        default:
+          updateStatus = 'Pantry';
+          break;
+      }
+
     }
 
     if (stockItem.itemNumber - numberOfItems > 0) {
-      setStockItems([]);
+      setStockItemsTemp([]);
       let newItem = { ...stockItem, dateOfUpdate: new Date().toDateString(), itemNumber: stockItem.itemNumber - numberOfItems }
       //Logic to delete the item
       updateDocument(STOCK_ITEM_COLLECTION, stockItem.id, newItem).then((v) => {
@@ -419,7 +426,7 @@ const AvailableStock: FC<MyProps> = ({ status }) => {
                   className="text-sm font-medium leading-6 text-gray-900 m-4"
                 >
 
-                  Type Number of items to move
+                  Type Number of {stockItem.title} to move
                 </Dialog.Title>
                 <div className="flex flex-col items-center space-y-2 w-full">
 
@@ -449,6 +456,16 @@ const AvailableStock: FC<MyProps> = ({ status }) => {
                       required
                     />
                   </div>
+                  <div className='flex flex-row space-x-4 text-left'>
+                    <input
+                      type="checkbox"
+                      id={"id"}
+                      name={"Bin"}
+                      value="Item"
+                      onChange={() => { setBin(true); }}
+                      className='accent-[#8b0e06]' />
+                    <p>Throw {numberOfItems} of {stockItem.title} into the bin</p>
+                  </div>
                   <button
                     onClick={() => {
                       sendStockItems();
@@ -470,7 +487,7 @@ const AvailableStock: FC<MyProps> = ({ status }) => {
                        transition
                    "
                   >
-                    Move
+                    {bin ? 'Confirm Bin' : `Confirm Move ${numberOfItems} of ${stockItem.title}`}
 
                   </button>
                 </div>

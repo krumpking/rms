@@ -70,6 +70,8 @@ const StockOverview = () => {
     const [kitchenCount, setKitchenCount] = useState(0);
     const [pantryCount, setPantryCount] = useState(0);
     const [servedCount, setServedCount] = useState(0);
+    const [binCount, setBinCount] = useState(0);
+    const [totalCount, setTotalCount] = useState(0);
 
 
     useEffect(() => {
@@ -89,23 +91,29 @@ const StockOverview = () => {
                 let served = 0;
                 let kitchen = 0;
                 let pantry = 0;
+                let bin = 0;
+                let total = 0;
                 v.data.forEach(element => {
                     let v = element.data();
-
+                    total += parseInt(v.itemNumber);
                     if (v.status === 'Kitchen') {
-                        kitchen++;
+                        kitchen += parseInt(v.itemNumber);
                     } else if (v.status === 'Pantry') {
-                        pantry++;
+                        pantry += parseInt(v.itemNumber);
                     } else if (v.status === 'Served') {
-                        served++;
+                        served += parseInt(v.itemNumber);
+                    } else if (v.status === 'Binned') {
+
+                        bin += parseInt(v.itemNumber);
+
                     }
 
                     let count = 0;
                     let index = 0;
                     for (let i = 0; i < display.length; i++) {
 
-                        if (display[i].title === v.title) {
-                            count = display[i].itemNumber + 1;
+                        if (display[i].details === v.details) {
+                            count = parseInt(display[i].itemNumber) + parseInt(v.itemNumber);
                             index = i;
                             break;
                         }
@@ -126,7 +134,7 @@ const StockOverview = () => {
                             dateString: v.dateOfUpdate,
                             title: v.title,
                             details: v.details,
-                            itemNumber: 1
+                            itemNumber: v.itemNumber
                         })
                     }
 
@@ -171,6 +179,8 @@ const StockOverview = () => {
                 setKitchenCount(kitchen);
                 setPantryCount(pantry);
                 setServedCount(served);
+                setTotalCount(total);
+                setBinCount(bin);
                 var numOfPages = Math.floor(v.count / 10);
                 if (v.count % 10 > 0) {
                     numOfPages++;
@@ -265,14 +275,18 @@ const StockOverview = () => {
                         </div>
                     ) : (
                         <div className="flex flex-col overflow-y-scroll max-h-[700px] w-full gap-4 p-4">
-                            <div className='grid grid-cols-4 shadow-lg p-8 rounded-[25px]'>
+                            <div className='grid grid-cols-5 shadow-lg p-8 rounded-[25px]'>
                                 <div className='flex flex-col items-center border-r-2'>
-                                    <h1 className='text-2xl'>{stockItems.length}</h1>
+                                    <h1 className='text-2xl'>{totalCount}</h1>
                                     <h1>Stock Items</h1>
                                 </div>
                                 <div className='flex flex-col items-center border-r-2'>
                                     <h1 className='text-md'>{servedCount}</h1>
                                     <h1>Items Served</h1>
+                                </div>
+                                <div className='flex flex-col items-center border-r-2'>
+                                    <h1 className='text-md'>{binCount}</h1>
+                                    <h1>Items Binned</h1>
                                 </div>
                                 <div className='flex flex-col items-center border-r-2'>
                                     <h1 className='text-md'>{kitchenCount}</h1>

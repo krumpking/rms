@@ -146,7 +146,7 @@ const CreateMeal = () => {
         addItems.forEach((el) => {
             total += el.price;
         });
-        return total;
+        return total.toFixed(2);
     }
 
     const removeItem = (v: any) => {
@@ -308,7 +308,7 @@ const CreateMeal = () => {
 
 
         });
-        return total;
+        return total.toFixed(2);
 
     }
 

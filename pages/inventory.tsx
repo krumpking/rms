@@ -21,6 +21,7 @@ const Inventory = () => {
   const [tabs, setTabs] = useState([
     'Overview',
     'Served',
+    'Binned',
     'In The Kitchen',
     'In Pantry',
     'Confirm Stock',
@@ -79,6 +80,14 @@ const Inventory = () => {
                 )}
               >
                 <AvailableStock status='Served' />
+              </Tab.Panel>
+              <Tab.Panel
+                className={classNames(
+                  'rounded-xl bg-white p-3',
+                  'ring-white ring-opacity-60 ring-offset-2 focus:outline-none focus:ring-2'
+                )}
+              >
+                <AvailableStock status='Binned' />
               </Tab.Panel>
               <Tab.Panel
                 className={classNames(

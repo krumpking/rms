@@ -497,6 +497,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
     }
 
     const getView = () => {
+
         switch (index) {
             case 0:
                 return <div className='relative'>
@@ -538,7 +539,11 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                                 <p className='text-bold'>{info.headerText}</p>
                                 <button
                                     className='py-2 px-5 text-white rounded-md w-1/4'
-                                    onClick={() => { setIndex(1) }}
+                                    onClick={() => {
+                                        setIndex(1);
+                                        setMenuItems(menuItemsSto);
+                                        setMeals(mealsSto);
+                                    }}
                                     style={{ backgroundColor: `${info.themeMainColor}` }}
                                 >
                                     Order Now
@@ -600,7 +605,11 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                         <div className='flex flex-col' id="menu">
                             <div className='flex justify-between content-center items-center mb-6'>
                                 <h1 className='text-2xl'>Order Now</h1>
-                                <div className='flex flex-row space-x-4 max-w-[800px] overflow-x-auto' onClick={() => { setIndex(1) }}>
+                                <div className='flex flex-row space-x-4 max-w-[800px] overflow-x-auto' onClick={() => {
+                                    setIndex(1);
+                                    setMenuItems(menuItemsSto);
+                                    setMeals(mealsSto);
+                                }}>
                                     <h1 className='underline'>See All</h1>
                                 </div>
                             </div>
@@ -978,7 +987,11 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                     <div className='border rounded-md w-full h-fit' style={{ borderColor: info.themeMainColor }}>
                         <div style={{ backgroundColor: info.themeMainColor }} className='h-12 p-2'>
                             <button
-                                onClick={() => { setIndex(0) }}>
+                                onClick={() => {
+                                    setIndex(0);
+                                    setMenuItems(menuItemsSto);
+                                    setMeals(mealsSto);
+                                }}>
                                 <svg xmlns="http://www.w3.org/2000/svg"
                                     fill="none"
                                     viewBox="0 0 24 24"

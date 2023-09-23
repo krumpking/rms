@@ -69,6 +69,7 @@ const Accounting = () => {
     const [categories, setCategories] = useState<string[]>(['cash', 'online', 'debit card', 'credit card', 'cheque']);
     const [category, setCategory] = useState("");
     const [originalCost, setOriginalCost] = useState(0);
+    const [changeToZWL, setChangeToZWL] = useState(false);
 
 
     useEffect(() => {
@@ -113,7 +114,7 @@ const Accounting = () => {
                         deliveryDateString: d.deliveryDateString,
                         deliveryTime: d.deliveryTime
                     }]);
-                    setOriginalCost(d.totalCost);
+
 
                 });
 
@@ -134,8 +135,8 @@ const Accounting = () => {
 
         if (event.key === 'Enter') {
 
-            if (currency === 'ZWL' && zwlRate !== '') {
-                toast.info('Curreny Updated');
+            if (changeToZWL) {
+                toast.info('Currency Updated');
                 update('ZWL');
             } else {
                 searchFor();
@@ -189,48 +190,55 @@ const Accounting = () => {
 
 
     const addOrder = (v: any) => {
+        setOriginalCost(v.totalCost);
         setSelectedOrder(v);
     }
 
 
     const update = (to: string) => {
         let d = selectedOrder;
-        let rate = 1;
-        if (currency === 'ZWL') {
-            rate = parseFloat(zwlRate);
+
+        if (parseFloat(zwlRate) > 0) {
+            let cost = 0;
+            if (to === 'USD') {
+                cost = originalCost;
+            } else {
+                cost = originalCost * parseFloat(zwlRate);
+
+            }
+            setCurrency(to);
+
+            let sOrder = {
+                id: d.id,
+                adminId: d.adminId,
+                clientId: d.clientId,
+                deliveryMethod: d.deliveryMethod,
+                orderNo: d.orderNo,
+                items: d.items,
+                status: d.status,
+                statusCode: d.statusCode,
+                userId: d.userId,
+                customerName: d.customerName,
+                tableNo: d.tableNo,
+                date: d.date,
+                dateString: d.dateString,
+                totalCost: cost,
+                customerPhone: d.customerName,
+                customerEmail: d.customerEmail,
+                customerAddress: d.customerAddress,
+                deliveryLocation: d.deliveryLocation,
+                deliveredSignature: d.deliveredSignature,
+                deliverer: d.deliverer,
+                deliveryDate: d.deliveryDate,
+                deliveryDateString: d.deliveryDateString,
+                deliveryTime: d.deliveryTime
+            }
+            setSelectedOrder(sOrder);
+        } else {
+            toast.error('Looks like you are yet to put in today\'s rate');
         }
 
-        let cost = originalCost * rate;
-        if (to === 'USD') {
-            cost = originalCost / rate
-        }
 
-        let sOrder = {
-            id: d.id,
-            adminId: d.adminId,
-            clientId: d.clientId,
-            deliveryMethod: d.deliveryMethod,
-            orderNo: d.orderNo,
-            items: d.items,
-            status: d.status,
-            statusCode: d.statusCode,
-            userId: d.userId,
-            customerName: d.customerName,
-            tableNo: d.tableNo,
-            date: d.date,
-            dateString: d.dateString,
-            totalCost: cost,
-            customerPhone: d.customerName,
-            customerEmail: d.customerEmail,
-            customerAddress: d.customerAddress,
-            deliveryLocation: d.deliveryLocation,
-            deliveredSignature: d.deliveredSignature,
-            deliverer: d.deliverer,
-            deliveryDate: d.deliveryDate,
-            deliveryDateString: d.deliveryDateString,
-            deliveryTime: d.deliveryTime
-        }
-        setSelectedOrder(sOrder);
     }
 
     const SaveAsPDFHandler = () => {
@@ -415,10 +423,13 @@ const Accounting = () => {
                                                     onClick={() => {
                                                         if (selectedOrder.totalCost > 0) {
 
-                                                            if (currency !== 'ZWL' && v === 'USD') {
+                                                            if (currency === 'ZWL' && v === 'USD') {
+                                                                setChangeToZWL(false);
                                                                 update('USD');
+                                                            } else {
+                                                                setChangeToZWL(true);
                                                             }
-                                                            setCurrency(v);
+
 
                                                         } else {
                                                             toast.error('Ensure you select the order first');
@@ -447,7 +458,7 @@ const Accounting = () => {
                                             ))
                                         }
                                     </div>
-                                    <div className={currency === 'ZWL' ? 'mb-6' : 'hidden'}>
+                                    <div className={changeToZWL ? 'mb-6' : 'hidden'}>
                                         <input
                                             type="string"
                                             value={zwlRate}

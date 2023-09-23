@@ -483,7 +483,7 @@ const MarketPlace = (props: { info: IWebsiteOneInfo, changeIndex: (index: number
                                     {menuItems.map((v) => (
                                         <div className='flex flex-col shadow-2xl rounded-[25px]'>
                                             <ShowImage src={`/${v.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`} alt={'Menu Item'} style={'rounded-[25px] h-64 w-full'} />
-                                            <h1 className='font-bold text-4xl px-4'>{v.title}</h1>
+                                            <h1 className='font-bold text-xl px-4'>{v.title}</h1>
                                             <div className='flex flex-row justify-between p-4 items-center'>
                                                 <h1 className='font-bold text-xl'>{v.price}USD</h1>
                                                 <button
@@ -499,7 +499,7 @@ const MarketPlace = (props: { info: IWebsiteOneInfo, changeIndex: (index: number
                                     {meals.map((v) => (
                                         <div className='flex flex-col shadow-2xl rounded-[25px]'>
                                             <ShowImage src={`/${v.adminId}/${MEAL_STORAGE_REF}/${v.pic.thumbnail}`} alt={'Menu Item'} style={'rounded-[25px] h-64 w-full'} />
-                                            <h1 className='font-bold text-4xl px-4'>{v.title}</h1>
+                                            <h1 className='font-bold text-xl px-4'>{v.title}</h1>
                                             <div className='flex flex-row justify-between p-4 items-center'>
                                                 <h1 className='font-bold text-xl'>{v.price}USD</h1>
                                                 <button
@@ -770,6 +770,7 @@ const MarketPlace = (props: { info: IWebsiteOneInfo, changeIndex: (index: number
                                     Total Cost: {numberWithCommas(getTotal().toString())} USD
                                 </h1>
                             </div>
+                            <p className='text-xs bg-gray-300'>Disclaimer</p>
                             <button
                                 onClick={() => {
                                     addOrder()
