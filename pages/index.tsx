@@ -301,7 +301,7 @@ const Home: NextPage = () => {
                         </div>
                       </div>
                       <div className='absolute -top-10 -left-10 right-10 z-10 '>
-                        <img className='rounded-full h-20 w-20 ' src="images/logo.png" />
+                        <img className='rounded-full h-20 w-20 ' src="images/logo3.png" />
                       </div>
                     </div>
 

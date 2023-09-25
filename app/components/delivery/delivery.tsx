@@ -3,7 +3,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router';
 import Loader from '../loader';
-import { getDataFromDBOne, getDataFromDBTwo, updateDocument } from '../../api/mainApi';
+import { getDataFromDBOne, getDataFromDBThree, getDataFromDBTwo, updateDocument } from '../../api/mainApi';
 import { ORDER_COLLECTION } from '../../constants/orderConstants';
 import { IOrder } from '../../types/orderTypes';
 import { AMDIN_FIELD, PRIMARY_COLOR } from '../../constants/constants';
@@ -14,19 +14,19 @@ import MapPicker from 'react-google-map-picker';
 import { DEFAULT_LOCATION, DEFAULT_ZOOM, MAP_API } from '../../constants/websiteConstants';
 import SignatureCanvas from 'react-signature-canvas'
 import { print } from '../../utils/console';
+import { ORDER_DELIVERED, ORDER_READY, ORDER_SHIPPED } from '../../constants/menuConstants';
 
 
 
 
 
-const DeliveryComponent = (props: { changeIndex: (index: number) => void }) => {
-    const { changeIndex } = props;
-    const [loading, setLoading] = useState(false);
+const DeliveryComponent = (props: { changeIndex: (index: number) => void, tab: number, userId: string }) => {
+    const { changeIndex, tab, userId } = props;
+    const [loading, setLoading] = useState(true);
     const router = useRouter();
     const [orders, setOrders] = useState<IOrder[]>([]);
     const [ordersSto, setOrdersSto] = useState<IOrder[]>([]);
     const [search, setSearch] = useState("");
-    const [adminId, setAdminId] = useState("adminId");
     const [labels, setLabels] = useState<string[]>(['ORDER NO', 'DELIVERY DATE', 'DELIVERY TIME', 'CUSTOMER NAME', 'CUSTOMER ADDRESS', 'TOTAL DUE', 'STATUS']);
     const [start, setStart] = useState(0);
     const [end, setEnd] = useState(10);
@@ -74,83 +74,324 @@ const DeliveryComponent = (props: { changeIndex: (index: number) => void }) => {
 
     const getOrders = () => {
 
-        getDataFromDBOne(ORDER_COLLECTION, "deliveryMethod", "Delivery").then((v) => {
+        print(tab);
 
-            if (v !== null) {
+        if (tab == 0) {
+            getDataFromDBThree(ORDER_COLLECTION, "deliveryMethod", "Delivery", "statusCode", ORDER_READY, 'deliverer', "").then((v) => {
 
-                v.data.forEach(element => {
-                    let d = element.data();
+                if (v !== null) {
 
-                    setOrders(orders => [...orders, {
-                        id: element.id,
-                        adminId: d.adminId,
-                        clientId: d.clientId,
-                        deliveryMethod: d.deliveryMethod,
-                        orderNo: d.orderNo,
-                        items: d.items,
-                        status: d.status,
-                        statusCode: d.statusCode,
-                        userId: d.userId,
-                        customerName: d.customerName,
-                        tableNo: d.tableNO,
-                        date: d.date,
-                        dateString: d.dateString,
-                        totalCost: d.totalCost,
-                        customerEmail: d.email,
-                        customerPhone: d.phone,
-                        customerAddress: d.customerAddress,
-                        deliveryLocation: d.deliveryLocation,
-                        deliveryDate: d.deliveryDate,
-                        deliveryTime: d.deliveryTime,
-                        deliveryDateString: d.deliveryDateString,
-                        deliverer: d.deliverer,
-                        deliveredSignature: d.deliveredSignature
-                    }]);
+                    v.data.forEach(element => {
+                        let d = element.data();
 
-                    setOrdersSto(orders => [...orders, {
-                        id: element.id,
-                        adminId: d.adminId,
-                        clientId: d.clientId,
-                        deliveryMethod: d.deliveryMethod,
-                        orderNo: d.orderNo,
-                        items: d.items,
-                        status: d.status,
-                        statusCode: d.statusCode,
-                        userId: d.userId,
-                        customerName: d.customerName,
-                        tableNo: d.tableNO,
-                        date: d.date,
-                        dateString: d.dateString,
-                        totalCost: d.totalCost,
-                        customerEmail: d.email,
-                        customerPhone: d.phone,
-                        customerAddress: d.customerAddress,
-                        deliveryLocation: d.deliveryLocation,
-                        deliveryDate: d.deliveryDate,
-                        deliveryTime: d.deliveryTime,
-                        deliveryDateString: d.deliveryDateString,
-                        deliverer: d.deliverer,
-                        deliveredSignature: d.deliveredSignature
-                    }]);
+                        setOrders(orders => [...orders, {
+                            id: element.id,
+                            adminId: d.adminId,
+                            clientId: d.clientId,
+                            deliveryMethod: d.deliveryMethod,
+                            orderNo: d.orderNo,
+                            items: d.items,
+                            status: d.status,
+                            statusCode: d.statusCode,
+                            userId: d.userId,
+                            customerName: d.customerName,
+                            tableNo: d.tableNO,
+                            date: d.date,
+                            dateString: d.dateString,
+                            totalCost: d.totalCost,
+                            customerEmail: d.customerEmail,
+                            customerPhone: d.customerPhone,
+                            customerAddress: d.customerAddress,
+                            deliveryLocation: d.deliveryLocation,
+                            deliveryDate: d.deliveryDate,
+                            deliveryTime: d.deliveryTime,
+                            deliveryDateString: d.deliveryDateString,
+                            deliverer: d.deliverer,
+                            deliveredSignature: d.deliveredSignature
+                        }]);
+
+                        setOrdersSto(orders => [...orders, {
+                            id: element.id,
+                            adminId: d.adminId,
+                            clientId: d.clientId,
+                            deliveryMethod: d.deliveryMethod,
+                            orderNo: d.orderNo,
+                            items: d.items,
+                            status: d.status,
+                            statusCode: d.statusCode,
+                            userId: d.userId,
+                            customerName: d.customerName,
+                            tableNo: d.tableNO,
+                            date: d.date,
+                            dateString: d.dateString,
+                            totalCost: d.totalCost,
+                            customerEmail: d.email,
+                            customerPhone: d.phone,
+                            customerAddress: d.customerAddress,
+                            deliveryLocation: d.deliveryLocation,
+                            deliveryDate: d.deliveryDate,
+                            deliveryTime: d.deliveryTime,
+                            deliveryDateString: d.deliveryDateString,
+                            deliverer: d.deliverer,
+                            deliveredSignature: d.deliveredSignature
+                        }]);
 
 
-                });
-                var numOfPages = Math.floor(v.count / 10);
-                if (v.count % 10 > 0) {
-                    numOfPages++;
+                    });
+                    var numOfPages = Math.floor(v.count / 10);
+                    if (v.count % 10 > 0) {
+                        numOfPages++;
+                    }
+                    setPages(numOfPages);
+                    setCount(v.count);
+
+
+
                 }
-                setPages(numOfPages);
-                setCount(v.count);
+                setLoading(false);
+
+            }).catch((e) => {
+                console.error(e);
+                setLoading(true);
+            });
+
+
+            getDataFromDBThree(ORDER_COLLECTION, "deliveryMethod", "Delivery", "statusCode", ORDER_SHIPPED, 'deliverer', "").then((v) => {
+
+                if (v !== null) {
+
+                    v.data.forEach(element => {
+                        let d = element.data();
+
+                        setOrders(orders => [...orders, {
+                            id: element.id,
+                            adminId: d.adminId,
+                            clientId: d.clientId,
+                            deliveryMethod: d.deliveryMethod,
+                            orderNo: d.orderNo,
+                            items: d.items,
+                            status: d.status,
+                            statusCode: d.statusCode,
+                            userId: d.userId,
+                            customerName: d.customerName,
+                            tableNo: d.tableNO,
+                            date: d.date,
+                            dateString: d.dateString,
+                            totalCost: d.totalCost,
+                            customerEmail: d.customerEmail,
+                            customerPhone: d.customerPhone,
+                            customerAddress: d.customerAddress,
+                            deliveryLocation: d.deliveryLocation,
+                            deliveryDate: d.deliveryDate,
+                            deliveryTime: d.deliveryTime,
+                            deliveryDateString: d.deliveryDateString,
+                            deliverer: d.deliverer,
+                            deliveredSignature: d.deliveredSignature
+                        }]);
+
+                        setOrdersSto(orders => [...orders, {
+                            id: element.id,
+                            adminId: d.adminId,
+                            clientId: d.clientId,
+                            deliveryMethod: d.deliveryMethod,
+                            orderNo: d.orderNo,
+                            items: d.items,
+                            status: d.status,
+                            statusCode: d.statusCode,
+                            userId: d.userId,
+                            customerName: d.customerName,
+                            tableNo: d.tableNO,
+                            date: d.date,
+                            dateString: d.dateString,
+                            totalCost: d.totalCost,
+                            customerEmail: d.email,
+                            customerPhone: d.phone,
+                            customerAddress: d.customerAddress,
+                            deliveryLocation: d.deliveryLocation,
+                            deliveryDate: d.deliveryDate,
+                            deliveryTime: d.deliveryTime,
+                            deliveryDateString: d.deliveryDateString,
+                            deliverer: d.deliverer,
+                            deliveredSignature: d.deliveredSignature
+                        }]);
+
+
+                    });
+                    var numOfPages = Math.floor(v.count / 10);
+                    if (v.count % 10 > 0) {
+                        numOfPages++;
+                    }
+                    setPages(numOfPages);
+                    setCount(v.count);
 
 
 
-            }
-            setLoading(false);
+                }
+                setLoading(false);
 
-        }).catch((e) => {
-            console.error(e);
-            setLoading(true);
-        });
+            }).catch((e) => {
+                console.error(e);
+                setLoading(true);
+            });
+        } else if (tab == 1) {
+            getDataFromDBThree(ORDER_COLLECTION, "deliveryMethod", "Delivery", "statusCode", ORDER_SHIPPED, 'deliverer', userId).then((v) => {
+
+                if (v !== null) {
+
+                    v.data.forEach(element => {
+                        let d = element.data();
+
+                        setOrders(orders => [...orders, {
+                            id: element.id,
+                            adminId: d.adminId,
+                            clientId: d.clientId,
+                            deliveryMethod: d.deliveryMethod,
+                            orderNo: d.orderNo,
+                            items: d.items,
+                            status: d.status,
+                            statusCode: d.statusCode,
+                            userId: d.userId,
+                            customerName: d.customerName,
+                            tableNo: d.tableNO,
+                            date: d.date,
+                            dateString: d.dateString,
+                            totalCost: d.totalCost,
+                            customerEmail: d.customerEmail,
+                            customerPhone: d.customerPhone,
+                            customerAddress: d.customerAddress,
+                            deliveryLocation: d.deliveryLocation,
+                            deliveryDate: d.deliveryDate,
+                            deliveryTime: d.deliveryTime,
+                            deliveryDateString: d.deliveryDateString,
+                            deliverer: d.deliverer,
+                            deliveredSignature: d.deliveredSignature
+                        }]);
+
+                        setOrdersSto(orders => [...orders, {
+                            id: element.id,
+                            adminId: d.adminId,
+                            clientId: d.clientId,
+                            deliveryMethod: d.deliveryMethod,
+                            orderNo: d.orderNo,
+                            items: d.items,
+                            status: d.status,
+                            statusCode: d.statusCode,
+                            userId: d.userId,
+                            customerName: d.customerName,
+                            tableNo: d.tableNO,
+                            date: d.date,
+                            dateString: d.dateString,
+                            totalCost: d.totalCost,
+                            customerEmail: d.email,
+                            customerPhone: d.phone,
+                            customerAddress: d.customerAddress,
+                            deliveryLocation: d.deliveryLocation,
+                            deliveryDate: d.deliveryDate,
+                            deliveryTime: d.deliveryTime,
+                            deliveryDateString: d.deliveryDateString,
+                            deliverer: d.deliverer,
+                            deliveredSignature: d.deliveredSignature
+                        }]);
+
+
+                    });
+                    var numOfPages = Math.floor(v.count / 10);
+                    if (v.count % 10 > 0) {
+                        numOfPages++;
+                    }
+                    setPages(numOfPages);
+                    setCount(v.count);
+
+
+
+                }
+                setLoading(false);
+
+            }).catch((e) => {
+                console.error(e);
+                setLoading(true);
+            });
+        } else if (tab == 2) {
+            getDataFromDBThree(ORDER_COLLECTION, "deliveryMethod", "Delivery", "statusCode", ORDER_DELIVERED, 'deliverer', userId).then((v) => {
+
+                if (v !== null) {
+
+                    v.data.forEach(element => {
+                        let d = element.data();
+
+                        setOrders(orders => [...orders, {
+                            id: element.id,
+                            adminId: d.adminId,
+                            clientId: d.clientId,
+                            deliveryMethod: d.deliveryMethod,
+                            orderNo: d.orderNo,
+                            items: d.items,
+                            status: d.status,
+                            statusCode: d.statusCode,
+                            userId: d.userId,
+                            customerName: d.customerName,
+                            tableNo: d.tableNO,
+                            date: d.date,
+                            dateString: d.dateString,
+                            totalCost: d.totalCost,
+                            customerEmail: d.customerEmail,
+                            customerPhone: d.customerPhone,
+                            customerAddress: d.customerAddress,
+                            deliveryLocation: d.deliveryLocation,
+                            deliveryDate: d.deliveryDate,
+                            deliveryTime: d.deliveryTime,
+                            deliveryDateString: d.deliveryDateString,
+                            deliverer: d.deliverer,
+                            deliveredSignature: d.deliveredSignature
+                        }]);
+
+                        setOrdersSto(orders => [...orders, {
+                            id: element.id,
+                            adminId: d.adminId,
+                            clientId: d.clientId,
+                            deliveryMethod: d.deliveryMethod,
+                            orderNo: d.orderNo,
+                            items: d.items,
+                            status: d.status,
+                            statusCode: d.statusCode,
+                            userId: d.userId,
+                            customerName: d.customerName,
+                            tableNo: d.tableNO,
+                            date: d.date,
+                            dateString: d.dateString,
+                            totalCost: d.totalCost,
+                            customerEmail: d.email,
+                            customerPhone: d.phone,
+                            customerAddress: d.customerAddress,
+                            deliveryLocation: d.deliveryLocation,
+                            deliveryDate: d.deliveryDate,
+                            deliveryTime: d.deliveryTime,
+                            deliveryDateString: d.deliveryDateString,
+                            deliverer: d.deliverer,
+                            deliveredSignature: d.deliveredSignature
+                        }]);
+
+
+                    });
+                    var numOfPages = Math.floor(v.count / 10);
+                    if (v.count % 10 > 0) {
+                        numOfPages++;
+                    }
+                    setPages(numOfPages);
+                    setCount(v.count);
+
+
+
+                }
+                setLoading(false);
+
+            }).catch((e) => {
+                console.error(e);
+                setLoading(true);
+            });
+        }
+
+
     }
 
 
@@ -224,28 +465,60 @@ const DeliveryComponent = (props: { changeIndex: (index: number) => void }) => {
     }
 
     const updateOrder = () => {
-        let newOrder = {
-            ...order,
-            status: 100,
-            statusCode: 'Delivered',
-            deliverer: adminId
+        setLoading(true);
+        let newOrder = {};
+        if (tab == 0) {
+            newOrder = {
+                ...order,
+                status: 99,
+                deliverer: userId,
+                tableNo: 0
+            }
+
+        } else if (tab == 1) {
+            newOrder = {
+                ...order,
+                status: 100,
+                statusCode: ORDER_DELIVERED,
+                deliverer: userId,
+                tableNo: 0
+            }
+
         }
-        print(newOrder);
+
+        setOrders([]);
         updateDocument(ORDER_COLLECTION, order.id, newOrder).then((v) => {
             if (v !== null) {
                 toast.success('Order Updated');
                 setOpen(false);
             }
+            getOrders();
         }).catch((e) => {
             console.error(e);
             toast.error('There was ');
             setOpen(false);
+            setLoading(false);
+            getOrders();
         })
+    }
+
+    const getButtonText = () => {
+        switch (tab) {
+            case 0:
+                return 'Deliver';
+            case 1:
+                return 'Mark as Done';
+            case 2:
+                return ''
+
+            default:
+                break;
+        }
     }
 
 
     return (
-        <div className=' w-full h-screen p-4 md:p-8 2xl:p-16 ' style={{ backgroundColor: PRIMARY_COLOR }}>
+        <div>
             {loading ?
                 <div className="flex flex-col items-center content-center">
                     <Loader color={''} />
@@ -253,18 +526,6 @@ const DeliveryComponent = (props: { changeIndex: (index: number) => void }) => {
                 :
                 <div className="bg-white rounded-[30px] p-4 ">
                     <div className="flex flex-col  overflow-y-scroll  w-full p-4">
-                        <div className='h-16'>
-                            <button
-                                onClick={() => {
-                                    changeIndex(0);
-                                }}>
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75" />
-                                </svg>
-
-                            </button>
-                        </div>
-
                         <div className='mb-6'>
                             <input
                                 type="text"
@@ -291,6 +552,7 @@ const DeliveryComponent = (props: { changeIndex: (index: number) => void }) => {
                             />
                         </div>
                         <div className='w-full'>
+
                             <table className='w-full'>
                                 <thead className="bg-[#8b0e06] text-white font-bold0">
                                     <tr>
@@ -302,6 +564,7 @@ const DeliveryComponent = (props: { changeIndex: (index: number) => void }) => {
                                 <tbody>
                                     {
                                         orders.slice(start, end).map((value, index) => {
+
                                             return (
                                                 <tr key={index}
                                                     onClick={() => { setOrder(value); setOpen(true); }}
@@ -410,7 +673,7 @@ const DeliveryComponent = (props: { changeIndex: (index: number) => void }) => {
                                                     // mapTypeId={createId()}
                                                     style={{ height: '400px', width: "100%" }}
                                                     apiKey={MAP_API} />
-                                                <div className='flex flex-col border rounded-[25px] h-full w-full p-4'>
+                                                {tab == 0 || tab == 2 ? <p></p> : <div className='flex flex-col border rounded-[25px] h-full w-full p-4'>
                                                     <SignatureCanvas
                                                         penColor="black"
                                                         ref={sigCanvas}
@@ -468,7 +731,7 @@ const DeliveryComponent = (props: { changeIndex: (index: number) => void }) => {
                                                             Save
                                                         </button>
                                                     </div>
-                                                </div>
+                                                </div>}
 
                                             </div>
                                             <button
@@ -492,7 +755,7 @@ const DeliveryComponent = (props: { changeIndex: (index: number) => void }) => {
                                                     transition
                                                 "
                                             >
-                                                Mark as Done
+                                                {getButtonText()}
                                             </button>
                                         </div>
 

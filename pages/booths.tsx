@@ -22,7 +22,7 @@ import BoothsComp from '../app/components/booths/boothsComp';
 
 
 const Booths = () => {
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState("");

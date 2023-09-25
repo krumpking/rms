@@ -91,7 +91,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
         date: new Date(),
         dateString: new Date().toDateString(),
         deliveryDate: new Date,
-        deliveryDateString: "",
+        deliveryDateString: new Date().toDateString(),
         deliveryTime: "",
         deliveredSignature: null,
         deliverer: ""
@@ -429,6 +429,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                         totalCost: total,
                         deliveryMethod: "Delivery",
                         deliveryLocation: location,
+                        deliveryDateString: new Date(order.deliveryDate).toDateString(),
                         date: new Date(),
                         dateString: new Date().toDateString(),
                         adminId: info.adminId,

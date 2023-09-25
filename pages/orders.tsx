@@ -24,6 +24,7 @@ const Orders = () => {
         'Orders Just Added',
         'Orders In Prep',
         'Ready Orders',
+        'Orders Shipped',
         'Order History',
     ]);
     const { adminId, userId, access } = useAuthIds();
@@ -109,6 +110,14 @@ const Orders = () => {
                                         )}
                                     >
                                         <OrderStatus level={2} />
+                                    </Tab.Panel>
+                                    <Tab.Panel
+                                        className={classNames(
+                                            'rounded-xl bg-white p-3',
+                                            'ring-white  ring-offset-2 focus:outline-none focus:ring-2'
+                                        )}
+                                    >
+                                        <OrderStatus level={3} />
                                     </Tab.Panel>
                                     <Tab.Panel
                                         className={classNames(

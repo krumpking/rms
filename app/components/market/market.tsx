@@ -8,7 +8,7 @@ import { IOrder } from '../../types/orderTypes';
 import { IWebsiteOneInfo } from '../../types/websiteTypes';
 import { addDocument, getDataFromDBOne } from '../../api/mainApi';
 import { MEAL_ITEM_COLLECTION, MEAL_STORAGE_REF, MENU_ITEM_COLLECTION, MENU_STORAGE_REF } from '../../constants/menuConstants';
-import { AMDIN_FIELD, PRIMARY_COLOR } from '../../constants/constants';
+import { AMDIN_FIELD, DISCLAIMER, PRIMARY_COLOR } from '../../constants/constants';
 import { findOccurrencesObjectId, searchStringInArray } from '../../utils/arrayM';
 import { ORDER_COLLECTION } from '../../constants/orderConstants';
 import { LatLng, computeDistanceBetween } from 'spherical-geometry-js';
@@ -17,6 +17,7 @@ import Drawer from '../drawer';
 import MapPicker from 'react-google-map-picker';
 import { numberWithCommas } from '../../utils/stringM';
 import Loader from '../loader';
+import { print } from '../../utils/console';
 
 
 
@@ -26,7 +27,7 @@ import Loader from '../loader';
 
 const MarketPlace = (props: { info: IWebsiteOneInfo, changeIndex: (index: number) => void }) => {
     const { info, changeIndex } = props
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState("");
@@ -59,7 +60,7 @@ const MarketPlace = (props: { info: IWebsiteOneInfo, changeIndex: (index: number
         date: new Date(),
         dateString: new Date().toDateString(),
         deliveryDate: new Date(),
-        deliveryDateString: "",
+        deliveryDateString: new Date().toDateString(),
         deliveryTime: "",
         deliverer: "",
         deliveredSignature: null,
@@ -128,7 +129,7 @@ const MarketPlace = (props: { info: IWebsiteOneInfo, changeIndex: (index: number
 
 
             }
-            setLoading(false);
+
 
         }).catch((e) => {
             console.error(e);
@@ -225,9 +226,6 @@ const MarketPlace = (props: { info: IWebsiteOneInfo, changeIndex: (index: number
 
         }
     }
-
-
-
 
     const handleChangeOrder = (e: any) => {
         setOrder({
@@ -340,6 +338,7 @@ const MarketPlace = (props: { info: IWebsiteOneInfo, changeIndex: (index: number
     const addOrder = () => {
 
         setLoading(true);
+        print(order);
         if (order.customerEmail !== "" && order.customerName !== "" && order.customerPhone !== "") {
 
             getDataFromDBOne(ORDER_COLLECTION, AMDIN_FIELD, info.adminId).then((v) => {
@@ -357,11 +356,14 @@ const MarketPlace = (props: { info: IWebsiteOneInfo, changeIndex: (index: number
                     let newOrder: IOrder = {
                         ...order,
                         orderNo: oN,
+                        adminId: info.adminId,
+                        userId: info.userId,
                         items: addItems,
                         status: 0,
                         statusCode: "Sent",
                         totalCost: total,
                         deliveryMethod: "Delivery",
+                        deliveryDateString: new Date(order.deliveryDate).toDateString(),
                         deliveryLocation: location,
                         date: new Date(),
                         dateString: new Date().toDateString()
@@ -770,7 +772,7 @@ const MarketPlace = (props: { info: IWebsiteOneInfo, changeIndex: (index: number
                                     Total Cost: {numberWithCommas(getTotal().toString())} USD
                                 </h1>
                             </div>
-                            <p className='text-xs bg-gray-300'>Disclaimer</p>
+                            <p className='text-xs bg-gray-300' onClick={() => { alert(DISCLAIMER) }}>Disclaimer</p>
                             <button
                                 onClick={() => {
                                     addOrder()

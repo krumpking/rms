@@ -29,6 +29,12 @@ export const FIFTH_COLOR = '#f0a300';
 
 export const LIGHT_GRAY = '#ECECEC';
 
+export const DISCLAIMER = `The products and services listed on this marketplace platform are provided by third-party sellers. FoodiesBooth does not endorse or guarantee the quality, safety, or accuracy of any product or service listed on this platform. FoodiesBooth is not responsible for any damages or losses caused by any product or service listed on this platform.
+
+FoodiesBooth is not responsible for any damages or losses caused by the products or services of third-party sellers. FoodiesBooth does not endorse or guarantee the quality, safety, or accuracy of any product or service listed on this platform.
+
+
+By using this marketplace platform, you agree to release FoodiesBooth from any and all liability arising from the use of any product or service listed on this platform.`;
 
 export const ADMINS_DB_REF = collection(firestore, "admins");
 export const PRIMARY_URL_LOCAL = 'localhost:3000';

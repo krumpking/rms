@@ -240,8 +240,8 @@ const SignUp = () => {
                                                     signIn()
                                                 }
                                             }>
-                                            <div className='flex w-full justify-center'>
-                                                <img src={"images/logo.png"} className='h-24' />
+                                            <div className='flex flex-col justify-center items-center'>
+                                                <img src="images/logo.png" className='w-full h-32' />
                                             </div>
                                             <div className="mb-6">
                                                 <input
@@ -302,7 +302,10 @@ const SignUp = () => {
                                                 e.preventDefault()
                                                 signUp()
                                             }}>
-                                            <p className='text-center text-2xl text-black-300 mb-4 font-bold'>Start your 7 Day FREE trial</p>
+                                            <div className='flex flex-col justify-center items-center'>
+                                                <img src="images/logo.png" className='w-full h-32' />
+                                            </div>
+                                            <p className='text-center text-xl text-black-300 mb-4 font-bold'>Start your 7 Day FREE trial</p>
                                             <div className="mb-6">
                                                 <input
                                                     type="text"

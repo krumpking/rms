@@ -16,7 +16,7 @@ import { getDataFromDBOne } from '../app/api/mainApi';
 import { DELIVERERS_COLLECTION } from '../app/constants/deliveryConstants';
 import { print } from '../app/utils/console';
 
-const Login = (props: { changeIndex: (index: number) => void, isDeliveryService: boolean }) => {
+const Login = (props: { changeIndex: (index: number, userId: string) => void, isDeliveryService: boolean }) => {
     const { changeIndex, isDeliveryService } = props;
     const [phone, setPhone] = useState("");
     const [accessCode, setAccessCode] = useState("");
@@ -83,7 +83,7 @@ const Login = (props: { changeIndex: (index: number) => void, isDeliveryService:
 
                             });
 
-                            changeIndex(1);
+                            changeIndex(1, userId);
 
                         }
 
@@ -235,8 +235,10 @@ const Login = (props: { changeIndex: (index: number) => void, isDeliveryService:
 
                                     }
                                 }>
-                                <p className='text-center text-xs text-gray-300 mb-4 font-bold'>Login</p>
-                                <div className="mb-6">
+                                <div className='flex flex-col justify-center items-center'>
+                                    <img src="images/logo.png" className='w-full h-32' />
+                                </div>
+                                <div className="mb-6 w-full">
                                     <input
                                         type="text"
                                         value={sent ? accessCode : phone}

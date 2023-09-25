@@ -25,10 +25,6 @@ const Nav = () => {
             url: '#pricing',
         },
         {
-            name: 'Start for Free',
-            url: '/signup',
-        },
-        {
             name: 'Log In',
             url: '/login',
         },
@@ -51,8 +47,7 @@ const Nav = () => {
                 <div className="hidden nineSixteen:block">
                     <div className="flex items-center justify-between p-4 content-center">
                         <div className="flex flex-row justify-center content-center items-center">
-                            <img src="images/logo.png" className='h-12 w-12' />
-                            <h1 className='lg:text-2xl' style={{ color: PRIMARY_COLOR }}> FoodiesBooth</h1>
+                            <img src="images/logo.png" className='h-14 w-full' />
                         </div>
 
                         <div className="flex items-baseline flex-row justify-end space-x-4 ">
