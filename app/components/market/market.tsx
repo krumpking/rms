@@ -338,7 +338,6 @@ const MarketPlace = (props: { info: IWebsiteOneInfo, changeIndex: (index: number
     const addOrder = () => {
 
         setLoading(true);
-        print(order);
         if (order.customerEmail !== "" && order.customerName !== "" && order.customerPhone !== "") {
 
             getDataFromDBOne(ORDER_COLLECTION, AMDIN_FIELD, info.adminId).then((v) => {
@@ -415,6 +414,7 @@ const MarketPlace = (props: { info: IWebsiteOneInfo, changeIndex: (index: number
                 </div>
             ) : (
                 <div className="bg-white rounded-[30px] p-4 ">
+
                     <div className='relative'>
                         <div className='border rounded-[25px] w-full h-full' style={{ borderColor: PRIMARY_COLOR }}>
                             <div style={{ backgroundColor: PRIMARY_COLOR }} className='h-12 p-2 rounded-t-[25px]'>
@@ -429,6 +429,9 @@ const MarketPlace = (props: { info: IWebsiteOneInfo, changeIndex: (index: number
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75" />
                                     </svg>
                                 </button>
+                            </div>
+                            <div className='flex items-center w-full justify-center m-4'>
+                                <ShowImage src={`/${info.websiteName}/logo/${info.logo.thumbnail}`} alt={'Logo'} style={'rounded-full h-40 w-40 '} />
                             </div>
                             <div className='p-8'>
 
@@ -519,6 +522,7 @@ const MarketPlace = (props: { info: IWebsiteOneInfo, changeIndex: (index: number
                                 </div>
                             </div>
                         </div>
+
                         <div className='fixed bottom-10 left-0 right-10 z-10'>
                             <div className='flex flex-row-reverse space-x-4'>
                                 <button
@@ -551,6 +555,7 @@ const MarketPlace = (props: { info: IWebsiteOneInfo, changeIndex: (index: number
                                 </button>
                             </div>
                         </div>
+
                     </div>
                     <Drawer isOpen={isOpen} setIsOpen={setIsOpen} bg={"#fff"} color={PRIMARY_COLOR}>
                         <div style={{ borderColor: PRIMARY_COLOR }} className="border rounded-[25px] h-fit w-full flex flex-col items-center m-4 p-4">

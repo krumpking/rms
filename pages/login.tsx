@@ -203,55 +203,60 @@ const Login = (props: { changeIndex: (index: number, userId: string) => void, is
 
 
     return (
-        <div className=' w-full h-full p-4 md:p-8 2xl:p-16 ' style={{ backgroundColor: PRIMARY_COLOR }}>
+        <div className=' w-full h-screen p-4 md:p-8 2xl:p-16 ' style={{ backgroundColor: PRIMARY_COLOR }}>
             <div className='bg-white h-full rounded-[25px] p-8'>
-                <div className='h-16'>
-                    <a href="/">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75" />
-                        </svg>
 
-                    </a>
-                </div>
-                <div className='grid grid-cols-1 md:grid-cols-2 place-items-center p-4 h-full'>
 
-                    <div className='hidden lg:block'>
-                        <img src={"images/webOneDefaultPicture.jpg"} className='h-96 w-full' />
+                {loading ?
+                    <div className='w-full flex flex-col items-center content-center'>
+                        <Loader color={''} />
                     </div>
 
-                    <div className=''>
-                        {loading ?
-                            <div className='w-full flex flex-col items-center content-center'>
-                                <Loader color={''} />
+
+                    :
+                    <div>
+
+                        <div className='h-16'>
+                            <a href="/">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75" />
+                                </svg>
+
+                            </a>
+                        </div>
+                        <div className='grid grid-cols-1 md:grid-cols-2 place-items-center p-4 h-full'>
+
+                            <div className='hidden lg:block'>
+                                <img src={"images/webOneDefaultPicture.jpg"} className='h-96 w-full' />
                             </div>
 
+                            <div className=''>
+                                <form
+                                    className='flex flex-col content-center items-center justify-center'
+                                    onSubmit={
+                                        (e) => {
+                                            e.preventDefault()
+                                            login()
 
-                            : <form
-                                className='flex flex-col content-center items-center justify-center'
-                                onSubmit={
-                                    (e) => {
-                                        e.preventDefault()
-                                        login()
+                                        }
+                                    }>
+                                    <div className='flex flex-col justify-center items-center'>
+                                        <img src="images/logo.png" className='w-full h-32' />
+                                    </div>
+                                    <div className="mb-6 w-full">
+                                        <input
+                                            type="text"
+                                            value={sent ? accessCode : phone}
+                                            placeholder={sent ? "Please enter the One Time Password" : "Phone (include country your code )"}
+                                            onChange={(e) => {
+                                                if (sent) {
+                                                    setAccessCode(e.target.value);
+                                                } else {
+                                                    setPhone(e.target.value)
+                                                }
 
-                                    }
-                                }>
-                                <div className='flex flex-col justify-center items-center'>
-                                    <img src="images/logo.png" className='w-full h-32' />
-                                </div>
-                                <div className="mb-6 w-full">
-                                    <input
-                                        type="text"
-                                        value={sent ? accessCode : phone}
-                                        placeholder={sent ? "Please enter the One Time Password" : "Phone (include country your code )"}
-                                        onChange={(e) => {
-                                            if (sent) {
-                                                setAccessCode(e.target.value);
-                                            } else {
-                                                setPhone(e.target.value)
-                                            }
-
-                                        }}
-                                        className="
+                                            }}
+                                            className="
                                         w-full
                                         rounded-[25px]
                                         border-2
@@ -264,15 +269,15 @@ const Login = (props: { changeIndex: (index: number, userId: string) => void, is
                                         focus-visible:shadow-none
                                         focus:border-primary
                                         "
-                                        style={{ borderColor: PRIMARY_COLOR }}
-                                        required
-                                    />
-                                </div>
-                                <div className="mb-10 w-full">
-                                    <input
-                                        type="submit"
-                                        value={sent ? "Login" : "Send One Time Password"}
-                                        className="
+                                            style={{ borderColor: PRIMARY_COLOR }}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="mb-10 w-full">
+                                        <input
+                                            type="submit"
+                                            value={sent ? "Login" : "Send One Time Password"}
+                                            className="
                                         font-bold
                                         w-full
                                         rounded-[25px]
@@ -286,12 +291,13 @@ const Login = (props: { changeIndex: (index: number, userId: string) => void, is
                                         hover:bg-opacity-90
                                         transition
                                     "
-                                        style={{ backgroundColor: PRIMARY_COLOR, borderColor: PRIMARY_COLOR }}
-                                    />
-                                </div>
-                            </form>}
-                    </div>
-                </div>
+                                            style={{ backgroundColor: PRIMARY_COLOR, borderColor: PRIMARY_COLOR }}
+                                        />
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>}
             </div>
             <div id="recaptcha-container"></div>
             <ToastContainer

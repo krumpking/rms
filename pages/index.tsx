@@ -7,7 +7,7 @@ import { useRouter } from 'next/router';
 import { print } from '../app/utils/console';
 import Loader from '../app/components/loader';
 import WebsiteHandler from '../app/components/website/webHandler';
-import { MEAL_STORAGE_REF, MENU_ITEM_COLLECTION } from '../app/constants/menuConstants';
+import { MEAL_ITEM_COLLECTION, MEAL_STORAGE_REF, MENU_ITEM_COLLECTION } from '../app/constants/menuConstants';
 import { getDataFromAll } from '../app/api/mainApi';
 import { IMeal } from '../app/types/menuTypes';
 import ShowImage from '../app/components/showImage';
@@ -134,7 +134,7 @@ const Home: NextPage = () => {
 
   const getMenuItems = () => {
 
-    getDataFromAll(MENU_ITEM_COLLECTION).then((v) => {
+    getDataFromAll(MEAL_ITEM_COLLECTION).then((v) => {
 
       if (v !== null) {
         v.data.forEach(element => {

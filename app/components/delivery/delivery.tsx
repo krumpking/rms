@@ -74,7 +74,6 @@ const DeliveryComponent = (props: { changeIndex: (index: number) => void, tab: n
 
     const getOrders = () => {
 
-        print(tab);
 
         if (tab == 0) {
             getDataFromDBThree(ORDER_COLLECTION, "deliveryMethod", "Delivery", "statusCode", ORDER_READY, 'deliverer', "").then((v) => {
@@ -472,6 +471,7 @@ const DeliveryComponent = (props: { changeIndex: (index: number) => void, tab: n
                 ...order,
                 status: 99,
                 deliverer: userId,
+                statusCode: ORDER_SHIPPED,
                 tableNo: 0
             }
 
@@ -485,7 +485,6 @@ const DeliveryComponent = (props: { changeIndex: (index: number) => void, tab: n
             }
 
         }
-
         setOrders([]);
         updateDocument(ORDER_COLLECTION, order.id, newOrder).then((v) => {
             if (v !== null) {
@@ -499,7 +498,7 @@ const DeliveryComponent = (props: { changeIndex: (index: number) => void, tab: n
             setOpen(false);
             setLoading(false);
             getOrders();
-        })
+        });
     }
 
     const getButtonText = () => {
@@ -673,9 +672,9 @@ const DeliveryComponent = (props: { changeIndex: (index: number) => void, tab: n
                                                     // mapTypeId={createId()}
                                                     style={{ height: '400px', width: "100%" }}
                                                     apiKey={MAP_API} />
-                                                {tab == 0 || tab == 2 ? <p></p> : <div className='flex flex-col border rounded-[25px] h-full w-full p-4'>
+                                                {tab == 0 || tab == 2 ? <p></p> : <div className='flex flex-col border-2 border-black rounded-[25px] h-full w-full p-4'>
                                                     <SignatureCanvas
-                                                        penColor="black"
+                                                        penColor="blue"
                                                         ref={sigCanvas}
                                                         canvasProps={{
 
