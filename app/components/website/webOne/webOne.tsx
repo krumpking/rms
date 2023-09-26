@@ -12,7 +12,7 @@ import { getDataFromDBOne } from '../../../api/mainApi';
 import { INFO_COLLECTION } from '../../../constants/infoConstants';
 import { AMDIN_FIELD } from '../../../constants/constants';
 import { useAuthIds } from '../../authHook';
-import { WEBSITE_COLLECTION, WEBSITE_INFO_COLLECTION } from '../../../constants/websiteConstants';
+import { DAYS_OF_THE_WEEK_ARRAY, WEBSITE_COLLECTION, WEBSITE_INFO_COLLECTION } from '../../../constants/websiteConstants';
 
 function classNames(...classes: string[]) {
     return classes.filter(Boolean).join(' ');
@@ -58,7 +58,8 @@ const Web1 = () => {
         date: new Date(),
         dateString: new Date().toString(),
         deliveryCost: 0,
-        mapLocation: {}
+        mapLocation: {},
+        daysOfWork: DAYS_OF_THE_WEEK_ARRAY
 
     });
 
@@ -98,7 +99,8 @@ const Web1 = () => {
                         date: d.date,
                         dateString: d.dateString,
                         deliveryCost: d.deliveryCost,
-                        mapLocation: d.mapLocation
+                        mapLocation: d.mapLocation,
+                        daysOfWork: d.daysOfWork
                     });
                 });
 

@@ -80,10 +80,10 @@ const ClientNav: FC<MyProps> = ({ organisationName, url }) => {
                     </svg>
                 </button>
                 <Drawer isOpen={isOpen} setIsOpen={setIsOpen} bg={'#8b0e06'} color={'#fff'}>
-                    <div className='w-[200px]  p-4 flex justify-center items-center bg-white rounded-[25px] mt-4'>
-                        <img src="/images/logo.png" className='h-24 w-24 my-6 rounded-xl' />
-                    </div>
-                    <h1 className='text-white font-bold mb-6'>{'FoodiesBooth'}</h1>
+
+                    <img src="/images/logo.png" className='h-12 w-48 my-6 rounded-xl' />
+
+
                     <div className='flex flex-col space-y-4'>
 
                         <a href={'/home'} className={url === 'home' ? 'bg-[#fc0109] p-2 rounded-[25px] ' : 'p-2 rounded-[25px]'}>

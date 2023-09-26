@@ -11,12 +11,14 @@ import ShowImage from '../../showImage';
 import { addDocument, getDataFromDBOne, updateDocument, uploadFile } from '../../../api/mainApi';
 import { checkForWebsiteName } from '../../../api/infoApi';
 import imageCompression from 'browser-image-compression';
-import { DEFAULT_LOCATION, DEFAULT_ZOOM, MAP_API, WEBSITE_COLLECTION, WEBSITE_INFO_COLLECTION } from '../../../constants/websiteConstants';
-import { AMDIN_FIELD } from '../../../constants/constants';
+import { DAYS_OF_THE_WEEK_ARRAY, DEFAULT_LOCATION, DEFAULT_ZOOM, MAP_API, WEBSITE_COLLECTION, WEBSITE_INFO_COLLECTION } from '../../../constants/websiteConstants';
+import { AMDIN_FIELD, PRIMARY_COLOR } from '../../../constants/constants';
 import { print } from '../../../utils/console';
 import { createId } from '../../../utils/stringM';
 import MapPicker from 'react-google-map-picker';
 import { useAuthIds } from '../../authHook';
+import Multiselect from 'multiselect-react-dropdown';
+
 
 const WebOneWebsiteInfo = () => {
     const [loading, setLoading] = useState(true);
@@ -57,7 +59,8 @@ const WebOneWebsiteInfo = () => {
         date: new Date(),
         dateString: new Date().toDateString(),
         deliveryCost: 0,
-        mapLocation: DEFAULT_LOCATION
+        mapLocation: DEFAULT_LOCATION,
+        daysOfWork: DAYS_OF_THE_WEEK_ARRAY
 
     });
     const [logoImageAdded, setLogoImageAdded] = useState(false);
@@ -74,6 +77,7 @@ const WebOneWebsiteInfo = () => {
     const [reservation, setReservation] = useState(false);
     const { adminId, userId, access } = useAuthIds();
     const [location, setLocation] = useState(DEFAULT_LOCATION);
+    const [selectedDaysOfTheWeek, setSelectedDaysOfTheWeek] = useState(DAYS_OF_THE_WEEK_ARRAY);
 
 
 
@@ -123,8 +127,10 @@ const WebOneWebsiteInfo = () => {
                         date: d.date,
                         dateString: d.dateString,
                         deliveryCost: d.deliveryCost,
-                        mapLocation: d.mapLocation
+                        mapLocation: d.mapLocation,
+                        daysOfWork: d.daysOfWork
                     });
+                    setSelectedDaysOfTheWeek(d.daysOfWork);
 
                 });
 
@@ -255,7 +261,8 @@ const WebOneWebsiteInfo = () => {
                             original: contactImageFile.name,
                             thumbnail: `thumbnail_${contactImageFile.name}`
                         },
-                        mapLocation: location
+                        mapLocation: location,
+                        daysOfWork: selectedDaysOfTheWeek
 
                     }
 
@@ -697,6 +704,39 @@ const WebOneWebsiteInfo = () => {
                             />
                         </div>
                         <div className="mb-6 w-full">
+                            <Multiselect
+                                isObject={false}
+                                onRemove={(selectedItem: any) => {
+                                    setSelectedDaysOfTheWeek(selectedDaysOfTheWeek.filter((element) => { return element !== selectedItem }));
+                                }}
+                                onSelect={(selectedList) => { setSelectedDaysOfTheWeek(selectedList) }}
+                                options={DAYS_OF_THE_WEEK_ARRAY}
+                                displayValue="Sunday"
+                                placeholder="Select days open"
+                                style={{
+                                    chips: {
+                                        background: PRIMARY_COLOR
+                                    },
+                                    multiselectContainer: {
+                                        color: PRIMARY_COLOR,
+
+                                    },
+                                    searchBox: {
+                                        border: 'display',
+                                        'height': '50px',
+                                        'border-bottom': '2px solid ' + PRIMARY_COLOR,
+                                        'border-top': '2px solid ' + PRIMARY_COLOR,
+                                        'border-radius': '25px',
+                                        'padding': '4px',
+                                        'color': PRIMARY_COLOR,
+                                        ':hover': PRIMARY_COLOR
+
+                                    }
+                                }}
+                            />
+                        </div>
+
+                        <div className="mb-6 w-full">
                             <input
                                 type="text"
                                 value={info.email}
@@ -797,6 +837,7 @@ const WebOneWebsiteInfo = () => {
                             : <img src={logoImageAdded ? logoImage : `${logoImage}`} className='rounded-[25px] shadow-md w-48 h-48' />}
                         <h1 className='mb-6 w-full'>Website Name: {info.websiteName}.foodiesbooth.com</h1>
                         <h1 className='mb-6 w-full'>Trading Name: {info.serviceProviderName}</h1>
+                        <h1 className='mb-6 w-full'>Days Open: {selectedDaysOfTheWeek.map((v) => <p>{v}</p>)}</h1>
                         {info.id !== "" ?
                             <ShowImage src={`${info.websiteName}/header/${info.headerImage.thumbnail}`} alt={'logo'} style={'rounded-[25px] shadow-md w-48 h-48'} />
                             : <img src={logoImageAdded ? headerImage : `${headerImage}`} className='rounded-[25px] shadow-md w-48 h-48' />}
