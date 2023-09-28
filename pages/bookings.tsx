@@ -38,24 +38,12 @@ const Bookings = () => {
     document.body.style.backgroundColor = LIGHT_GRAY;
     setPreviousForms([]);
 
-    // checkPayment();
+    checkPayment();
 
 
   }, []);
 
-  // const checkPayment = async () => {
-  //     const paymentStatus = await Payment.checkPaymentStatus();
-  //     if (!paymentStatus) {
-  //         toast.warn('It appears your payment is due, please pay up to continue enjoying Digital Data Tree');
 
-  //         setTimeout(() => {
-  //             router.push({
-  //                 pathname: '/payments',
-  //             });
-  //         }, 5000);
-
-  //     }
-  // }
 
   const handleKeyDown = (event: { key: string }) => {
     if (event.key === 'Enter') {
