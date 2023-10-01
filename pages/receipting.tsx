@@ -23,6 +23,7 @@ import { CASHBOOOK_COLLECTION } from '../app/constants/cashBookConstants';
 import { ITransaction } from '../app/types/cashbookTypes';
 import { print } from '../app/utils/console';
 import AppAccess from '../app/components/accessLevel';
+import { useAuthIds } from '../app/components/authHook';
 
 
 function classNames(...classes: string[]) {
@@ -35,7 +36,7 @@ const Accounting = () => {
     const [orders, setOrders] = useState<IOrder[]>([]);
     const [ordersSto, setOrdersSto] = useState<IOrder[]>([]);
     const [search, setSearch] = useState("");
-    const [adminId, setAdminId] = useState('adminId');
+    const { adminId, userId, access } = useAuthIds();
     const [selectedOrder, setSelectedOrder] = useState<IOrder>({
         id: "",
         adminId: "",
@@ -55,22 +56,20 @@ const Accounting = () => {
         customerPhone: "",
         customerAddress: "",
         deliveryLocation: null,
+        deliveredSignature: null,
+        deliverer: "",
+        deliveryDate: new Date(),
+        deliveryDateString: new Date().toDateString(),
+        deliveryTime: ""
     });
     const [open, setOpen] = useState(false);
-    const [webfrontname, setWebfrontname] = useState("");
-    const [title, setTitle] = useState("");
-    const [about, setAbout] = useState("");
-    const [address, setAddress] = useState("");
-    const [phone, setPhone] = useState("");
-    const [email, setEmail] = useState("");
+
     const [currency, setCurrency] = useState("USD");
     const [zwlRate, setZwlRate] = useState("");
     const [categories, setCategories] = useState<string[]>(['cash', 'online', 'debit card', 'credit card', 'cheque']);
     const [category, setCategory] = useState("");
-    const [accessArray, setAccessArray] = useState<any[]>([
-        'menu', 'orders', 'move-from-pantry', 'move-from-kitchen', 'cash-in',
-        'cash-out', 'cash-report', 'add-stock', 'confirm-stock', 'move-to-served', 'add-reservation', 'available-reservations',
-        'staff-scheduling', 'website', 'payments', 'stock-overview', 'receipting']);
+    const [originalCost, setOriginalCost] = useState(0);
+    const [changeToZWL, setChangeToZWL] = useState(false);
 
 
     useEffect(() => {
@@ -81,30 +80,7 @@ const Accounting = () => {
 
     const getOrders = () => {
 
-        getResInfo(adminId).then((r) => {
 
-            if (r !== null) {
-
-                r.forEach((el) => {
-                    let val = el.data();
-                    setWebfrontname(val.webfrontId);
-                    setTitle(val.title);
-                    setAbout(val.about);
-                    setAddress(val.address);
-                    setPhone(val.phone);
-                    setEmail(val.email);
-
-
-                });
-                setLoading(false);
-
-            }
-
-        }).catch((e: any) => {
-            console.error(e);
-            setLoading(false);
-            toast.error('There was an error please try again');
-        })
 
         getDataFromDBTwo(ORDER_COLLECTION, AMDIN_FIELD, adminId, "statusCode", "Delivered").then((v) => {
 
@@ -131,8 +107,14 @@ const Accounting = () => {
                         customerEmail: d.customerEmail,
                         customerPhone: d.customerPhone,
                         customerAddress: d.cusotmerAddress,
-                        deliveryLocation: d.deliveryLocation
+                        deliveryLocation: d.deliveryLocation,
+                        deliveredSignature: d.deliveredSignature,
+                        deliverer: d.deliverer,
+                        deliveryDate: d.deliveryDate,
+                        deliveryDateString: d.deliveryDateString,
+                        deliveryTime: d.deliveryTime
                     }]);
+
 
                 });
 
@@ -153,8 +135,8 @@ const Accounting = () => {
 
         if (event.key === 'Enter') {
 
-            if (currency === 'ZWL' && zwlRate !== '') {
-                toast.info('Curreny Updated');
+            if (changeToZWL) {
+                toast.info('Currency Updated');
                 update('ZWL');
             } else {
                 searchFor();
@@ -208,38 +190,55 @@ const Accounting = () => {
 
 
     const addOrder = (v: any) => {
+        setOriginalCost(v.totalCost);
         setSelectedOrder(v);
     }
 
 
     const update = (to: string) => {
         let d = selectedOrder;
-        let rate = 1;
-        if (currency === 'ZWL') {
-            rate = parseFloat(zwlRate);
+
+        if (parseFloat(zwlRate) > 0) {
+            let cost = 0;
+            if (to === 'USD') {
+                cost = originalCost;
+            } else {
+                cost = originalCost * parseFloat(zwlRate);
+
+            }
+            setCurrency(to);
+
+            let sOrder = {
+                id: d.id,
+                adminId: d.adminId,
+                clientId: d.clientId,
+                deliveryMethod: d.deliveryMethod,
+                orderNo: d.orderNo,
+                items: d.items,
+                status: d.status,
+                statusCode: d.statusCode,
+                userId: d.userId,
+                customerName: d.customerName,
+                tableNo: d.tableNo,
+                date: d.date,
+                dateString: d.dateString,
+                totalCost: cost,
+                customerPhone: d.customerName,
+                customerEmail: d.customerEmail,
+                customerAddress: d.customerAddress,
+                deliveryLocation: d.deliveryLocation,
+                deliveredSignature: d.deliveredSignature,
+                deliverer: d.deliverer,
+                deliveryDate: d.deliveryDate,
+                deliveryDateString: d.deliveryDateString,
+                deliveryTime: d.deliveryTime
+            }
+            setSelectedOrder(sOrder);
+        } else {
+            toast.error('Looks like you are yet to put in today\'s rate');
         }
-        let cost = to === 'USD' ? d.totalCost / rate : d.totalCost * rate;
-        let sOrder = {
-            id: d.id,
-            adminId: d.adminId,
-            clientId: d.clientId,
-            deliveryMethod: d.deliveryMethod,
-            orderNo: d.orderNo,
-            items: d.items,
-            status: d.status,
-            statusCode: d.statusCode,
-            userId: d.userId,
-            customerName: d.customerName,
-            tableNo: d.tableNo,
-            date: d.date,
-            dateString: d.dateString,
-            totalCost: cost,
-            customerPhone: d.customerName,
-            customerEmail: d.customerEmail,
-            customerAddress: d.customerAddress,
-            deliveryLocation: d.deliveryLocation
-        }
-        setSelectedOrder(sOrder);
+
+
     }
 
     const SaveAsPDFHandler = () => {
@@ -311,7 +310,7 @@ const Accounting = () => {
         let transaction: ITransaction = {
             id: "id",
             adminId: adminId,
-            userId: "userId",
+            userId: userId,
             transactionType: "Sale",
             currency: currency,
             paymentMode: category,
@@ -338,7 +337,7 @@ const Accounting = () => {
 
 
     return (
-        <AppAccess access={accessArray} component={'receipting'}>
+        <AppAccess access={access} component={'receipting'}>
 
             <div>
                 <div className='flex flex-col' >
@@ -425,9 +424,12 @@ const Accounting = () => {
                                                         if (selectedOrder.totalCost > 0) {
 
                                                             if (currency === 'ZWL' && v === 'USD') {
+                                                                setChangeToZWL(false);
                                                                 update('USD');
+                                                            } else {
+                                                                setChangeToZWL(true);
                                                             }
-                                                            setCurrency(v);
+
 
                                                         } else {
                                                             toast.error('Ensure you select the order first');
@@ -456,7 +458,7 @@ const Accounting = () => {
                                             ))
                                         }
                                     </div>
-                                    <div className={currency === 'ZWL' ? 'mb-6' : 'hidden'}>
+                                    <div className={changeToZWL ? 'mb-6' : 'hidden'}>
                                         <input
                                             type="string"
                                             value={zwlRate}
@@ -532,7 +534,7 @@ const Accounting = () => {
                                     </div>
                                     <div className='flex flex-row items-center text-center px-8 py-4 my-6 shadow-xl rounded-[25px]'>
                                         <h1 className="text-xl text-[#8b0e06]">
-                                            Total Cost: {numberWithCommas(selectedOrder.totalCost.toString())} {currency}
+                                            Total Cost: {numberWithCommas(selectedOrder.totalCost.toFixed(2).toString())} {currency}
                                         </h1>
                                     </div>
 
@@ -608,10 +610,10 @@ const Accounting = () => {
                                         <div id="print" className="font-open text-lg my-8 inline-block w-fit h-fit transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all">
                                             <div className="bg-white border rounded-lg shadow-lg px-6 py-8 max-w-md mx-auto mt-8">
                                                 <h1 className="text-lg font-bold text-center">Receipt</h1>
-                                                <h1 className="font-bold text-2xl my-4 text-center text-[#8b0e06]">{title}</h1>
+                                                {/* <h1 className="font-bold text-2xl my-4 text-center text-[#8b0e06]">{title}</h1>
                                                 <p className="font-bold text-xs my-4 text-center text-[#8b0e06]">{address}</p>
                                                 <p className="font-bold text-xs my-4 text-center text-[#8b0e06]">{email}</p>
-                                                <p className="font-bold text-xs my-4 text-center text-[#8b0e06]">{phone}</p>
+                                                <p className="font-bold text-xs my-4 text-center text-[#8b0e06]">{phone}</p> */}
                                                 <div className="mb-2 border-y-2  border-dotted border-black py-2">
                                                     <div className="flex flex-col mb-6">
                                                         <div>Order No #: {selectedOrder.orderNo}</div>
@@ -644,7 +646,7 @@ const Accounting = () => {
                                                         <tfoot className=''>
                                                             <tr>
                                                                 <td className="text-2xl text-left font-bold text-gray-700">Total</td>
-                                                                <td className="text-2xl text-right font-bold text-gray-700">{selectedOrder.totalCost}USD</td>
+                                                                <td className="text-2xl text-right font-bold text-gray-700">{selectedOrder.totalCost.toFixed(2)}{currency}</td>
                                                             </tr>
                                                         </tfoot>
                                                     </table>

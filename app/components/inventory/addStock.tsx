@@ -4,7 +4,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router';
 import { getCookie } from 'react-use-cookie';
-import { ADMIN_ID, AMDIN_FIELD, COOKIE_ID, LIGHT_GRAY } from '../../constants/constants';
+import { ADMIN_ID, AMDIN_FIELD, LIGHT_GRAY } from '../../constants/constants';
 import Loader from '../loader';
 import { decrypt } from '../../utils/crypto';
 import { ICategory, IMenuItem } from '../../types/menuTypes';
@@ -20,19 +20,13 @@ import { STOCK_CATEGORY_REF, STOCK_ITEM_COLLECTION } from '../../constants/stock
 import ReactPaginate from 'react-paginate';
 import { searchStringInArray } from '../../utils/arrayM';
 import AppAccess from '../accessLevel';
+import { useAuthIds } from '../authHook';
 
 const AddInventory = () => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const [adminId, setAdminId] = useState('adminId');
+  const { adminId, userId, access } = useAuthIds();
   const [categories, setCategories] = useState<IStockCategory[]>([]);
-  const [webfrontId, setWebfrontId] = useState("");
-  const [title, setTitle] = useState("");
-  const [files, setFiles] = useState<any[]>([]);
-  const [docId, setDocId] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState(0);
-  const [category, setCategory] = useState("");
   const [stockItems, setStockItems] = useState<IStockItem[]>([]);
 
   const [edit, setEdit] = useState(false);
@@ -64,22 +58,10 @@ const AddInventory = () => {
   const [start, setStart] = useState(0);
   const [end, setEnd] = useState(10);
   const [search, setSearch] = useState("");
-  const [accessArray, setAccessArray] = useState<any[]>([
-    'menu', 'orders', 'move-from-pantry', 'move-from-kitchen', 'cash-in',
-    'cash-out', 'cash-report', 'add-stock', 'confirm-stock', 'move-to-served', 'add-reservation', 'available-reservations',
-    'staff-scheduling', 'website', 'payments']);
+
 
   useEffect(() => {
     document.body.style.backgroundColor = LIGHT_GRAY;
-
-    var infoFromCookie = '';
-    if (getCookie(ADMIN_ID) == '') {
-      infoFromCookie = getCookie(COOKIE_ID);
-    } else {
-      infoFromCookie = getCookie(ADMIN_ID);
-    }
-    // setAdminId(decrypt(infoFromCookie, COOKIE_ID));
-    setWebfrontId("webfrontId");
 
     getCategories();
     getStockItems();
@@ -185,17 +167,19 @@ const AddInventory = () => {
 
     setOpen(false);
 
-
+    let newStock = {
+      ...stockItem,
+      adminId: adminId,
+      userId: userId,
+      transactionType: ""
+    }
 
     setLoading(true);
 
-    setStockItems([]);
-    addDocument(STOCK_ITEM_COLLECTION, stockItem).then((v) => {
-
-      setFiles([]);
+    setStockItemsTemp([]);
+    addDocument(STOCK_ITEM_COLLECTION, newStock).then((v) => {
       getStockItems();
     }).catch((e: any) => {
-      setFiles([]);
       getStockItems();
       console.error(e);
       toast.error('There was an error please try again');
@@ -224,17 +208,15 @@ const AddInventory = () => {
 
 
 
-    let newItem = { ...stockItem, dateOfUpdate: new Date().toDateString() }
+    let newItem = { ...stockItem, dateOfUpdate: new Date().toDateString(), transactionType: "" }
 
     setOpen(false);
     setLoading(true);
-    setStockItems([]);
+    setStockItemsTemp([]);
     updateDocument(STOCK_ITEM_COLLECTION, stockItem.id, newItem).then((v) => {
-      setFiles([]);
       getStockItems();
       setOpen(false);
     }).catch((e: any) => {
-      setFiles([]);
       getStockItems();
       setOpen(false);
       console.error(e);
@@ -311,7 +293,7 @@ const AddInventory = () => {
 
 
   return (
-    <AppAccess access={accessArray} component={'add-stock'}>
+    <AppAccess access={access} component={'add-stock'}>
       <div>
         <div className="bg-white rounded-[30px] p-4 relative">
           {loading ? (

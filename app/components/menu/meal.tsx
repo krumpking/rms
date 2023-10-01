@@ -4,7 +4,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router';
 import { getCookie } from 'react-use-cookie';
-import { ADMIN_ID, AMDIN_FIELD, COOKIE_ID, LIGHT_GRAY } from '../../constants/constants';
+import { ADMIN_ID, AMDIN_FIELD, LIGHT_GRAY } from '../../constants/constants';
 import Loader from '../loader';
 import { decrypt } from '../../utils/crypto';
 import { ICategory, IMeal, IMenuItem } from '../../types/menuTypes';
@@ -15,13 +15,13 @@ import { addDocument, deleteDocument, deleteFile, getDataFromDBOne, updateDocume
 import { MEAL_ITEM_COLLECTION, MEAL_STORAGE_REF, MENU_CAT_COLLECTION, MENU_ITEM_COLLECTION, MENU_STORAGE_REF } from '../../constants/menuConstants';
 import { print } from '../../utils/console';
 import { Dialog, Transition } from '@headlessui/react';
+import { useAuthIds } from '../authHook';
 
 const Meal = () => {
+    const { adminId, userId, access } = useAuthIds();
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    const [adminId, setAdminId] = useState('adminId');
     const [categories, setCategories] = useState<ICategory[]>([]);
-    const [webfrontId, setWebfrontId] = useState("webfrontId");
     const [title, setTitle] = useState("");
     const [files, setFiles] = useState<any[]>([]);
     const [docId, setDocId] = useState("");
@@ -43,12 +43,6 @@ const Meal = () => {
     useEffect(() => {
         document.body.style.backgroundColor = LIGHT_GRAY;
 
-        var infoFromCookie = '';
-        if (getCookie(ADMIN_ID) == '') {
-            infoFromCookie = getCookie(COOKIE_ID);
-        } else {
-            infoFromCookie = getCookie(ADMIN_ID);
-        }
         getMenuItems();
         getMeals();
     }, []);
@@ -164,15 +158,15 @@ const Meal = () => {
 
                 const compressedFile = await imageCompression(files[0], options);
 
-                await uploadFile(`${webfrontId}/${MEAL_STORAGE_REF}/${name}`, files[0]);
+                await uploadFile(`${adminId}/${MEAL_STORAGE_REF}/${name}`, files[0]);
                 const info = name.split('_');
 
                 // Thumbnail
-                await uploadFile(`${webfrontId}/${MEAL_STORAGE_REF}/thumbnail_${name}`, compressedFile);
+                await uploadFile(`${adminId}/${MEAL_STORAGE_REF}/thumbnail_${name}`, compressedFile);
 
 
-                deleteFile(`${webfrontId}/${MEAL_STORAGE_REF}/${editItem.pic.original}`);
-                deleteFile(`${webfrontId}/${MEAL_STORAGE_REF}/${editItem.pic.thumbnail}`);
+                deleteFile(`${adminId}/${MEAL_STORAGE_REF}/${editItem.pic.original}`);
+                deleteFile(`${adminId}/${MEAL_STORAGE_REF}/${editItem.pic.thumbnail}`);
 
             } catch (e) {
                 console.error(e);
@@ -277,40 +271,43 @@ const Meal = () => {
                         <Loader color={''} />
                     </div>
                 ) : (
-                    <div className="grid grid-cols-2 lg:grid-cols-5 overflow-y-scroll max-h-[700px] w-full gap-4 p-4">
+                    <div className='w-full'  >
+                        {meals.length > 0 ? <div className="grid grid-cols-2 lg:grid-cols-5 overflow-y-scroll max-h-[700px] w-full gap-4 p-4" >
+                            {meals.map((v) => {
+                                return (
+                                    <div className='flex flex-col shadow-xl rounded-[25px] p-8 w-[250px] '>
+                                        <div className='flex flex-row-reverse'>
+                                            <button onClick={() => { deleteItem(v.id) }}>
 
-                        {meals.map((v) => {
-                            return (
-                                <div className='flex flex-col shadow-xl rounded-[25px] p-8 w-[250px] '>
-                                    <div className='flex flex-row-reverse'>
-                                        <button onClick={() => { deleteItem(v.id) }}>
-
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6 m-1">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-
-
-                                        </button>
-                                        <button onClick={() => { getReadyToUpdate(v); }}>
-
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
-                                            </svg>
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6 m-1">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
 
 
+                                            </button>
+                                            <button onClick={() => { getReadyToUpdate(v); }}>
 
-                                        </button>
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+                                                </svg>
+
+
+
+                                            </button>
+
+                                        </div>
+                                        <ShowImage src={`/${adminId}/${MEAL_STORAGE_REF}/${v.pic.thumbnail}`} alt={'Meal Item'} style={'rounded-[25px] h-20 w-full'} />
+                                        <div className='flex flex-row justify-between'>
+                                            <h1 className='font-bold text-sm'>{v.title}</h1>
+                                            <h1 className='font-bold text-sm'>{v.price}USD</h1>
+                                        </div>
 
                                     </div>
-                                    <ShowImage src={`/${webfrontId}/${MEAL_STORAGE_REF}/${v.pic.thumbnail}`} alt={'Meal Item'} style={'rounded-[25px] h-20 w-full'} />
-                                    <div className='flex flex-row justify-between'>
-                                        <h1 className='font-bold text-sm'>{v.title}</h1>
-                                        <h1 className='font-bold text-sm'>{v.price}USD</h1>
-                                    </div>
+                                )
+                            })}
+                        </div> :
+                            <h1 className='col-span-2'>Looks like you are yet to add any Meals</h1>}
 
-                                </div>
-                            )
-                        })}
 
 
 
@@ -565,7 +562,7 @@ const Meal = () => {
             </Transition>
 
             <ToastContainer position="top-right" autoClose={5000} />
-        </div>
+        </div >
     );
 };
 

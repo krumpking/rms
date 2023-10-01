@@ -8,18 +8,29 @@ interface MyProps {
 
 
 const Loader: FC<MyProps> = ({ color }) => {
-    return (
-        <Grid
-            height="100"
-            width="100"
-            color={color === "" ? PRIMARY_COLOR : color}
-            ariaLabel="grid-loading"
-            radius="12.5"
-            wrapperStyle={{}}
-            wrapperClass=""
-            visible={true}
-        />
-    )
+
+    if (color === "") {
+        return (
+            <div className='flex flex-col justify-center items-center w-full content-center h-screen'>
+                <img src="images/loading.png" className='w-1/3 h-48 animate-bounce' />
+            </div>
+
+        )
+    } else {
+        return (
+            <Grid
+                height="100"
+                width="100"
+                color={color}
+                ariaLabel="grid-loading"
+                radius="12.5"
+                wrapperStyle={{}}
+                wrapperClass=""
+                visible={true}
+            />
+        )
+    }
+
 };
 
 

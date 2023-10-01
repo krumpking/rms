@@ -20,6 +20,7 @@ import {
   updateDocument,
 } from '../../api/mainApi';
 import { Disclosure } from '@headlessui/react';
+import { useAuthIds } from '../authHook';
 
 const AddReservation = () => {
   const [addedInfo, setAddedInfo] = useState('');
@@ -44,13 +45,14 @@ const AddReservation = () => {
   });
   const [reservations, setReservations] = useState<IReservation[]>([]);
   const [isEditRes, setIsEditRes] = useState(false);
+  const { adminId, userId, access } = useAuthIds();
 
   useEffect(() => {
     getReservations();
   }, []);
 
   const getReservations = () => {
-    getDataFromDBOne(RESERVATION_COLLECTION, AMDIN_FIELD, '')
+    getDataFromDBOne(RESERVATION_COLLECTION, AMDIN_FIELD, adminId)
       .then((v) => {
         if (v !== null) {
           v.data.forEach((element) => {
@@ -99,7 +101,12 @@ const AddReservation = () => {
           toast.error('There was an error, please try again');
         });
     } else {
-      addDocument(RESERVATION_COLLECTION, reservation)
+      let newRes = {
+        ...reservation,
+        adminId: adminId,
+        userId: userId
+      }
+      addDocument(RESERVATION_COLLECTION, newRes)
         .then((v) => {
 
           getReservations();

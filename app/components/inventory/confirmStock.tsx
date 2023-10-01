@@ -4,7 +4,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router';
 import { getCookie } from 'react-use-cookie';
-import { ADMIN_ID, AMDIN_FIELD, COOKIE_ID, LIGHT_GRAY } from '../../constants/constants';
+import { ADMIN_ID, AMDIN_FIELD, LIGHT_GRAY } from '../../constants/constants';
 import Loader from '../loader';
 import { decrypt } from '../../utils/crypto';
 import { ICategory, IMenuItem } from '../../types/menuTypes';
@@ -20,6 +20,7 @@ import { STOCK_CATEGORY_REF, STOCK_ITEM_COLLECTION } from '../../constants/stock
 import { containsObject, findOccurrences, findOccurrencesObjectId, searchStringInArray } from '../../utils/arrayM';
 import ReactPaginate from 'react-paginate';
 import AppAccess from '../accessLevel';
+import { useAuthIds } from '../authHook';
 
 
 
@@ -27,10 +28,7 @@ import AppAccess from '../accessLevel';
 const ConfirmInventory = () => {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    const [adminId, setAdminId] = useState('adminId');
-    const [categories, setCategories] = useState<IStockCategory[]>([]);
-
-    const [webfrontId, setWebfrontId] = useState("");
+    const { adminId, userId, access } = useAuthIds();
     const [title, setTitle] = useState("");
     const [files, setFiles] = useState<any[]>([]);
     const [docId, setDocId] = useState("");
@@ -68,24 +66,11 @@ const ConfirmInventory = () => {
     const [start, setStart] = useState(0);
     const [end, setEnd] = useState(10);
     const [search, setSearch] = useState("");
-    const [accessArray, setAccessArray] = useState<any[]>([
-        'menu', 'orders', 'move-from-pantry', 'move-from-kitchen', 'cash-in',
-        'cash-out', 'cash-report', 'add-stock', 'confirm-stock', 'move-to-served', 'add-reservation', 'available-reservations',
-        'staff-scheduling', 'website', 'payments']);
+
 
 
     useEffect(() => {
         document.body.style.backgroundColor = LIGHT_GRAY;
-
-        var infoFromCookie = '';
-        if (getCookie(ADMIN_ID) == '') {
-            infoFromCookie = getCookie(COOKIE_ID);
-        } else {
-            infoFromCookie = getCookie(ADMIN_ID);
-        }
-        // setAdminId(decrypt(infoFromCookie, COOKIE_ID));
-        setWebfrontId("webfrontId");
-
 
         getStockItems();
     }, []);
@@ -178,7 +163,8 @@ const ConfirmInventory = () => {
 
         setLoading(true);
         selectedTrans.forEach((el) => {
-            //Logic to delete the item           
+            //Logic to delete the item   
+
             updateDocument(STOCK_ITEM_COLLECTION, el.id, el).then((v) => {
             }).catch((e: any) => {
                 console.error(e);
@@ -266,7 +252,7 @@ const ConfirmInventory = () => {
 
 
     return (
-        <AppAccess access={accessArray} component={'confirm-stock'}>
+        <AppAccess access={access} component={'confirm-stock'}>
             <div className='relative'>
                 <div className="bg-white rounded-[30px] p-4  ">
                     <div>
@@ -318,7 +304,7 @@ const ConfirmInventory = () => {
                                                     <tr key={index}
                                                         onClick={() => { getReadyToUpdate(value) }}
                                                         className={'odd:bg-white even:bg-slate-50  hover:cursor-pointer hover:bg-[#8b0e06] hover:text-white'}>
-                                                        <td>
+                                                        <td className='w-1'>
                                                             <input
                                                                 type="checkbox"
                                                                 id={value.id}

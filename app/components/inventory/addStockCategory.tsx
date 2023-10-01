@@ -4,66 +4,28 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router';
 import { getCookie } from 'react-use-cookie';
-import { ADMIN_ID, AMDIN_FIELD, COOKIE_ID, LIGHT_GRAY } from '../../constants/constants';
+import { ADMIN_ID, AMDIN_FIELD, LIGHT_GRAY } from '../../constants/constants';
 import Loader from '../loader';
-import { createId } from '../../utils/stringM';
-import { Iinfo } from '../../types/infoTypes';
-import { addResInfo, getResInfo } from '../../api/infoApi';
-import { decrypt } from '../../utils/crypto';
-import { setDate } from 'date-fns';
-import { checkEmptyOrNull } from '../../utils/objectM';
-import { ICategory } from '../../types/menuTypes';
-import ShowImage from '../showImage';
-import { useDropzone } from 'react-dropzone';
-import imageCompression from 'browser-image-compression';
-import { MENU_CAT_COLLECTION } from '../../constants/menuConstants';
-import { addDocument, deleteDocument, deleteFile, getDataFromDBOne, uploadFile } from '../../api/mainApi';
+import { addDocument, deleteDocument, getDataFromDBOne } from '../../api/mainApi';
 import { Dialog, Transition } from '@headlessui/react';
 
 import { STOCK_CATEGORY_REF } from '../../constants/stockConstants';
 import { IStockCategory, IStockItem } from '../../types/stockTypes';
 import AppAccess from '../accessLevel';
+import { useAuthIds } from '../authHook';
 
 const AddStockCategory = () => {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    const [adminId, setAdminId] = useState('adminId');
-    const [categories, setCategories] = useState<IStockCategory[]>([]);
-    const [webfrontId, setWebfrontId] = useState("");
-    const [title, setTitle] = useState("");
-    const [files, setFiles] = useState<any[]>([]);
-    const [docId, setDocId] = useState("");
+    const { adminId, userId, access } = useAuthIds();
+    const [categories, setCategories] = useState<IStockCategory[]>([]);;
     const [open, setOpen] = useState(false);
-    const [stockItem, setStockItem] = useState<IStockItem>({
-        id: "",
-        adminId: "",
-        userId: "",
-        category: "",
-        title: "",
-        details: "",
-        itemNumber: 0,
-        status: '',
-        confirmed: false,
-        date: new Date(),
-        dateString: "",
-        dateOfUpdate: ""
-    });
-    const [accessArray, setAccessArray] = useState<any[]>([
-        'menu', 'orders', 'move-from-pantry', 'move-from-kitchen', 'cash-in',
-        'cash-out', 'cash-report', 'add-stock', 'confirm-stock', 'move-to-served', 'add-reservation', 'available-reservations',
-        'staff-scheduling', 'website', 'payments']);
+    const [title, setTitle] = useState("");
 
     useEffect(() => {
         document.body.style.backgroundColor = LIGHT_GRAY;
 
-        var infoFromCookie = '';
-        if (getCookie(ADMIN_ID) == '') {
-            infoFromCookie = getCookie(COOKIE_ID);
-        } else {
-            infoFromCookie = getCookie(ADMIN_ID);
-        }
-        // setAdminId(decrypt(infoFromCookie, COOKIE_ID));
-        setWebfrontId("webfrontId");
+
 
         getCategories();
     }, []);
@@ -103,20 +65,20 @@ const AddStockCategory = () => {
 
         let category: IStockCategory = {
             id: 'id',
-            adminId: "adminId",
+            adminId: adminId,
             category: title,
             date: new Date(),
             dateString: new Date().toDateString(),
-            userId: "id"
+            userId: userId
         }
         setCategories([]);
 
         addDocument(STOCK_CATEGORY_REF, category).then((v) => {
             setLoading(false);
-            setFiles([]);
+
             getCategories();
         }).catch((e: any) => {
-            setFiles([]);
+
             getCategories();
             setLoading(false);
             console.error(e);
@@ -150,12 +112,12 @@ const AddStockCategory = () => {
 
 
     return (
-        <AppAccess access={accessArray} component={'add-stock'}>
+        <AppAccess access={access} component={'add-stock'}>
             <div>
                 <div className="bg-white rounded-[30px] p-4">
                     {loading ? (
                         <div className="w-full flex flex-col items-center content-center">
-                            <Loader />
+                            <Loader color={''} />
                         </div>
                     ) : (
                         <div className="grid grid-cols-2 lg:grid-cols-5 overflow-y-scroll max-h-[700px] w-full gap-4 p-4">

@@ -70,7 +70,7 @@ export const getDataFromDBTwo = async (collectionName: any, fieldOne: any, check
 }
 
 export const getDataFromDBThree = async (collectionName: any, fieldOne: any, checkOne: any, fieldTwo: any, checkTwo: any, fieldThree: any, checkThree: any) => {
-  const q = query(collection(firestore, collectionName), where(fieldOne, "==", checkOne), where(fieldTwo, "==", checkTwo), where(fieldThree, "==", checkThree), orderBy("population", "desc"));
+  const q = query(collection(firestore, collectionName), where(fieldOne, "==", checkOne), where(fieldTwo, "==", checkTwo), where(fieldThree, "==", checkThree), orderBy("date", "desc"));
   const snapshot = await getCountFromServer(q);
   if (snapshot.data().count > 0) {
     const querySnapshot = await getDocs(q);
@@ -80,6 +80,7 @@ export const getDataFromDBThree = async (collectionName: any, fieldOne: any, che
     return null;
   }
 }
+
 
 
 

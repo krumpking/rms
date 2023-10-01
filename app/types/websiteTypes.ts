@@ -34,7 +34,8 @@ export type IWebsiteOneInfo = {
     date: Date,
     dateString: string,
     deliveryCost: number,
-    mapLocation: any
+    mapLocation: any,
+    daysOfWork: string[]
 }
 
 

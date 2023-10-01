@@ -11,6 +11,7 @@ import { ITransaction } from '../../types/cashbookTypes';
 import { Disclosure } from '@headlessui/react';
 import { print } from '../../utils/console';
 import AppAccess from '../accessLevel';
+import { useAuthIds } from '../authHook';
 
 const Sales = () => {
 
@@ -22,12 +23,8 @@ const Sales = () => {
     const [source, setSource] = useState("");
     const [categories, setCategories] = useState<string[]>(['cash', 'online', 'debit card', 'credit card', 'cheque']);
     const [category, setCategory] = useState("");
-    const [adminId, setAdminId] = useState("adminId");
+    const { adminId, userId, access } = useAuthIds();
     const [transactions, setTransactions] = useState<ITransaction[]>([])
-    const [accessArray, setAccessArray] = useState<any[]>([
-        'menu', 'orders', 'move-from-pantry', 'move-from-kitchen', 'cash-in',
-        'cash-out', 'cash-report', 'add-stock', 'confirm-stock', 'move-to-served', 'add-reservation', 'available-reservations',
-        'staff-scheduling', 'website', 'payments']);
 
 
     useEffect(() => {
@@ -45,7 +42,6 @@ const Sales = () => {
                 v.data.forEach(element => {
                     let d = element.data();
 
-                    print(d);
 
                     setTransactions(transactions => [...transactions, {
                         id: d.id,
@@ -82,7 +78,7 @@ const Sales = () => {
         let transaction: ITransaction = {
             id: "id",
             adminId: adminId,
-            userId: "userId",
+            userId: userId,
             transactionType: "Cash In",
             currency: currency,
             paymentMode: category,
@@ -109,11 +105,11 @@ const Sales = () => {
 
 
     return (
-        <AppAccess access={accessArray} component={'cash-in'}>
+        <AppAccess access={access} component={'cash-in'}>
             <div>
                 {loading ? (
                     <div className="flex flex-col items-center content-center">
-                        <Loader />
+                        <Loader color={''} />
                     </div>
                 ) : (
                     <div className="bg-white rounded-[30px] p-4  grid grid-cols-2 gap-4">
@@ -121,11 +117,12 @@ const Sales = () => {
                             <div className='mb-6'>
                                 <p>Amount</p>
                                 <input
-                                    type="text"
+                                    type="number"
+                                    step={(0.01)}
                                     value={amount}
                                     placeholder={"amount"}
                                     onChange={(e) => {
-                                        setAmount(parseInt(e.target.value));
+                                        setAmount(parseFloat(e.target.value));
                                     }}
                                     className="
                                         w-full

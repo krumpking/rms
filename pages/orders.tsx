@@ -9,9 +9,9 @@ import { Tab } from '@headlessui/react';
 import CreateMeal from '../app/components/menu/createMeal';
 import CreateOrder from '../app/components/order/createOrder';
 import OrderStatus from '../app/components/order/orderStatus';
-import OrderReady from '../app/components/order/readyOrders';
 import OrderHistory from '../app/components/order/orderHistory';
 import AppAccess from '../app/components/accessLevel';
+import { useAuthIds } from '../app/components/authHook';
 
 function classNames(...classes: string[]) {
     return classes.filter(Boolean).join(' ');
@@ -21,14 +21,13 @@ const Orders = () => {
     const [loading, setLoading] = useState(false);
     const [tabs, setTabs] = useState([
         'Create An Order',
-        'Order Status',
-        'Order Ready',
+        'Orders Just Added',
+        'Orders In Prep',
+        'Ready Orders',
+        'Orders Shipped',
         'Order History',
     ]);
-    const [accessArray, setAccessArray] = useState<any[]>([
-        'menu', 'orders', 'move-from-pantry', 'move-from-kitchen', 'cash-in',
-        'cash-out', 'cash-report', 'add-stock', 'confirm-stock', 'move-to-served', 'add-reservation', 'available-reservations',
-        'staff-scheduling', 'website', 'payments', 'stock-overview']);
+    const { adminId, userId, access } = useAuthIds();
 
 
 
@@ -44,7 +43,7 @@ const Orders = () => {
 
 
     return (
-        <AppAccess access={accessArray} component={'orders'}>
+        <AppAccess access={access} component={'orders'}>
             <div>
                 <div className='flex flex-col '>
 
@@ -55,7 +54,7 @@ const Orders = () => {
 
                     {loading ?
                         <div className='flex flex-col justify-center items-center w-full col-span-9'>
-                            <Loader />
+                            <Loader color={''} />
                         </div>
 
                         :
@@ -94,7 +93,7 @@ const Orders = () => {
                                             'ring-white  ring-offset-2 focus:outline-none focus:ring-2'
                                         )}
                                     >
-                                        <OrderStatus />
+                                        <OrderStatus level={0} />
                                     </Tab.Panel>
                                     <Tab.Panel
                                         className={classNames(
@@ -102,7 +101,23 @@ const Orders = () => {
                                             'ring-white  ring-offset-2 focus:outline-none focus:ring-2'
                                         )}
                                     >
-                                        <OrderReady />
+                                        <OrderStatus level={1} />
+                                    </Tab.Panel>
+                                    <Tab.Panel
+                                        className={classNames(
+                                            'rounded-xl bg-white p-3',
+                                            'ring-white  ring-offset-2 focus:outline-none focus:ring-2'
+                                        )}
+                                    >
+                                        <OrderStatus level={2} />
+                                    </Tab.Panel>
+                                    <Tab.Panel
+                                        className={classNames(
+                                            'rounded-xl bg-white p-3',
+                                            'ring-white  ring-offset-2 focus:outline-none focus:ring-2'
+                                        )}
+                                    >
+                                        <OrderStatus level={3} />
                                     </Tab.Panel>
                                     <Tab.Panel
                                         className={classNames(

@@ -4,7 +4,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router';
 import { getCookie } from 'react-use-cookie';
-import { ADMIN_ID, AMDIN_FIELD, COOKIE_ID, LIGHT_GRAY } from '../../constants/constants';
+import { ADMIN_ID, AMDIN_FIELD, LIGHT_GRAY } from '../../constants/constants';
 import Loader from '../loader';
 import { decrypt } from '../../utils/crypto';
 import { ICategory, IMeal, IMenuItem } from '../../types/menuTypes';
@@ -17,13 +17,13 @@ import { print } from '../../utils/console';
 import { Dialog, Transition } from '@headlessui/react';
 import { findOccurrences, findOccurrencesObjectId, searchStringInArray } from '../../utils/arrayM';
 import { createId } from '../../utils/stringM';
+import { useAuthIds } from '../authHook';
 
 const CreateMeal = () => {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    const [adminId, setAdminId] = useState('adminId');
+    const { adminId, userId, access } = useAuthIds();
     const [categories, setCategories] = useState<ICategory[]>([]);
-    const [webfrontId, setWebfrontId] = useState("");
     const [title, setTitle] = useState("");
     const [files, setFiles] = useState<any[]>([]);
     const [docId, setDocId] = useState("");
@@ -50,14 +50,7 @@ const CreateMeal = () => {
     useEffect(() => {
         document.body.style.backgroundColor = LIGHT_GRAY;
 
-        var infoFromCookie = '';
-        if (getCookie(ADMIN_ID) == '') {
-            infoFromCookie = getCookie(COOKIE_ID);
-        } else {
-            infoFromCookie = getCookie(ADMIN_ID);
-        }
-        // setAdminId(decrypt(infoFromCookie, COOKIE_ID));
-        setWebfrontId("webfrontId");
+
 
         getCategories();
         getMenuItems();
@@ -153,7 +146,7 @@ const CreateMeal = () => {
         addItems.forEach((el) => {
             total += el.price;
         });
-        return total;
+        return total.toFixed(2);
     }
 
     const removeItem = (v: any) => {
@@ -192,7 +185,7 @@ const CreateMeal = () => {
 
 
 
-                await uploadFile(`${webfrontId}/${MEAL_STORAGE_REF}/${name}`, files[0]);
+                await uploadFile(`${adminId}/${MEAL_STORAGE_REF}/${name}`, files[0]);
                 const info = name.split('_');
 
 
@@ -200,10 +193,10 @@ const CreateMeal = () => {
                     const compressedFile = await imageCompression(files[0], options);
 
                     // Thumbnail
-                    await uploadFile(`${webfrontId}/${MEAL_STORAGE_REF}/thumbnail_${name}`, compressedFile);
+                    await uploadFile(`${adminId}/${MEAL_STORAGE_REF}/thumbnail_${name}`, compressedFile);
                     let meal: IMeal = {
                         id: 'id',
-                        adminId: "adminId",
+                        adminId: adminId,
                         title: title,
                         description: description,
                         menuItems: addItems,
@@ -215,7 +208,7 @@ const CreateMeal = () => {
                         category: category,
                         date: new Date(),
                         dateString: new Date().toDateString(),
-                        userId: "id",
+                        userId: userId,
                         price: price
                     }
 
@@ -277,10 +270,9 @@ const CreateMeal = () => {
         let index = 0;
         for (let i = 0; i < displayedItems.length; i++) {
             if (displayedItems[i].id === v.id) {
-                print(displayedItems[i].id === v.id);
                 count = displayedItems[i].count + 1;
                 index = i;
-                return;
+                break;
             }
         }
         if (count > 0) {
@@ -316,7 +308,7 @@ const CreateMeal = () => {
 
 
         });
-        return total;
+        return total.toFixed(2);
 
     }
 
@@ -415,28 +407,31 @@ const CreateMeal = () => {
                                 />
                             </div>
 
-                            <div className='grid grid-cols-2 lg:grid-cols-4 gap-4'>
-                                {menuItems.map((v) => {
-                                    return (
-                                        <div className={'flex flex-col shadow-xl rounded-[25px] p-8 w-[250px] ' + checkIfItOccurs(v.id)}
-                                            onClick={() => {
-                                                addItemsToMeal(v);
-                                            }}>
-                                            <ShowImage src={`/${webfrontId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`} alt={'Menu Item'} style={'rounded-[25px] h-20 w-full'} />
-                                            <div className='flex flex-row justify-between'>
-                                                <h1 className='font-bold text-sm'>{v.title}</h1>
-                                                <h1 className='font-bold text-sm'>{v.price}USD</h1>
+                            <div className='w-full'>
+                                {menuItems.length > 0 ? <div className='grid grid-cols-2 lg:grid-cols-4 gap-4'>
+                                    {menuItems.map((v) => {
+                                        return (
+                                            <div className={'flex flex-col shadow-xl rounded-[25px] p-8 w-[250px] ' + checkIfItOccurs(v.id)}
+                                                onClick={() => {
+                                                    addItemsToMeal(v);
+                                                }}>
+                                                <ShowImage src={`/${adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`} alt={'Menu Item'} style={'rounded-[25px] h-20 w-full'} />
+                                                <div className='flex flex-row justify-between'>
+                                                    <h1 className='font-bold text-sm'>{v.title}</h1>
+                                                    <h1 className='font-bold text-sm'>{v.price}USD</h1>
+                                                </div>
                                             </div>
-                                        </div>
-                                    )
-                                })}
+                                        )
+                                    })}
+                                </div> : <h1 className='col-span-2'>Looks like you are yet to add Menu Items</h1>}
+
                             </div>
 
 
                         </div>
                         <div className='col-span-3 flex flex-col p-4 '>
                             <div className='max-h-[150px] overflow-y-scroll'>
-                                <div className='flex flex-row justify-between shadow-md m-4 p-4'>
+                                <div className='flex flex-row justify-between shadow-md m-4 p-4 rounded-[25px]'>
                                     <p className="text-xs"> Item</p>
                                     <div className='flex justify-between space-x-2'>
                                         <p className="text-xs" >No of Items</p>

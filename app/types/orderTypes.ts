@@ -19,5 +19,7 @@ export type IOrder = {
     dateString: string,
     deliveryDate: Date,
     deliveryDateString: string,
-    deliveryTime: string
+    deliveryTime: string,
+    deliverer: string,
+    deliveredSignature: any
 }

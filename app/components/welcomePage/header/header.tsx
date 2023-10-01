@@ -38,7 +38,7 @@ const Header = () => {
                                         cursor-pointer
                                         hover:bg-opacity-90
                                         transition'>
-                            Get Started for Free
+                            Start for Free
 
                         </button>
                         <button

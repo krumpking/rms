@@ -17,21 +17,15 @@ import { IShift } from '../../types/staffTypes';
 import DateMethods from '../../utils/date';
 import { print } from '../../utils/console';
 import { SHIFT_COLLECTION } from '../../constants/staffConstants';
+import { useAuthIds } from '../authHook';
 
 
 
 const AddSchedule = () => {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    const [adminId, setAdminId] = useState('adminId');
+    const { adminId, userId, access } = useAuthIds();
     const [categories, setCategories] = useState<IUser[]>([]);
-    const [webfrontId, setWebfrontId] = useState("");
-    const [title, setTitle] = useState("");
-    const [files, setFiles] = useState<any[]>([]);
-    const [docId, setDocId] = useState("");
-    const [description, setDescription] = useState("");
-    const [price, setPrice] = useState(0);
-    const [category, setCategory] = useState("");
     const [users, setUsers] = useState<IUser[]>([]);
     const [usersTemp, setUsersTemp] = useState<IUser[]>([]);
     const [edit, setEdit] = useState(false);
@@ -61,10 +55,6 @@ const AddSchedule = () => {
     const [end, setEnd] = useState(10);
     const [search, setSearch] = useState("");
     const [selectedAccessArray, setselectedAccessArray] = useState<any[]>([])
-    const [accessArray, setAccessArray] = useState<any[]>([
-        'menu', 'orders', 'move-from-pantry', 'move-from-kitchen', 'cash-in',
-        'cash-out', 'cash-report', 'add-stock', 'confirm-stock', 'move-to-served', 'add-reservation', 'available-reservations',
-        'staff-scheduling', 'website', 'payments', 'stock-overview', 'admin', 'receipting']);
     const [shift, setShift] = useState<IShift>({
         id: "",
         adminId: "",
@@ -84,14 +74,7 @@ const AddSchedule = () => {
     useEffect(() => {
         document.body.style.backgroundColor = LIGHT_GRAY;
 
-        // var infoFromCookie = '';
-        // if (getCookie(ADMIN_ID) == '') {
-        //     infoFromCookie = getCookie(COOKIE_ID);
-        // } else {
-        //     infoFromCookie = getCookie(ADMIN_ID);
-        // }
-        // setAdminId(decrypt(infoFromCookie, COOKIE_ID));
-        setWebfrontId("webfrontId");
+
 
         getUsers();
     }, []);
@@ -149,7 +132,7 @@ const AddSchedule = () => {
 
         if (DateMethods.diffDatesDays(new Date().toDateString(), new Date(shift.startDate).toDateString()) > 0
             && DateMethods.diffDatesDays(new Date().toDateString(), new Date(shift.endDate).toDateString()) > 0) {
-            let addedShift = { ...shift, user: user };
+            let addedShift = { ...shift, user: user, adminId: adminId, userId: userId };
             setOpen(false);
             setLoading(true);
             addDocument(SHIFT_COLLECTION, addedShift).then((v) => {
@@ -184,11 +167,10 @@ const AddSchedule = () => {
         setLoading(true);
         setUsersTemp([]);
         updateDocument(USER_COLLECTION, user.id, newItem).then((v) => {
-            setFiles([]);
             getUsers();
             setOpen(false);
         }).catch((e: any) => {
-            setFiles([]);
+
             getUsers();
             setOpen(false);
             console.error(e);
@@ -282,15 +264,14 @@ const AddSchedule = () => {
 
 
     return (
-        <AppAccess access={accessArray} component={'staff-scheduling'}>
+        <AppAccess access={access} component={'staff-scheduling'}>
             <div>
-
-                <div className="w-full m-2 px-2 py-8 sm:px-0 col-span-9 ">
+                <div className="w-full m-2 px-2 py-8 sm:px-0 col-span-9">
                     <div>
                         <div className="bg-white rounded-[30px] p-4">
                             {loading ? (
                                 <div className="w-full flex flex-col items-center content-center">
-                                    <Loader />
+                                    <Loader color={''} />
                                 </div>
                             ) : (
                                 <div className="flex flex-col overflow-y-scroll max-h-[700px] w-full gap-4 p-4">
@@ -573,6 +554,7 @@ const AddSchedule = () => {
 
                         <ToastContainer position="top-right" autoClose={5000} />
                     </div>
+
 
                 </div>
             </div>

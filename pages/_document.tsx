@@ -21,10 +21,10 @@ class MyDocument extends Document {
                     <link rel="preconnect" href="https://fonts.googleapis.com" />
                     <link rel="preconnect" href="https://fonts.gstatic.com" />
                     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap" rel="stylesheet" />
-                    <link rel="shortcut icon" href={'./images/logo.png'} />
+                    <link rel="shortcut icon" href={'./images/logo3.png'} />
                     <title>FoodiesBooth</title>
-                    <meta name="keywords" content={"Form builder, Paper to Digital, Data Bank, Bank Level Encryption,"} />
-                    <meta name="description" content={"Go Paperless at a click, with a simple and effective way to collect and organise you business information"} />
+                    <meta name="keywords" content={"Food,Restaturent,Catering,Baking,Cake,Burger"} />
+                    <meta name="description" content={"A marketplace for Food Businesses, making memories"} />
 
 
 
