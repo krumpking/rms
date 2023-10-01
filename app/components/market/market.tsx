@@ -73,7 +73,7 @@ const MarketPlace = (props: {
 		clientId: '',
 		customerName: '',
 		customerEmail: '',
-		customerPhone: '',
+		customerPhone: '+263',
 		customerAddress: '',
 		deliveryLocation: null,
 		tableNo: '',
@@ -234,10 +234,19 @@ const MarketPlace = (props: {
 	};
 
 	const handleChangeOrder = (e: any) => {
-		setOrder({
-			...order,
-			[e.target.name]: e.target.value,
-		});
+		if (e.target.name === 'customerPhone') {
+			if (e.target.value.includes('+263')) {
+				setOrder({
+					...order,
+					[e.target.name]: e.target.value,
+				});
+			}
+		} else {
+			setOrder({
+				...order,
+				[e.target.name]: e.target.value,
+			});
+		}
 	};
 
 	const removeItem = (v: any) => {
@@ -333,6 +342,64 @@ const MarketPlace = (props: {
 		return total;
 	};
 
+	const submitOrder = () => {
+		getDataFromDBOne(ORDER_COLLECTION, AMDIN_FIELD, info.adminId)
+			.then((v) => {
+				let oN = 1;
+				if (v !== null) {
+					oN = v.count + 1;
+				}
+				let total = 0;
+
+				addItems.forEach((el) => {
+					total += el.price;
+				});
+				if (order.deliveryMethod == 'Delivery') {
+					let dis = computeDistanceBetween(
+						new LatLng(location.lat, location.lng),
+						new LatLng(info.mapLocation.lat, info.mapLocation.lng)
+					);
+					let d = info.deliveryCost * (dis / 1000);
+					d.toFixed(2);
+					total += d;
+				}
+
+				let newOrder: IOrder = {
+					...order,
+					orderNo: oN,
+					items: addItems,
+					status: 0,
+					statusCode: 'Sent',
+					totalCost: total,
+					deliveryLocation: location,
+					deliveryDateString: new Date(order.deliveryDate).toDateString(),
+					date: new Date(),
+					dateString: new Date().toDateString(),
+					adminId: info.adminId,
+					userId: info.userId,
+				};
+
+				addDocument(ORDER_COLLECTION, newOrder)
+					.then((v) => {
+						sendSMS(
+							info.phone,
+							`${order.customerName} has just made an order,log on to see more click on this ${FOODIES_BOOTH_URL}/orders`
+						).catch(console.error);
+						setLoading(false);
+						toast.success('Order Added successfully');
+					})
+					.catch((e) => {
+						console.error(e);
+						toast.error('Please try again');
+					});
+				setLoading(false);
+			})
+			.catch((e) => {
+				console.error(e);
+				setLoading(true);
+			});
+	};
+
 	const addOrder = () => {
 		setLoading(true);
 		let deliveryDate = new Date(order.deliveryDate);
@@ -356,56 +423,7 @@ const MarketPlace = (props: {
 								order.customerName !== '' &&
 								order.customerPhone !== ''
 							) {
-								getDataFromDBOne(ORDER_COLLECTION, AMDIN_FIELD, info.adminId)
-									.then((v) => {
-										if (v !== null) {
-											let oN: number = v.count + 1;
-
-											let total = 0;
-
-											addItems.forEach((el) => {
-												total += el.price;
-											});
-											total += deliveryCost;
-
-											let newOrder: IOrder = {
-												...order,
-												orderNo: oN,
-												items: addItems,
-												status: 0,
-												statusCode: 'Sent',
-												totalCost: total,
-												deliveryMethod: 'Delivery',
-												deliveryLocation: location,
-												deliveryDateString: new Date(
-													order.deliveryDate
-												).toDateString(),
-												date: new Date(),
-												dateString: new Date().toDateString(),
-												adminId: info.adminId,
-												userId: info.userId,
-											};
-
-											addDocument(ORDER_COLLECTION, newOrder)
-												.then((v) => {
-													setLoading(false);
-													sendSMS(
-														info.phone,
-														`${order.customerName} has just made an order,log on to see more click on this ${FOODIES_BOOTH_URL}/orders`
-													).catch(console.error);
-													toast.success('Order Added successfully');
-												})
-												.catch((e) => {
-													console.error(e);
-													toast.error('Please try again');
-												});
-										}
-										setLoading(false);
-									})
-									.catch((e) => {
-										console.error(e);
-										setLoading(true);
-									});
+								submitOrder();
 							} else {
 								setLoading(false);
 								toast.error('Ensure you enter all details');
@@ -432,56 +450,7 @@ const MarketPlace = (props: {
 							order.customerName !== '' &&
 							order.customerPhone !== ''
 						) {
-							getDataFromDBOne(ORDER_COLLECTION, AMDIN_FIELD, info.adminId)
-								.then((v) => {
-									if (v !== null) {
-										let oN: number = v.count + 1;
-
-										let total = 0;
-
-										addItems.forEach((el) => {
-											total += el.price;
-										});
-										total += deliveryCost;
-
-										let newOrder: IOrder = {
-											...order,
-											orderNo: oN,
-											items: addItems,
-											status: 0,
-											statusCode: 'Sent',
-											totalCost: total,
-											deliveryMethod: 'Delivery',
-											deliveryLocation: location,
-											deliveryDateString: new Date(
-												order.deliveryDate
-											).toDateString(),
-											date: new Date(),
-											dateString: new Date().toDateString(),
-											adminId: info.adminId,
-											userId: info.userId,
-										};
-
-										addDocument(ORDER_COLLECTION, newOrder)
-											.then((v) => {
-												sendSMS(
-													info.phone,
-													`${order.customerName} has just made an order,log on to see more click on this ${FOODIES_BOOTH_URL}/orders`
-												).catch(console.error);
-												setLoading(false);
-												toast.success('Order Added successfully');
-											})
-											.catch((e) => {
-												console.error(e);
-												toast.error('Please try again');
-											});
-									}
-									setLoading(false);
-								})
-								.catch((e) => {
-									console.error(e);
-									setLoading(true);
-								});
+							submitOrder();
 						} else {
 							setLoading(false);
 							toast.error('Ensure you enter all details');
@@ -506,7 +475,8 @@ const MarketPlace = (props: {
 			new LatLng(info.mapLocation.lat, info.mapLocation.lng)
 		);
 		let d = 1 * (dis / 1000);
-		return 3;
+
+		return d.toFixed(2);
 	};
 
 	return (
@@ -624,7 +594,7 @@ const MarketPlace = (props: {
 													className='py-2 px-5 text-white rounded-[25px] w-1/2'
 													style={{ backgroundColor: PRIMARY_COLOR }}
 												>
-													Add to order
+													Add
 												</button>
 											</div>
 										</div>

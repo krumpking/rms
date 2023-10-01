@@ -165,7 +165,7 @@ const Booths = () => {
 									reservation: d.reservation,
 									contactUsImage: d.contactUsImage,
 									email: d.email,
-									address: d.adress,
+									address: d.address,
 									phone: d.phone,
 									date: d.date,
 									dateString: d.dateString,

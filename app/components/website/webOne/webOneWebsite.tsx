@@ -101,7 +101,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 		clientId: '',
 		customerName: '',
 		customerEmail: '',
-		customerPhone: '',
+		customerPhone: '+263',
 		customerAddress: '',
 		deliveryLocation: null,
 		tableNo: '',
@@ -290,10 +290,19 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 	};
 
 	const handleChangeOrder = (e: any) => {
-		setOrder({
-			...order,
-			[e.target.name]: e.target.value,
-		});
+		if (e.target.name === 'customerPhone') {
+			if (e.target.value.includes('+263')) {
+				setOrder({
+					...order,
+					[e.target.name]: e.target.value,
+				});
+			}
+		} else {
+			setOrder({
+				...order,
+				[e.target.name]: e.target.value,
+			});
+		}
 	};
 
 	const handleChangeContact = (e: any) => {
@@ -405,7 +414,66 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 			new LatLng(info.mapLocation.lat, info.mapLocation.lng)
 		);
 		let d = info.deliveryCost * (dis / 1000);
+
 		return d.toFixed(2);
+	};
+
+	const submitOrder = () => {
+		getDataFromDBOne(ORDER_COLLECTION, AMDIN_FIELD, info.adminId)
+			.then((v) => {
+				let oN = 1;
+				if (v !== null) {
+					oN = v.count + 1;
+				}
+				let total = 0;
+
+				addItems.forEach((el) => {
+					total += el.price;
+				});
+				if (order.deliveryMethod == 'Delivery') {
+					let dis = computeDistanceBetween(
+						new LatLng(location.lat, location.lng),
+						new LatLng(info.mapLocation.lat, info.mapLocation.lng)
+					);
+					let d = info.deliveryCost * (dis / 1000);
+					d.toFixed(2);
+					total += d;
+				}
+
+				let newOrder: IOrder = {
+					...order,
+					orderNo: oN,
+					items: addItems,
+					status: 0,
+					statusCode: 'Sent',
+					totalCost: total,
+					deliveryLocation: location,
+					deliveryDateString: new Date(order.deliveryDate).toDateString(),
+					date: new Date(),
+					dateString: new Date().toDateString(),
+					adminId: info.adminId,
+					userId: info.userId,
+				};
+
+				addDocument(ORDER_COLLECTION, newOrder)
+					.then((v) => {
+						sendSMS(
+							info.phone,
+							`${order.customerName} has just made an order,log on to see more click on this ${FOODIES_BOOTH_URL}/orders`
+						).catch(console.error);
+						setLoading(false);
+						toast.success('Order Added successfully');
+					})
+					.catch((e) => {
+						console.error(e);
+						toast.error('Please try again');
+					});
+				setLoading(false);
+			})
+			.catch((e) => {
+				console.error(e);
+				setLoading(true);
+			});
 	};
 
 	const addOrder = () => {
@@ -430,56 +498,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 								order.customerName !== '' &&
 								order.customerPhone !== ''
 							) {
-								getDataFromDBOne(ORDER_COLLECTION, AMDIN_FIELD, info.adminId)
-									.then((v) => {
-										if (v !== null) {
-											let oN: number = v.count + 1;
-
-											let total = 0;
-
-											addItems.forEach((el) => {
-												total += el.price;
-											});
-											total += deliveryCost;
-
-											let newOrder: IOrder = {
-												...order,
-												orderNo: oN,
-												items: addItems,
-												status: 0,
-												statusCode: 'Sent',
-												totalCost: total,
-												deliveryMethod: 'Delivery',
-												deliveryLocation: location,
-												deliveryDateString: new Date(
-													order.deliveryDate
-												).toDateString(),
-												date: new Date(),
-												dateString: new Date().toDateString(),
-												adminId: info.adminId,
-												userId: info.userId,
-											};
-
-											addDocument(ORDER_COLLECTION, newOrder)
-												.then((v) => {
-													sendSMS(
-														info.phone,
-														`${order.customerName} has just made an order,log on to see more click on this ${FOODIES_BOOTH_URL}/orders`
-													);
-													setLoading(false);
-													toast.success('Order Added successfully');
-												})
-												.catch((e) => {
-													console.error(e);
-													toast.error('Please try again');
-												});
-										}
-										setLoading(false);
-									})
-									.catch((e) => {
-										console.error(e);
-										setLoading(true);
-									});
+								submitOrder();
 							} else {
 								setLoading(false);
 								toast.error('Ensure you enter all details');
@@ -506,56 +525,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 							order.customerName !== '' &&
 							order.customerPhone !== ''
 						) {
-							getDataFromDBOne(ORDER_COLLECTION, AMDIN_FIELD, info.adminId)
-								.then((v) => {
-									if (v !== null) {
-										let oN: number = v.count + 1;
-
-										let total = 0;
-
-										addItems.forEach((el) => {
-											total += el.price;
-										});
-										total += deliveryCost;
-
-										let newOrder: IOrder = {
-											...order,
-											orderNo: oN,
-											items: addItems,
-											status: 0,
-											statusCode: 'Sent',
-											totalCost: total,
-											deliveryMethod: 'Delivery',
-											deliveryLocation: location,
-											deliveryDateString: new Date(
-												order.deliveryDate
-											).toDateString(),
-											date: new Date(),
-											dateString: new Date().toDateString(),
-											adminId: info.adminId,
-											userId: info.userId,
-										};
-
-										addDocument(ORDER_COLLECTION, newOrder)
-											.then((v) => {
-												setLoading(false);
-												toast.success('Order Added successfully');
-												sendSMS(
-													info.phone,
-													`${order.customerName} has just made an order,log on to see more click on this ${FOODIES_BOOTH_URL}/orders`
-												).catch(console.error);
-											})
-											.catch((e) => {
-												console.error(e);
-												toast.error('Please try again');
-											});
-									}
-									setLoading(false);
-								})
-								.catch((e) => {
-									console.error(e);
-									setLoading(true);
-								});
+							submitOrder();
 						} else {
 							setLoading(false);
 							toast.error('Ensure you enter all details');
@@ -811,7 +781,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 												alt={'Menu Item'}
 												style={'rounded-md h-64 w-full'}
 											/>
-											<h1 className='font-bold text-4xl px-4'>{v.title}</h1>
+											<h1 className='font-bold text-xl px-4'>{v.title}</h1>
 											<div className='flex flex-row justify-between p-4 items-center'>
 												<h1 className='font-bold text-xl'>{v.price}USD</h1>
 												<button
@@ -821,7 +791,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 													className='py-2 px-5 text-white rounded-md w-1/2'
 													style={{ backgroundColor: `${info.themeMainColor}` }}
 												>
-													Add to cart
+													Add
 												</button>
 											</div>
 										</div>
@@ -833,7 +803,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 												alt={'Menu Item'}
 												style={'rounded-md h-64 w-full'}
 											/>
-											<h1 className='font-bold text-4xl px-4'>{v.title}</h1>
+											<h1 className='font-bold text-xl px-4'>{v.title}</h1>
 											<div className='flex flex-row justify-between p-4 items-center'>
 												<h1 className='font-bold text-xl'>{v.price}USD</h1>
 												<button
@@ -843,7 +813,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 													className='py-2 px-5 text-white rounded-md w-1/2'
 													style={{ backgroundColor: `${info.themeMainColor}` }}
 												>
-													Add to cart
+													Add
 												</button>
 											</div>
 										</div>
@@ -1324,7 +1294,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 												alt={'Menu Item'}
 												style={'rounded-md h-64 w-full'}
 											/>
-											<h1 className='font-bold text-4xl px-4'>{v.title}</h1>
+											<h1 className='font-bold text-xl px-4'>{v.title}</h1>
 											<div className='flex flex-row justify-between p-4 items-center'>
 												<h1 className='font-bold text-xl'>{v.price}USD</h1>
 												<button
@@ -1334,7 +1304,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 													className='py-2 px-5 text-white rounded-md w-1/2'
 													style={{ backgroundColor: `${info.themeMainColor}` }}
 												>
-													Add to cart
+													Add
 												</button>
 											</div>
 										</div>
@@ -1346,7 +1316,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 												alt={'Menu Item'}
 												style={'rounded-md h-64 w-full'}
 											/>
-											<h1 className='font-bold text-4xl px-4'>{v.title}</h1>
+											<h1 className='font-bold text-xl px-4'>{v.title}</h1>
 											<div className='flex flex-row justify-between p-4 items-center'>
 												<h1 className='font-bold text-xl'>{v.price}USD</h1>
 												<button
@@ -1356,7 +1326,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 													className='py-2 px-5 text-white rounded-md w-1/2'
 													style={{ backgroundColor: `${info.themeMainColor}` }}
 												>
-													Add to cart
+													Add
 												</button>
 											</div>
 										</div>

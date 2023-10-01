@@ -131,7 +131,7 @@ const OrderStatus = (props: { level: number }) => {
 		}
 	};
 
-	const updateOrder = (v: any) => {
+	const updateOrder = (v: IOrder) => {
 		setLoading(true);
 
 		let updateStatus = ORDER_IN_PREP;
@@ -142,11 +142,11 @@ const OrderStatus = (props: { level: number }) => {
 				sendSMSToDrivers();
 
 				sendSMS(
-					v.phone,
+					v.customerPhone,
 					`Your order is now ready, just waiting for the driver to deliver to ${v.customerAddress}`
 				);
 			} else {
-				sendSMS(v.phone, `Your order is now ready for PICK UP!`);
+				sendSMS(v.customerPhone, `Your order is now ready for PICK UP!`);
 			}
 
 			updateStatus = ORDER_READY;
@@ -156,7 +156,7 @@ const OrderStatus = (props: { level: number }) => {
 				updateStatus = ORDER_SHIPPED;
 				status = 99;
 				sendSMS(
-					v.phone,
+					v.customerPhone,
 					`Your order has been shipped to ${v.customerAddress},please ensure to sign off on the delivery of your order`
 				);
 			} else {
@@ -276,6 +276,9 @@ const OrderStatus = (props: { level: number }) => {
 										</h1>
 										<h1 className='font-bold text-sm'>
 											Due: {v.totalCost.toFixed(2)}USD
+										</h1>
+										<h1 className='font-bold text-sm'>
+											Order type: {v.deliveryMethod}
 										</h1>
 										<h1 className='font-bold text-sm'>{v.customerName}</h1>
 
