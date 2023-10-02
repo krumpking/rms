@@ -383,7 +383,7 @@ const MarketPlace = (props: {
 					.then((v) => {
 						sendSMS(
 							info.phone,
-							`${order.customerName} has just made an order,log on to see more click on this ${FOODIES_BOOTH_URL}/orders`
+							`${order.customerName} whose contact number is ${order.customerPhone}, has just made an order,log on to see more click on this ${FOODIES_BOOTH_URL}/orders`
 						).catch(console.error);
 						setLoading(false);
 						toast.success('Order Added successfully');
