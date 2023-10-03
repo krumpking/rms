@@ -486,7 +486,7 @@ const MarketPlace = (props: {
 					<Loader color={''} />
 				</div>
 			) : (
-				<div className='bg-white rounded-[30px] p-4 '>
+				<div className='bg-white rounded-[30px] p-0 sm:p-4 '>
 					<div className='relative'>
 						<div
 							className='border rounded-[25px] w-full h-full'
@@ -524,9 +524,11 @@ const MarketPlace = (props: {
 									style={'rounded-full h-40 w-40 '}
 								/>
 							</div>
-							<div className='p-8'>
+							<div className='p-2 sm:p-8'>
 								<div className='flex justify-between content-center items-center mb-6'>
-									<h1 className='text-2xl'>Order Now</h1>
+									<h1 className='hidden lg:block text-md md:text-2xl'>
+										Order Now
+									</h1>
 									<div className='flex flex-row space-x-4 max-w-[800px] overflow-x-auto'>
 										{menuItems.map((v) => (
 											<h1
@@ -576,7 +578,7 @@ const MarketPlace = (props: {
                                         '
 									onKeyDown={handleKeyDown}
 								/>
-								<div className='grid grid-cols-4 gap-4 mb-6'>
+								<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6'>
 									{menuItems.map((v) => (
 										<div className='flex flex-col shadow-2xl rounded-[25px]'>
 											<ShowImage

@@ -201,12 +201,12 @@ const BoothsComp = (props: {
 								onKeyDown={handleKeyDown}
 							/>
 
-							<div className='grid grid-cols-3 gap-8 p-8'>
+							<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-8 p-2 md:p-8'>
 								{booths.map((v) => (
 									<div className='relative shadow-2xl rounded-[25px] p-4 w-full'>
 										<div className='p-4'>
 											<p className='text-xl'>{v.serviceProviderName}</p>
-											<div className='flex justify-between'>
+											<div className='flex flex-col'>
 												<div className='w-full'>
 													<p className='text-md'>
 														{v.aboutUsInfo.slice(0, 52)}...
