@@ -168,6 +168,7 @@ const SignUp = () => {
 							paymentDate: subDays(new Date(), 23),
 							paymentDateString: subDays(new Date(), 23).toDateString(),
 							package: ENTERPRISE_PACKAGE,
+							date: new Date(),
 							amount: 0,
 							refCode: '',
 						};
@@ -222,7 +223,7 @@ const SignUp = () => {
 	return (
 		<div>
 			<div
-				className='w-full h-screen p-4 md:p-8 lg:p-16 '
+				className='w-full h-full p-4 md:p-8 lg:p-16 '
 				style={{ backgroundColor: PRIMARY_COLOR }}
 			>
 				<div className='bg-white h-full rounded-[25px]  flex flex-col p-8 '>
@@ -244,8 +245,8 @@ const SignUp = () => {
 							</svg>
 						</a>
 					</div>
-					<div className='grid grid-cols-1 md:grid-cols-2 place-items-center p-4 '>
-						<div className='hidden md:block'>
+					<div className='grid grid-cols-1 lg:grid-cols-2 place-items-center p-4 '>
+						<div className='hidden lg:block'>
 							<img
 								src={'images/webOneDefaultPicture.jpg'}
 								className='h-96 w-full'

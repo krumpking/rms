@@ -280,6 +280,7 @@ const Home: NextPage = () => {
 
 	return (
 		<div>
+			
 			{loading ? (
 				<div className='flex items-center content-center w-full h-screen justify-center p-16'>
 					<Loader color={''} />

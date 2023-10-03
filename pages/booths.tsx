@@ -42,6 +42,7 @@ import { IWebsiteOneInfo } from '../app/types/websiteTypes';
 import MarketPlace from '../app/components/market/market';
 import BoothsComp from '../app/components/booths/boothsComp';
 import DateMethods from '../app/utils/date';
+import Head from 'next/head';
 
 const Booths = () => {
 	const [loading, setLoading] = useState(true);
@@ -249,6 +250,9 @@ const Booths = () => {
 
 	return (
 		<div>
+			<Head>
+				<meta name='viewport' content='width=978'></meta>
+			</Head>
 			{loading ? (
 				<div className='flex flex-col items-center content-center'>
 					<Loader color={''} />

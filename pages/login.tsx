@@ -227,7 +227,7 @@ const Login = (props: {
 								</svg>
 							</a>
 						</div>
-						<div className='grid grid-cols-1 md:grid-cols-2 place-items-center p-4 h-full'>
+						<div className='grid grid-cols-1 lg:grid-cols-2 place-items-center p-4 h-full'>
 							<div className='hidden lg:block'>
 								<img
 									src={'images/webOneDefaultPicture.jpg'}

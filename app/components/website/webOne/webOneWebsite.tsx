@@ -135,6 +135,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 		duration: 0,
 		refCode: '',
 		package: '',
+		date: new Date(),
 	});
 
 	useEffect(() => {
@@ -1286,7 +1287,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                                         '
 									onKeyDown={handleKeyDown}
 								/>
-								<div className='grid grid-cols-4 gap-4 mb-6'>
+								<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6'>
 									{menuItems.map((v) => (
 										<div className='flex flex-col shadow-2xl rounded-md'>
 											<ShowImage
