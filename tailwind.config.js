@@ -19,6 +19,7 @@ module.exports = {
       backgroundImage: {
         "bg-swurl": "url('/images/bg-swurl.png')",
         carousel: "url('/images/carousel.png')",
+        headerImage: "url('/images/header1.png')",
       },
       screens: {
         xxs: "250px",

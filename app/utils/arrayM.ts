@@ -2,8 +2,11 @@ import { getCookie } from "react-use-cookie";
 import { print } from "./console";
 import { decrypt } from "./crypto";
 import { numberWithCommas } from "./stringM";
-import { ADMIN_ID, COOKIE_ID } from "../constants/constants";
+import { ADMIN_ID } from "../constants/constants";
+import { useAuthIds } from "../components/authHook";
 
+
+const { adminId, userId, access } = useAuthIds();
 
 
 export function findOccurrences(array: any[], value: any): number {
@@ -17,15 +20,30 @@ export function findOccurrences(array: any[], value: any): number {
 }
 
 
-export function findOccurrencesProducts(array: any[], value: any): number {
+export function findOccurrencesObjectId(array: any[], id: any): number {
     let count = 0;
     for (let i = 0; i < array.length; i++) {
-        if (array[i].product === value) {
+        if (array[i].id === id) {
             count++;
         }
     }
     return count;
 }
+
+
+export function returnOccurrencesIndex(array: any[], id: any): number {
+    let count = -1;
+    for (let i = 0; i < array.length; i++) {
+        print(array[i].id === id);
+        print(array[i]);
+        if (array[i].id === id) {
+            count = i;
+            break;
+        }
+    }
+    return count;
+}
+
 
 
 export function addTotalValue(array: any[], value: any): number {
@@ -208,15 +226,8 @@ export function searchStringInArrayOfObjects(members: any[], searchString: strin
         for (const key in member) {
             let k: string = member[key];
             if (k.length > 70) {
-                var infoFromCookie = "";
-                if (getCookie(ADMIN_ID) == "") {
-                    infoFromCookie = getCookie(COOKIE_ID);
-                } else {
-                    infoFromCookie = getCookie(ADMIN_ID);
-                }
-                let id = decrypt(infoFromCookie, COOKIE_ID);
-                k = decrypt(k, id);
-                if (k === searchString) {
+
+                if (adminId === searchString) {
                     if (!containsObject(member, matches)) {
                         matches.push(member);
                     }
@@ -258,7 +269,7 @@ function contains(haystack: string, needle: string): boolean {
 }
 
 
-function containsObject(obj: any, list: any[]) {
+export function containsObject(obj: any, list: any[]) {
     var i;
     for (i = 0; i < list.length; i++) {
         if (list[i] === obj) {
@@ -267,6 +278,34 @@ function containsObject(obj: any, list: any[]) {
     }
 
     return false;
+}
+
+export function searchStringInArray(members: any[], searchString: string): any[] {
+    // Iterate over the array of members.
+    const matches = [];
+    for (const member of members) {
+        // Check if the search string is present in any of the member properties.
+        for (const key in member) {
+            let k: string = member[key];
+
+            if (k === searchString) {
+                if (!containsObject(member, matches)) {
+                    matches.push(member);
+                }
+            } else if (typeof k == 'string') {
+                if (contains(k.toLowerCase(), searchString.toLowerCase())) {
+                    if (!containsObject(member, matches)) {
+                        matches.push(member);
+                    }
+
+                }
+            }
+        }
+    }
+
+
+    // Return the array of matches.
+    return matches;
 }
 
 

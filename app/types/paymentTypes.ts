@@ -1,7 +1,14 @@
 export type IPayments = {
-    id: string,
-    userId: string,
-    date: string,
-    amount: number,
-    refCode: string
-}
+	id: string;
+	adminId: string;
+	userId: string;
+	dateAdded: Date;
+	dateAddedString: string;
+	paymentDate: Date;
+	paymentDateString: string;
+	amount: number;
+	duration: number;
+	refCode: string;
+	package: string;
+	date: Date;
+};
