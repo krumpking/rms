@@ -41,7 +41,6 @@ const WebsiteHandler: FC<MyProps> = ({ business }) => {
 	}, []);
 
 	const getWebsiteInfo = () => {
-		print(business);
 		getDataFromDBOne(WEBSITE_COLLECTION, 'websiteName', business)
 			.then((v) => {
 				if (v !== null) {

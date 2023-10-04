@@ -16,7 +16,7 @@ function classNames(...classes: string[]) {
 const Delivery = () => {
 	const [loading, setLoading] = useState(false);
 	const router = useRouter();
-	const [index, setIndex] = useState(1);
+	const [index, setIndex] = useState(0);
 	const [tabs, setTabs] = useState([
 		'Available Deliveries',
 		'My Deliveries',

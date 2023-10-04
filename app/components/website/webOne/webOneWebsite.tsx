@@ -27,7 +27,7 @@ import {
 } from '../../../utils/arrayM';
 import { print } from '../../../utils/console';
 import Head from 'next/head';
-import { Popover } from '@headlessui/react';
+import { Popover, Transition } from '@headlessui/react';
 import Drawer from '../../drawer';
 import { IOrder } from '../../../types/orderTypes';
 import { createId, numberWithCommas } from '../../../utils/stringM';
@@ -137,6 +137,13 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 		package: '',
 		date: new Date(),
 	});
+	const [navItems, setNavItems] = useState([
+		{ title: 'Home', id: '#home' },
+		{ title: 'Menu', id: '#menu' },
+		{ title: 'About Us', id: '#about' },
+		{ title: 'Contact Us', id: '#contact' },
+	]);
+	const [navOpen, setNavOpen] = useState(false);
 
 	useEffect(() => {
 		getMeals();
@@ -602,59 +609,141 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 
 									<h1>{info.serviceProviderName}</h1>
 								</div>
-								<div className='flex flex-row items-center space-x-4 font-bold'>
-									<a href='#home'>
-										<h1>Home</h1>
-									</a>
-									<a href='#menu'>
-										<h1>Menu</h1>
-									</a>
-									<a href='#about'>
-										<h1>About Us</h1>
-									</a>
-									<a href='#contact'>
-										<h1>Contact Us</h1>
-									</a>
-									<button
-										className='py-4 px-1 relative border-2 border-transparent text-gray-800 rounded-full hover:text-gray-400 focus:outline-none focus:text-gray-500 transition duration-150 ease-in-out'
-										aria-label='Cart'
-										onClick={() => {
-											setIsOpen(true);
-										}}
-									>
-										<svg
-											className='h-6 w-6'
-											fill='none'
-											stroke-linecap='round'
-											stroke-linejoin='round'
-											stroke-width='2'
-											viewBox='0 0 24 24'
-											stroke='currentColor'
+								<div className='hidden nineSixteen:block'>
+									<div className='flex flex-row items-center space-x-4 font-bold'>
+										{navItems.map((v) => (
+											<a href={v.id}>
+												<h1>{v.title}</h1>
+											</a>
+										))}
+
+										<button
+											className='py-4 px-1 relative border-2 border-transparent text-gray-800 rounded-full hover:text-gray-400 focus:outline-none focus:text-gray-500 transition duration-150 ease-in-out'
+											aria-label='Cart'
+											onClick={() => {
+												setIsOpen(true);
+											}}
 										>
-											<path d='M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z'></path>
-										</svg>
-										<span className='absolute inset-0 object-right-top -mr-6'>
-											<div
-												className={
-													'inline-flex items-center px-1.5 py-0.5 border-2 border-white rounded-full text-xs font-semibold leading-4 text-white'
-												}
-												style={{ backgroundColor: `${info.themeMainColor}` }}
+											<svg
+												className='h-6 w-6'
+												fill='none'
+												stroke-linecap='round'
+												stroke-linejoin='round'
+												stroke-width='2'
+												viewBox='0 0 24 24'
+												stroke='currentColor'
 											>
-												{addItems.length}
-											</div>
-										</span>
-									</button>
+												<path d='M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z'></path>
+											</svg>
+											<span className='absolute inset-0 object-right-top -mr-6'>
+												<div
+													className={
+														'inline-flex items-center px-1.5 py-0.5 border-2 border-white rounded-full text-xs font-semibold leading-4 text-white'
+													}
+													style={{ backgroundColor: `${info.themeMainColor}` }}
+												>
+													{addItems.length}
+												</div>
+											</span>
+										</button>
+									</div>
+								</div>
+								<div className='nineSixteen:hidden'>
+									<div className='-mr-2 flex '>
+										<button
+											onClick={() => setNavOpen(!navOpen)}
+											type='button'
+											style={{ backgroundColor: info.themeMainColor }}
+											className='inline-flex items-center justify-center p-2 rounded-md text-white hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white'
+											aria-controls='mobile-menu'
+											aria-expanded='false'
+										>
+											<span className='sr-only'>Open main menu</span>
+											{!navOpen ? (
+												<svg
+													className='block h-6 w-6'
+													xmlns='http://www.w3.org/2000/svg'
+													fill='none'
+													viewBox='0 0 24 24'
+													stroke='currentColor'
+													aria-hidden='true'
+												>
+													<path
+														strokeLinecap='round'
+														strokeLinejoin='round'
+														strokeWidth='2'
+														d='M4 6h16M4 12h16M4 18h16'
+													/>
+												</svg>
+											) : (
+												<svg
+													className='block h-6 w-6'
+													xmlns='http://www.w3.org/2000/svg'
+													fill='none'
+													viewBox='0 0 24 24'
+													stroke='currentColor'
+													aria-hidden='true'
+												>
+													<path
+														strokeLinecap='round'
+														strokeLinejoin='round'
+														strokeWidth='2'
+														d='M6 18L18 6M6 6l12 12'
+													/>
+												</svg>
+											)}
+										</button>
+									</div>
 								</div>
 							</div>
+							<Transition
+								show={navOpen}
+								enter='transition ease-out duration-100 transform'
+								enterFrom='opacity-0 scale-95'
+								enterTo='opacity-100 scale-100'
+								leave='transition ease-in duration-75 transform'
+								leaveFrom='opacity-100 scale-100'
+								leaveTo='opacity-0 scale-95'
+							>
+								{(ref) => (
+									<div className='nineSixteen:hidden' id='mobile-menu'>
+										<div
+											ref={ref}
+											style={{ backgroundColor: info.themeMainColor }}
+											className='flex flex-col px-2 pt-2 pb-3 space-y-1 
+                            						sm:px-3 shadow-lg rounded-lg p-4'
+										>
+											{navItems.map((v, index) => {
+												return (
+													<div
+														className={`bg-[#fff] rounded-[20px] p-2`}
+														key={index}
+													>
+														<a
+															style={{ color: info.themeMainColor }}
+															className='smXS:text-xs md:text-sm afterMini:text-xs xl:text-xl text-center p-4'
+															href={v.id}
+														>
+															{v.title}
+														</a>
+													</div>
+												);
+											})}
+										</div>
+									</div>
+								)}
+							</Transition>
 							<div
-								className='grid grid-cols-2 place-content-center place-items-center mb-6'
+								className='grid grid-cols-1 xl:grid-cols-2 place-content-center place-items-center mb-6'
 								id='about'
 							>
 								<div className='flex flex-col space-y-10'>
-									<h1 className='text-6xl font-bold'>{info.headerTitle}</h1>
+									<h1 className='text-2xl lg:text-4xl xl:text-6xl font-bold'>
+										{info.headerTitle}
+									</h1>
 									<p className='text-bold'>{info.headerText}</p>
 									<h1>Days Open:</h1>
-									<div className='flex flex-row space-x-2'>
+									<div className='flex flex-col lg:flex-row space-y-2 lg:space-y-0  lg:space-x-2'>
 										{info.daysOfWork.map((v) => (
 											<p
 												style={{ backgroundColor: info.themeMainColor }}
@@ -665,7 +754,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 										))}
 									</div>
 									<button
-										className='py-2 px-5 text-white rounded-md w-1/4'
+										className='py-2 px-5 text-white rounded-md w-1/2 md:w-1/4'
 										onClick={() => {
 											setIndex(1);
 											setMenuItems(menuItemsSto);
@@ -695,9 +784,9 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 								<h1 className='text-4xl text-center mb-12'>
 									Our Favorite Menu
 								</h1>
-								<div className='grid grid-cols-3 gap-8 p-8'>
+								<div className='grid grid-cols-1 lg:grid-cols-3 gap-8 p-4 lg:p-8'>
 									{menuItems.slice(0, 3).map((v) => (
-										<div className='relative shadow-2xl rounded-md p-4 w-3/4'>
+										<div className='relative shadow-2xl rounded-md p-4 w-full lg:w-3/4'>
 											<div className='p-4'>
 												<p className='text-xl'>{v.title}</p>
 												<div className='flex justify-between'>
@@ -738,7 +827,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 								</div>
 							</div>
 							<div
-								className='grid grid-cols-2 place-content-center place-items-center mb-6'
+								className='grid grid-cols-1 lg:grid-cols-2 place-content-center place-items-center mb-6 gap-4'
 								id='about'
 							>
 								<div>
@@ -746,7 +835,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 										<ShowImage
 											src={`${info.websiteName}/about/${info.aboutUsImage.thumbnail}`}
 											alt={''}
-											style={'h-96 rounded-[25px] w-96'}
+											style={'h-96 rounded-md w-full lg:w-96'}
 										/>
 									) : (
 										<img
@@ -774,7 +863,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 										<h1 className='underline'>See All</h1>
 									</div>
 								</div>
-								<div className='grid grid-cols-4 gap-4 mb-6'>
+								<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6'>
 									{menuItems.slice(0, 4).map((v) => (
 										<div className='flex flex-col shadow-2xl rounded-md'>
 											<ShowImage
@@ -824,7 +913,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 							{info.reservation ? (
 								<div className='flex flex-col p-4 mb-6'>
 									<h1 className='text-4xl text-center'>Make a reservation</h1>
-									<div className='grid grid-cols-2 mb-6 gap-4 shadow-md p-8'>
+									<div className='grid grid-cols-1 md:grid-cols-2 mb-6 gap-4 shadow-md p-8'>
 										<input
 											type='text'
 											// value={reservation}
@@ -921,7 +1010,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 											onChange={handleChange}
 											style={{ borderColor: `${info.themeMainColor}` }}
 											className='
-                                            col-span-2
+                                            md:col-span-2
                                             w-full
                                             rounded-md
                                             border-2
@@ -943,7 +1032,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 											onChange={handleChange}
 											style={{ borderColor: `${info.themeMainColor}` }}
 											className='
-                                            col-span-2
+                                            md:col-span-2
                                             w-full
                                             rounded-md
                                             border-2
@@ -997,7 +1086,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 								<p></p>
 							)}
 							<div
-								className='grid grid-cols-2 gap-4 mb-6 place-items-center'
+								className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 place-items-center'
 								id='contact'
 							>
 								<div>
@@ -1237,7 +1326,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 							</div>
 							<div className='p-8'>
 								<div className='flex justify-between content-center items-center mb-6'>
-									<h1 className='text-2xl'>Order Now</h1>
+									<h1 className='hidden md:block md:text-2xl'>Order Now</h1>
 									<div className='flex flex-row space-x-4 max-w-[800px] overflow-x-auto'>
 										{menuItems.map((v) => (
 											<h1
