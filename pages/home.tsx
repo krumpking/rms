@@ -5,23 +5,6 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router';
 import ClientNav from '../app/components/clientNav';
-import { getCookie } from 'react-use-cookie';
-import { checkPaymentStatus } from '../app/utils/paymentUtil';
-import { decrypt, encrypt } from '../app/utils/crypto';
-import Link from 'next/link';
-import { getForms } from '../app/api/formApi';
-import { IForm } from '../app/types/formTypes';
-import {
-	getAllTasksToDB,
-	getAllTasksToday,
-	updateTask,
-} from '../app/api/crmApi';
-import { ITask } from '../app/types/taskTypes';
-import TaskSummary from '../app/components/taskSummary';
-import { addDays } from 'date-fns';
-import { print } from '../app/utils/console';
-import Joyride from 'react-joyride';
-import Script from 'next/script';
 import { useAuthIds } from '../app/components/authHook';
 import { getDataFromDBOne, getDataFromDBTwo } from '../app/api/mainApi';
 import { ORDER_COLLECTION } from '../app/constants/orderConstants';

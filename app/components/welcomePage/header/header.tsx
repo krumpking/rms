@@ -5,10 +5,6 @@ import {
 	PRIMARY_COLOR,
 	WHATSAPP_CONTACT,
 } from '../../../constants/constants';
-import Carousel from '../../carousel';
-import Link from 'next/link';
-import PrimaryButton from '../../primaryButton';
-import MainCarousel from '../../mainCarousel';
 import Nav from './nav';
 import { useRouter } from 'next/router';
 

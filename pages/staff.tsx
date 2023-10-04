@@ -10,13 +10,7 @@ import { decrypt, encrypt } from '../app/utils/crypto';
 import Link from 'next/link';
 import { getForms } from '../app/api/formApi';
 import { IForm } from '../app/types/formTypes';
-import {
-	getAllTasksToDB,
-	getAllTasksToday,
-	updateTask,
-} from '../app/api/crmApi';
 import { ITask } from '../app/types/taskTypes';
-import TaskSummary from '../app/components/taskSummary';
 import { addDays } from 'date-fns';
 import { print } from '../app/utils/console';
 import Joyride from 'react-joyride';
@@ -151,16 +145,6 @@ const Staff = () => {
 	useEffect(() => {
 		document.body.style.backgroundColor = LIGHT_GRAY;
 	}, []);
-
-	const updDateTasks = (tasks: ITask[]) => {
-		tasks.forEach((element) => {
-			print(element.docId);
-			updateTask(
-				element.docId,
-				addDays(new Date(), element.reminder).toDateString()
-			);
-		});
-	};
 
 	return (
 		<div>

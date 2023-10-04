@@ -9,7 +9,6 @@ import {
 	PRIMARY_COLOR,
 	USER_ID,
 } from '../app/constants/constants';
-import Carousel from '../app/components/carousel';
 import { auth } from '../firebase/clientApp';
 import Loader from '../app/components/loader';
 import { ToastContainer, toast } from 'react-toastify';
