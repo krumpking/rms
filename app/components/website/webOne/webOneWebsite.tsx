@@ -598,12 +598,12 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 										<ShowImage
 											src={`${info.websiteName}/logo/${info.logo.thumbnail}`}
 											alt={''}
-											style={'h-8 rounded-[25px]'}
+											style={'h-8 w-8 rounded-[25px]'}
 										/>
 									) : (
 										<img
 											src='images/logo.png'
-											className='h-8 rounded-[25px] w-8 self-center'
+											className='h-8 w-8 rounded-[25px] w-8 self-center'
 										/>
 									)}
 
