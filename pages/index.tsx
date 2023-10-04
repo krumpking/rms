@@ -181,7 +181,8 @@ const Home: NextPage = () => {
 
 	useEffect(() => {
 		let url = window.location.href;
-		let buz = url.slice(7, url.indexOf('.localhost'));
+		//Local url.slice(7, url.indexOf('.localhost'));
+		let buz = url.slice(8, url.indexOf('.foodiesbooth.com'));
 
 		if (buz !== '' && !buz.includes(':')) {
 			setIsOtherWebsite(true);
@@ -280,7 +281,6 @@ const Home: NextPage = () => {
 
 	return (
 		<div>
-			
 			{loading ? (
 				<div className='flex items-center content-center w-full h-screen justify-center p-16'>
 					<Loader color={''} />
