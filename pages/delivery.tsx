@@ -7,6 +7,7 @@ import { LIGHT_GRAY, PRIMARY_COLOR } from '../app/constants/constants';
 import DeliveryComponent from '../app/components/delivery/delivery';
 import Login from './login';
 import { Tab } from '@headlessui/react';
+import Head from 'next/head';
 
 function classNames(...classes: string[]) {
 	return classes.filter(Boolean).join(' ');
@@ -15,7 +16,7 @@ function classNames(...classes: string[]) {
 const Delivery = () => {
 	const [loading, setLoading] = useState(false);
 	const router = useRouter();
-	const [index, setIndex] = useState(1);
+	const [index, setIndex] = useState(0);
 	const [tabs, setTabs] = useState([
 		'Available Deliveries',
 		'My Deliveries',
@@ -115,7 +116,14 @@ const Delivery = () => {
 		}
 	};
 
-	return <div>{getView()}</div>;
+	return (
+		<div>
+			<Head>
+				<meta name='viewport' content='width=978'></meta>
+			</Head>
+			<div>{getView()}</div>
+		</div>
+	);
 };
 
 export default Delivery;

@@ -280,6 +280,7 @@ const Home: NextPage = () => {
 
 	return (
 		<div>
+			
 			{loading ? (
 				<div className='flex items-center content-center w-full h-screen justify-center p-16'>
 					<Loader color={''} />
@@ -303,7 +304,7 @@ const Home: NextPage = () => {
 										<h1 className='underline'>See all</h1>
 									</div>
 								</div>
-								<div className='grid grid-cols-4 gap-4 mb-6'>
+								<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6'>
 									{meals.slice(0, 8).map((v) => (
 										<div className='flex flex-col shadow-2xl rounded-[25px]'>
 											<ShowImage
@@ -332,7 +333,7 @@ const Home: NextPage = () => {
 								<h1 className='text-4xl text-center mb-12'>
 									The Best Food Businesses in the country
 								</h1>
-								<div className='grid grid-cols-3 gap-8 p-8'>
+								<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8 p-8'>
 									{booths.slice(0, 3).map((v) => (
 										<div className='relative shadow-2xl rounded-[25px] p-4 w-3/4'>
 											<div className='p-4'>
@@ -391,7 +392,7 @@ const Home: NextPage = () => {
 										every bite memorable
 									</span>
 								</p>
-								<div className='grid grid-cols-2 gap-4 mb-6 p-8 place-items-center place-content-center'>
+								<div className='grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6 p-8 place-items-center place-content-center'>
 									{services.map((v) => (
 										<div className='relative shadow-2xl rounded-[25px] p-4 w-5/6 h-42'>
 											<div className='p-4'>
@@ -436,17 +437,17 @@ const Home: NextPage = () => {
 											backgroundColor: enabled ? PRIMARY_COLOR : FOURTH_COLOR,
 										}}
 										className={`$
-                        relative inline-flex h-[28px] w-[74px] shrink-0 cursor-pointer rounded-[25px] border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75`}
+                        					relative inline-flex h-[28px] w-[74px] shrink-0 cursor-pointer rounded-[25px] border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75`}
 									>
 										<span className='sr-only text-black'>Annual Payment</span>
 										<span
 											aria-hidden='true'
 											className={`${enabled ? 'translate-x-9' : 'translate-x-0'}
-                      pointer-events-none inline-block h-[24px] w-[34px] transform rounded-[25px] bg-white shadow-lg ring-0 transition duration-200 ease-in-out`}
+                      							pointer-events-none inline-block h-[24px] w-[34px] transform rounded-[25px] bg-white shadow-lg ring-0 transition duration-200 ease-in-out`}
 										/>
 									</Switch>
 								</div>
-								<div className='grid grid-cols-3 gap-4'>
+								<div className='grid grid-cols-1 lg:grid-cols-3 gap-4'>
 									{pricing.map((v) => (
 										<div className='shadow-xl w-full flex flex-col p-4 rounded-[25px]'>
 											<h1 className='text-4xl'>{v.title}</h1>
@@ -467,19 +468,19 @@ const Home: NextPage = () => {
 											<div className='m-4'>
 												<button
 													className='
-                            font-bold
-                            w-full
-                            rounded-[25px]
-                            border-2
-                            border-primary
-                            py-3
-                            px-10
-                            text-base 
-                            text-white
-                            cursor-pointer
-                            hover:bg-opacity-90
-                            transition
-                        '
+															font-bold
+															w-full
+															rounded-[25px]
+															border-2
+															border-primary
+															py-3
+															px-10
+															text-base 
+															text-white
+															cursor-pointer
+															hover:bg-opacity-90
+															transition
+														'
 													style={{
 														borderColor: PRIMARY_COLOR,
 														color: PRIMARY_COLOR,
@@ -492,7 +493,7 @@ const Home: NextPage = () => {
 									))}
 								</div>
 							</div>
-							<div className='grid grid-cols-2 p-8'>
+							<div className='grid grid-cols-1 lg:grid-cols-2 p-8'>
 								<div>
 									<h1 className='text-2xl'>Frequently Asked Questions</h1>
 								</div>
@@ -534,7 +535,7 @@ const Home: NextPage = () => {
 							</div>
 							<div
 								style={{ backgroundColor: PRIMARY_COLOR }}
-								className='h-48 grid grid-cols-3 gap-4 place-items-center'
+								className='h-48 grid grid-cols-1 lg:grid-cols-3 gap-4 place-items-center'
 							>
 								<div>
 									<a>
