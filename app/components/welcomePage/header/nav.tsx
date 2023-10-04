@@ -31,7 +31,7 @@ const Nav = () => {
 				<div className='hidden nineSixteen:block'>
 					<div className='flex items-center justify-between p-4 content-center'>
 						<div className='flex flex-row justify-center content-center items-center'>
-							<img src='images/logo.png' className='h-14 w-full' />
+							<img src='images/logo.png' className='h-14 w-14' />
 						</div>
 
 						<div className='flex items-baseline flex-row justify-end space-x-4 '>
@@ -56,7 +56,7 @@ const Nav = () => {
 				<div className='nineSixteen:hidden'>
 					<div className='flex items-center justify-between p-4'>
 						<div className='flex-shrink-0'>
-							<img src='images/logo.png' className='h-14 w-full' />
+							<img src='images/logo.png' className='h-14 w-14' />
 						</div>
 						<div className='-mr-2 flex '>
 							<button

@@ -13,7 +13,11 @@ import { IWebsiteOneInfo } from '../../types/websiteTypes';
 import { getDataFromAll } from '../../api/mainApi';
 import { searchStringInArray } from '../../utils/arrayM';
 import Loader from '../loader';
-import { PRIMARY_COLOR, PRIMARY_URL_LOCAL } from '../../constants/constants';
+import {
+	FOODIES_BOOTH_URL,
+	PRIMARY_COLOR,
+	PRIMARY_URL_LOCAL,
+} from '../../constants/constants';
 import ShowImage from '../showImage';
 
 const BoothsComp = (props: {
@@ -238,7 +242,7 @@ const BoothsComp = (props: {
 													<button
 														onClick={() => {
 															router.push(
-																`${v.websiteName}.${PRIMARY_URL_LOCAL}`
+																`${v.websiteName}.${FOODIES_BOOTH_URL}`
 															);
 														}}
 														className='relative rounded-full p-2'

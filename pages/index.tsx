@@ -183,7 +183,6 @@ const Home: NextPage = () => {
 		let url = window.location.href;
 		//Local url.slice(7, url.indexOf('.localhost'));
 		let buz = url.slice(8, url.indexOf('.foodiesbooth.com'));
-		print(buz);
 		if (buz !== '' && !buz.includes(':') && buz !== 'www') {
 			setIsOtherWebsite(true);
 			setBusiness(buz);
