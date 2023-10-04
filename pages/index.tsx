@@ -184,7 +184,7 @@ const Home: NextPage = () => {
 		//Local url.slice(7, url.indexOf('.localhost'));
 		let buz = url.slice(8, url.indexOf('.foodiesbooth.com'));
 
-		if (buz !== '' && !buz.includes(':')) {
+		if (buz !== '' && !buz.includes(':') && buz !== 'www') {
 			setIsOtherWebsite(true);
 			setBusiness(buz);
 			setLoading(false);
