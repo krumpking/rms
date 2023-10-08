@@ -27,21 +27,19 @@ const Nav = () => {
 
 	return (
 		<nav>
-			<div className=' mx-auto px-4 sm:px-6 lg:px-8 justify-center content-center  items-center'>
+			<div className=' mx-auto px-4 sm:px-6 lg:px-8 r  items-center'>
 				<div className='hidden nineSixteen:block'>
-					<div className='flex items-center justify-between p-4 content-center'>
-						<div className='flex flex-row justify-center content-center items-center'>
-							<img src='images/logo.png' className='h-14 w-full' />
+					<div className='flex justify-between p-4 content-center justify-center'>
+						<div className='flex flex-row'>
+							<img src='images/logo.png' className='h-14 w-3/4' />
 						</div>
 
-						<div className='flex items-baseline flex-row justify-end space-x-4 '>
+						<div className='flex flex-row  space-x-4 '>
 							{navItems.map((v, index) => {
 								return (
-									<div className={`bg-white rounded-[25px] p-2`} key={index}>
+									<div className={`bg-white rounded-[25px] p-4`} key={index}>
 										<a
-											className={
-												'md:text-xs 2xl:text-xl text-center  p-1 lg:p-4'
-											}
+											className={' text-center'}
 											style={{ color: PRIMARY_COLOR }}
 											href={v.url}
 										>
@@ -56,7 +54,7 @@ const Nav = () => {
 				<div className='nineSixteen:hidden'>
 					<div className='flex items-center justify-between p-4'>
 						<div className='flex-shrink-0'>
-							<img src='images/logo.png' className='h-14 w-full' />
+							<img src='images/logo.png' className='h-14 w-3/4' />
 						</div>
 						<div className='-mr-2 flex '>
 							<button
