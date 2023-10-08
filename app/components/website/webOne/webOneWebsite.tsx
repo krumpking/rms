@@ -47,7 +47,7 @@ import { CONTACT_COLLECTION } from '../../../constants/contactConstats';
 import { useAuthIds } from '../../authHook';
 import DateMethods from '../../../utils/date';
 import { isEqual, isAfter } from 'date-fns';
-import { sendSMS } from '../../../api/twillioApi';
+import { sendOrderEmail } from '../../../api/emailApi';
 
 interface MyProps {
 	info: IWebsiteOneInfo;
@@ -465,10 +465,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 
 				addDocument(ORDER_COLLECTION, newOrder)
 					.then((v) => {
-						sendSMS(
-							info.phone,
-							`${order.customerName} whose contact number is ${order.customerPhone},has just made an order,log on to see more click on this ${FOODIES_BOOTH_URL}/orders`
-						).catch(console.error);
+						sendOrderEmail(info.email, newOrder).catch(console.error);
 						setLoading(false);
 						toast.success('Order Added successfully');
 					})
