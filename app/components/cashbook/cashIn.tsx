@@ -5,7 +5,11 @@ import { ToastContainer, toast } from 'react-toastify';
 import { useRouter } from 'next/router';
 import Loader from '../loader';
 import { AMDIN_FIELD, CURRENCIES } from '../../constants/constants';
-import { addDocument, getDataFromDBOne, getDataFromDBTwo } from '../../api/mainApi';
+import {
+	addDocument,
+	getDataFromDBOne,
+	getDataFromDBTwo,
+} from '../../api/mainApi';
 import { CASHBOOOK_COLLECTION } from '../../constants/cashBookConstants';
 import { ITransaction } from '../../types/cashbookTypes';
 import { Disclosure } from '@headlessui/react';
@@ -14,117 +18,121 @@ import AppAccess from '../accessLevel';
 import { useAuthIds } from '../authHook';
 
 const Sales = () => {
+	const [loading, setLoading] = useState(false);
+	const router = useRouter();
+	const [amount, setAmount] = useState(0);
+	const [details, setDetails] = useState('');
+	const [currency, setCurrency] = useState('USD');
+	const [source, setSource] = useState('');
+	const [categories, setCategories] = useState<string[]>([
+		'cash',
+		'online',
+		'debit card',
+		'credit card',
+		'cheque',
+	]);
+	const [category, setCategory] = useState('');
+	const { adminId, userId, access } = useAuthIds();
+	const [transactions, setTransactions] = useState<ITransaction[]>([]);
 
-    const [loading, setLoading] = useState(false);
-    const router = useRouter();
-    const [amount, setAmount] = useState(0);
-    const [details, setDetails] = useState("");
-    const [currency, setCurrency] = useState("USD");
-    const [source, setSource] = useState("");
-    const [categories, setCategories] = useState<string[]>(['cash', 'online', 'debit card', 'credit card', 'cheque']);
-    const [category, setCategory] = useState("");
-    const { adminId, userId, access } = useAuthIds();
-    const [transactions, setTransactions] = useState<ITransaction[]>([])
+	useEffect(() => {
+		getIncome();
+	}, []);
 
+	const getIncome = () => {
+		getDataFromDBTwo(
+			CASHBOOOK_COLLECTION,
+			AMDIN_FIELD,
+			adminId,
+			'transactionType',
+			'Cash In'
+		)
+			.then((v) => {
+				if (v !== null) {
+					v.data.forEach((element) => {
+						let d = element.data();
 
-    useEffect(() => {
+						setTransactions((transactions) => [
+							...transactions,
+							{
+								id: d.id,
+								adminId: d.adminId,
+								userId: d.userId,
+								transactionType: d.transactionType,
+								paymentMode: d.paymentMode,
+								title: d.title,
+								details: d.details,
+								amount: d.amount,
+								customer: d.customer,
+								date: d.date,
+								dateString: d.dateString,
+								file: d.file,
+								currency: d.currency,
+							},
+						]);
+					});
 
+					setLoading(false);
+				}
+			})
+			.catch((e) => {
+				console.error(e);
+				toast.error('There was an error, kindly try again');
+				setLoading(false);
+			});
+	};
 
-        getIncome();
+	const addCash = () => {
+		setLoading(true);
+		let transaction: ITransaction = {
+			id: 'id',
+			adminId: adminId,
+			userId: userId,
+			transactionType: 'Cash In',
+			currency: currency,
+			paymentMode: category,
+			title: source,
+			details: details,
+			amount: amount,
+			customer: source,
+			date: new Date(),
+			dateString: new Date().toDateString(),
+			file: null,
+		};
 
-    }, [])
+		setTransactions([]);
+		addDocument(CASHBOOOK_COLLECTION, transaction)
+			.then((r) => {
+				toast.success('Transaction Added');
+				getIncome();
+			})
+			.catch((e) => {
+				toast.error('There was an error adding transaction, please try again');
+				console.error(e);
+			});
+	};
 
-
-    const getIncome = () => {
-        getDataFromDBTwo(CASHBOOOK_COLLECTION, AMDIN_FIELD, adminId, 'transactionType', 'Cash In').then((v) => {
-            if (v !== null) {
-
-                v.data.forEach(element => {
-                    let d = element.data();
-
-
-                    setTransactions(transactions => [...transactions, {
-                        id: d.id,
-                        adminId: d.adminId,
-                        userId: d.userId,
-                        transactionType: d.transactionType,
-                        paymentMode: d.paymentMode,
-                        title: d.title,
-                        details: d.details,
-                        amount: d.amount,
-                        customer: d.customer,
-                        date: d.date,
-                        dateString: d.dateString,
-                        file: d.file,
-                        currency: d.currency
-                    }]);
-
-                });
-
-
-                setLoading(false);
-            }
-
-
-        }).catch((e) => {
-            console.error(e);
-            toast.error('There was an error, kindly try again');
-            setLoading(false);
-        });
-    }
-
-    const addCash = () => {
-        setLoading(true);
-        let transaction: ITransaction = {
-            id: "id",
-            adminId: adminId,
-            userId: userId,
-            transactionType: "Cash In",
-            currency: currency,
-            paymentMode: category,
-            title: source,
-            details: details,
-            amount: amount,
-            customer: source,
-            date: new Date(),
-            dateString: new Date().toDateString(),
-            file: null
-        }
-
-
-        setTransactions([]);
-        addDocument(CASHBOOOK_COLLECTION, transaction).then((r) => {
-            toast.success('Transaction Added');
-            getIncome();
-        }).catch((e) => {
-
-            toast.error('There was an error adding transaction, please try again');
-            console.error(e);
-        });
-    }
-
-
-    return (
-        <AppAccess access={access} component={'cash-in'}>
-            <div>
-                {loading ? (
-                    <div className="flex flex-col items-center content-center">
-                        <Loader color={''} />
-                    </div>
-                ) : (
-                    <div className="bg-white rounded-[30px] p-4  grid grid-cols-2 gap-4">
-                        <div className='flex flex-col'>
-                            <div className='mb-6'>
-                                <p>Amount</p>
-                                <input
-                                    type="number"
-                                    step={(0.01)}
-                                    value={amount}
-                                    placeholder={"amount"}
-                                    onChange={(e) => {
-                                        setAmount(parseFloat(e.target.value));
-                                    }}
-                                    className="
+	return (
+		<AppAccess access={access} component={'cash-in'}>
+			<div>
+				{loading ? (
+					<div className='flex flex-col items-center content-center'>
+						<Loader color={''} />
+					</div>
+				) : (
+					<div className='bg-white rounded-[30px] p-4  grid grid-cols-2 gap-4'>
+						<div className='flex flex-col'>
+							<div className='mb-6'>
+								<p>Amount</p>
+								<input
+									type='number'
+									step={0.01}
+									value={amount}
+									placeholder={'amount'}
+									onChange={(e) => {
+										setAmount(parseFloat(e.target.value));
+									}}
+									className='
                                         w-full
                                         rounded-[25px]
                                         border-2
@@ -137,19 +145,19 @@ const Sales = () => {
                                         outline-none
                                         focus-visible:shadow-none
                                         focus:border-primary
-                                        "
-                                />
-                            </div>
-                            <div className='mb-6'>
-                                <p>Source</p>
-                                <input
-                                    type="text"
-                                    value={source}
-                                    placeholder={"Source"}
-                                    onChange={(e) => {
-                                        setSource(e.target.value);
-                                    }}
-                                    className="
+                                        '
+								/>
+							</div>
+							<div className='mb-6'>
+								<p>Source</p>
+								<input
+									type='text'
+									value={source}
+									placeholder={'Source'}
+									onChange={(e) => {
+										setSource(e.target.value);
+									}}
+									className='
                                         w-full
                                         rounded-[25px]
                                         border-2
@@ -162,19 +170,19 @@ const Sales = () => {
                                         outline-none
                                         focus-visible:shadow-none
                                         focus:border-primary
-                                        "
-                                />
-                            </div>
-                            <div className='mb-6'>
-                                <p>Details</p>
-                                <textarea
-                                    // type="text"
-                                    value={details}
-                                    placeholder={"Details"}
-                                    onChange={(e) => {
-                                        setDetails(e.target.value);
-                                    }}
-                                    className="
+                                        '
+								/>
+							</div>
+							<div className='mb-6'>
+								<p>Details</p>
+								<textarea
+									// type="text"
+									value={details}
+									placeholder={'Details'}
+									onChange={(e) => {
+										setDetails(e.target.value);
+									}}
+									className='
                                  w-full
                                  rounded-[25px]
                                  border-2
@@ -188,53 +196,57 @@ const Sales = () => {
                                  outline-none
                                  focus-visible:shadow-none
                                  focus:border-primary
-                                 "
-                                />
-                            </div>
-                            <button className='font-bold rounded-[25px] border-2 border-[#8b0e06] bg-white px-4 py-3 w-full mb-6'
-                                onClick={(e) => e.preventDefault()}>
-                                <select value={category}
-                                    onChange={(e) => {
-                                        setCategory(e.target.value);
-                                    }}
-                                    className='bg-white w-full'
-                                    data-required="1"
-                                    required>
-                                    <option value="Chapter" hidden>
-                                        Payment Method
-                                    </option>
-                                    {categories.map(v => (
-                                        <option value={v} >
-                                            {v}
-                                        </option>
-                                    ))}
-                                </select>
-                            </button>
-                            <button className='font-bold rounded-[25px] border-2 border-[#8b0e06] bg-white px-4 py-3 w-full mb-6'
-                                onClick={(e) => e.preventDefault()}>
-                                <select value={currency}
-                                    onChange={(e) => {
-                                        setCurrency(e.target.value);
-                                    }}
-                                    className='bg-white w-full'
-                                    data-required="1"
-                                    required>
-                                    <option value="Chapter" hidden>
-                                        Payment Method
-                                    </option>
-                                    {CURRENCIES.map(v => (
-                                        <option value={v} >
-                                            {v}
-                                        </option>
-                                    ))}
-                                </select>
-                            </button>
-                            <div className='col-span-2'>
-                                <button
-                                    onClick={() => {
-                                        addCash()
-                                    }}
-                                    className="
+                                 '
+								/>
+							</div>
+							<button
+								className='font-bold rounded-[25px] border-2 border-[#8b0e06] bg-white px-4 py-3 w-full mb-6'
+								onClick={(e) => e.preventDefault()}
+							>
+								<select
+									value={category}
+									onChange={(e) => {
+										setCategory(e.target.value);
+									}}
+									className='bg-white w-full'
+									data-required='1'
+									required
+								>
+									<option value='Chapter' hidden>
+										Payment Method
+									</option>
+									{categories.map((v) => (
+										<option value={v}>{v}</option>
+									))}
+								</select>
+							</button>
+							<button
+								className='font-bold rounded-[25px] border-2 border-[#8b0e06] bg-white px-4 py-3 w-full mb-6'
+								onClick={(e) => e.preventDefault()}
+							>
+								<select
+									value={currency}
+									onChange={(e) => {
+										setCurrency(e.target.value);
+									}}
+									className='bg-white w-full'
+									data-required='1'
+									required
+								>
+									<option value='Chapter' hidden>
+										Payment Method
+									</option>
+									{CURRENCIES.map((v) => (
+										<option value={v}>{v}</option>
+									))}
+								</select>
+							</button>
+							<div className='col-span-2'>
+								<button
+									onClick={() => {
+										addCash();
+									}}
+									className='
                                         font-bold
                                         w-full
                                         rounded-[25px]
@@ -249,51 +261,47 @@ const Sales = () => {
                                         cursor-pointer
                                         hover:bg-opacity-90
                                         transition
-                                    "
-                                >
-                                    Add Cash
-                                </button>
-                            </div>
-                        </div>
-                        <div className='flex flex-col max-h-[400px] overflow-y-scroll'>
-
-                            {transactions.map((v) => {
-                                return (
-                                    <div className='flex flex-col shadow-xl rounded-[25px] p-8 w-full '>
-                                        <h1 className='font-bold text-xl text-[#8b0e06]'>Title: {v.title}</h1>
-                                        <h1 className='font-bold text-sm'>Amount: {v.amount}{v.currency}</h1>
-                                        <h1 className='font-bold text-xs text-gray-400'>{v.dateString}</h1>
-                                        <Disclosure>
-                                            <Disclosure.Button className={'-ml-16 underline text-xs'}>
-                                                See Details
-                                            </Disclosure.Button>
-                                            <Disclosure.Panel>
-
-                                                <div className='flex flex-col shadow-xl p-4 rounded-[25px]'>
-
-                                                    <p className='text-xs'>{v.details}</p>
-                                                    <p className='text-xs'>{v.paymentMode}</p>
-
-                                                </div>
-
-                                            </Disclosure.Panel>
-                                        </Disclosure>
-
-                                    </div>
-                                )
-                            })}
-
-                        </div>
-
-
-
-                    </div>
-                )}
-                <ToastContainer position="top-right" autoClose={5000} />
-            </div>
-        </AppAccess>
-
-    );
+                                    '
+								>
+									Add Cash
+								</button>
+							</div>
+						</div>
+						<div className='flex flex-col max-h-[400px] overflow-y-scroll'>
+							{transactions.map((v) => {
+								return (
+									<div className='flex flex-col shadow-xl rounded-[25px] p-8 w-full '>
+										<h1 className='font-bold text-xl text-[#8b0e06]'>
+											Title: {v.title}
+										</h1>
+										<h1 className='font-bold text-sm'>
+											Amount: {v.amount.toFixed(2)}
+											{v.currency}
+										</h1>
+										<h1 className='font-bold text-xs text-gray-400'>
+											{v.dateString}
+										</h1>
+										<Disclosure>
+											<Disclosure.Button className={'-ml-16 underline text-xs'}>
+												See Details
+											</Disclosure.Button>
+											<Disclosure.Panel>
+												<div className='flex flex-col shadow-xl p-4 rounded-[25px]'>
+													<p className='text-xs'>{v.details}</p>
+													<p className='text-xs'>{v.paymentMode}</p>
+												</div>
+											</Disclosure.Panel>
+										</Disclosure>
+									</div>
+								);
+							})}
+						</div>
+					</div>
+				)}
+				<ToastContainer position='top-right' autoClose={5000} />
+			</div>
+		</AppAccess>
+	);
 };
 
 export default Sales;

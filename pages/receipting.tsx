@@ -302,7 +302,7 @@ const Accounting = () => {
 			id: 'id',
 			adminId: adminId,
 			userId: userId,
-			transactionType: 'Sale',
+			transactionType: 'Cash In',
 			currency: currency,
 			paymentMode: category,
 			title: `Order No ${selectedOrder.orderNo}`,
@@ -373,7 +373,7 @@ const Accounting = () => {
 											/>
 										</div>
 
-										<div className='grid grid-cols-2 lg:grid-cols-4 gap-4'>
+										<div className='grid grid-cols-2 lg:grid-cols-3 gap-4'>
 											{orders.map((v) => {
 												return (
 													<div
@@ -386,7 +386,7 @@ const Accounting = () => {
 															Order No: {v.orderNo}
 														</h1>
 														<h1 className='font-bold text-sm'>
-															Due: {v.totalCost}USD
+															Due: {v.totalCost.toFixed(2)}USD
 														</h1>
 														<h1 className='font-bold text-sm'>
 															{v.customerName}
