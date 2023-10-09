@@ -26,7 +26,7 @@ const AppAccess: FC<MyProps> = ({ children, access, component }) => {
 	const checkPayment = async () => {
 		const paymentStatus = await checkPaymentStatus();
 
-		if (!paymentStatus) {
+		if (paymentStatus == null) {
 			alert(
 				'It appears your payment is due, please pay up to continue enjoying FoodiesBooth'
 			);

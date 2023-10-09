@@ -246,14 +246,14 @@ const Home = () => {
 						let d = element.data();
 						if (d.currency === 'USD') {
 							tUSD += d.amount;
-							if (d.transactionType === 'Sale') {
+							if (d.transactionType === 'Cash In') {
 								tRUSD += d.amount;
 							} else {
 								tSUSD += d.amount;
 							}
 						} else {
 							tZWL = d.amount;
-							if (d.transactionType === 'Sale') {
+							if (d.transactionType === 'Cash In') {
 								tRZWL += d.amount;
 							} else {
 								tSZWL += d.amount;

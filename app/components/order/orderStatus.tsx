@@ -267,7 +267,7 @@ const OrderStatus = (props: { level: number }) => {
 								onKeyDown={handleKeyDown}
 							/>
 						</div>
-						<div className='grid grid-cols-2 lg:grid-cols-5  gap-4 '>
+						<div className='grid grid-cols-2 lg:grid-cols-4  gap-4 '>
 							{orders.map((v) => {
 								return (
 									<div className='flex flex-col shadow-xl rounded-[25px] p-8 w-[250px] '>
