@@ -27,7 +27,7 @@ const Nav = () => {
 
 	return (
 		<nav>
-			<div className=' mx-auto px-4 sm:px-6 lg:px-8 r  items-center'>
+			<div className=' mx-auto px-4 sm:px-6 lg:px-8 r  items-center z-10'>
 				<div className='hidden nineSixteen:block'>
 					<div className='flex justify-between p-4 content-center justify-center'>
 						<div className='flex flex-row'>

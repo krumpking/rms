@@ -40,6 +40,7 @@ import { searchStringInArray } from '../../utils/arrayM';
 import { useAuthIds } from '../authHook';
 import { sendSMS } from '../../api/twillioApi';
 import { sendSMSToDrivers } from '../../utils/deliveryMethods';
+import { sendEmail, sendOrderEmail } from '../../api/emailApi';
 
 const OrderStatus = (props: { level: number }) => {
 	const { level } = props;
@@ -141,12 +142,12 @@ const OrderStatus = (props: { level: number }) => {
 				// Send message to drivers that an order is ready
 				sendSMSToDrivers();
 
-				sendSMS(
-					v.customerPhone,
+				sendEmail(
+					v.customerEmail,
 					`Your order is now ready, just waiting for the driver to deliver to ${v.customerAddress}`
 				);
 			} else {
-				sendSMS(v.customerPhone, `Your order is now ready for PICK UP!`);
+				sendEmail(v.customerEmail, `Your order is now ready for PICK UP!`);
 			}
 
 			updateStatus = ORDER_READY;
@@ -155,8 +156,8 @@ const OrderStatus = (props: { level: number }) => {
 			if (v.deliveryMethod == 'Delivery') {
 				updateStatus = ORDER_SHIPPED;
 				status = 99;
-				sendSMS(
-					v.customerPhone,
+				sendEmail(
+					v.customerEmail,
 					`Your order has been shipped to ${v.customerAddress},please ensure to sign off on the delivery of your order`
 				);
 			} else {
@@ -277,7 +278,13 @@ const OrderStatus = (props: { level: number }) => {
 										<h1 className='font-bold text-sm'>
 											Due: {v.totalCost.toFixed(2)}USD
 										</h1>
-										<h1 className='font-bold text-sm'>
+										<h1
+											className={
+												v.deliveryMethod == 'Delivery'
+													? 'font-bold text-sm text-white bg-green-400 rounded-[25px] p-2'
+													: 'font-bold text-sm'
+											}
+										>
 											Order type: {v.deliveryMethod}
 										</h1>
 										<h1 className='font-bold text-sm'>{v.customerName}</h1>

@@ -11,6 +11,48 @@ interface MyProps {
 const AppAccess: FC<MyProps> = ({ children, access, component }) => {
 	let timer: any;
 	const router = useRouter();
+	const solo = [
+		'menu',
+		'orders',
+		'move-from-pantry',
+		'move-from-kitchen',
+		'cash-in',
+		'cash-out',
+		'cash-report',
+		'add-stock',
+		'confirm-stock',
+		'move-to-served',
+		'add-reservation',
+		'available-reservations',
+		'staff-scheduling',
+		'approve-schedule',
+		'website',
+		'payments',
+		'stock-overview',
+		'receipting',
+	];
+	const team = [
+		'menu',
+		'orders',
+		'move-from-pantry',
+		'move-from-kitchen',
+		'cash-in',
+		'cash-out',
+		'cash-report',
+		'add-stock',
+		'confirm-stock',
+		'move-to-served',
+		'add-reservation',
+		'available-reservations',
+		'staff-scheduling',
+		'approve-schedule',
+		'website',
+		'payments',
+		'stock-overview',
+		'admin',
+		'receipting',
+		'staff-logs',
+	];
 
 	// when component mounts, it adds an event listeners to the window
 	// each time any of the event is triggered, i.e on mouse move, click, scroll, keypress etc, the timer to logout user after 10 secs of inactivity resets.
@@ -34,6 +76,20 @@ const AppAccess: FC<MyProps> = ({ children, access, component }) => {
 			router.push({
 				pathname: '/payments',
 			});
+		} else {
+			let packageTitle = paymentStatus.package;
+			// check payment level
+			if (packageTitle == 'Solo') {
+				if (!solo.includes(component)) {
+					alert('Your package does not permit access to this page');
+					window.location.pathname = '/home';
+				}
+			} else if ([packageTitle == 'Team']) {
+				if (!team.includes(component)) {
+					alert('Your package does not permit access to this page');
+					window.location.pathname = '/home';
+				}
+			}
 		}
 	};
 
