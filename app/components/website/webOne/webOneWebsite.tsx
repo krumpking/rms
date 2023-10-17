@@ -421,9 +421,20 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 			new LatLng(location.lat, location.lng),
 			new LatLng(info.mapLocation.lat, info.mapLocation.lng)
 		);
-		let d = info.deliveryCost * (dis / 1000);
-
-		return d.toFixed(2);
+		let d = dis / 1000;
+		if (d > 0 && d < 3) {
+			return 2;
+		} else if (d > 3 && d < 5) {
+			return 3;
+		} else if (d > 5 && d < 10) {
+			return 5;
+		} else if (d > 10 && d < 15) {
+			return 7;
+		} else if (d > 15 && d < 20) {
+			return 10;
+		} else if (d > 20 && d < 30) {
+			return 15;
+		}
 	};
 
 	const submitOrder = () => {
@@ -443,8 +454,20 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 						new LatLng(location.lat, location.lng),
 						new LatLng(info.mapLocation.lat, info.mapLocation.lng)
 					);
-					let d = info.deliveryCost * (dis / 1000);
-					d.toFixed(2);
+					let d = dis / 1000;
+					if (d > 0 && d < 3) {
+						return 2;
+					} else if (d > 3 && d < 5) {
+						return 3;
+					} else if (d > 5 && d < 10) {
+						return 5;
+					} else if (d > 10 && d < 15) {
+						return 7;
+					} else if (d > 15 && d < 20) {
+						return 10;
+					} else if (d > 20 && d < 30) {
+						return 15;
+					}
 					total += d;
 				}
 
@@ -731,7 +754,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 								)}
 							</Transition>
 							<div
-								className='grid grid-cols-1 xl:grid-cols-2 place-content-center place-items-center mb-6'
+								className='grid grid-cols-1 xl:grid-cols-2 place-content-center place-items-center mb-6 p-8'
 								id='about'
 							>
 								<div className='flex flex-col space-y-10'>

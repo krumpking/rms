@@ -359,8 +359,20 @@ const MarketPlace = (props: {
 						new LatLng(location.lat, location.lng),
 						new LatLng(info.mapLocation.lat, info.mapLocation.lng)
 					);
-					let d = info.deliveryCost * (dis / 1000);
-					d.toFixed(2);
+					let d = dis / 1000;
+					if (d > 0 && d < 3) {
+						return 2;
+					} else if (d > 3 && d < 5) {
+						return 3;
+					} else if (d > 5 && d < 10) {
+						return 5;
+					} else if (d > 10 && d < 15) {
+						return 7;
+					} else if (d > 15 && d < 20) {
+						return 10;
+					} else if (d > 20 && d < 30) {
+						return 15;
+					}
 					total += d;
 				}
 
@@ -471,9 +483,21 @@ const MarketPlace = (props: {
 			new LatLng(location.lat, location.lng),
 			new LatLng(info.mapLocation.lat, info.mapLocation.lng)
 		);
-		let d = 1 * (dis / 1000);
+		let d = dis / 1000;
 
-		return d.toFixed(2);
+		if (d > 0 && d < 3) {
+			return 2;
+		} else if (d > 3 && d < 5) {
+			return 3;
+		} else if (d > 5 && d < 10) {
+			return 5;
+		} else if (d > 10 && d < 15) {
+			return 7;
+		} else if (d > 15 && d < 20) {
+			return 10;
+		} else if (d > 20 && d < 30) {
+			return 15;
+		}
 	};
 
 	return (
