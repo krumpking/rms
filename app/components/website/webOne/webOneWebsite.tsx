@@ -345,15 +345,26 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 		});
 
 		if (order.deliveryMethod == 'Delivery') {
-			print(info.mapLocation);
-			print(location);
 			let dis = computeDistanceBetween(
 				new LatLng(location.lat, location.lng),
 				new LatLng(info.mapLocation.lat, info.mapLocation.lng)
 			);
-			let d = info.deliveryCost * (dis / 1000);
-			d.toFixed(2);
-			total += d;
+			let d = dis / 1000;
+			let deliveryCost = 0;
+			if (d > 0 && d < 3) {
+				deliveryCost = 2;
+			} else if (d > 3 && d < 5) {
+				deliveryCost = 3;
+			} else if (d > 5 && d < 10) {
+				deliveryCost = 5;
+			} else if (d > 10 && d < 15) {
+				deliveryCost = 7;
+			} else if (d > 15 && d < 20) {
+				deliveryCost = 10;
+			} else if (d > 20 && d < 30) {
+				deliveryCost = 15;
+			}
+			total += deliveryCost;
 		}
 
 		return total.toFixed(2);
@@ -367,7 +378,6 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 		let index = 0;
 		for (let i = 0; i < displayedItems.length; i++) {
 			if (displayedItems[i].id === v.id) {
-				print(displayedItems[i].id === v.id);
 				count = displayedItems[i].count + 1;
 				index = i;
 				return;
@@ -455,20 +465,21 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 						new LatLng(info.mapLocation.lat, info.mapLocation.lng)
 					);
 					let d = dis / 1000;
+					let deliveryCost = 0;
 					if (d > 0 && d < 3) {
-						return 2;
+						deliveryCost = 2;
 					} else if (d > 3 && d < 5) {
-						return 3;
+						deliveryCost = 3;
 					} else if (d > 5 && d < 10) {
-						return 5;
+						deliveryCost = 5;
 					} else if (d > 10 && d < 15) {
-						return 7;
+						deliveryCost = 7;
 					} else if (d > 15 && d < 20) {
-						return 10;
+						deliveryCost = 10;
 					} else if (d > 20 && d < 30) {
-						return 15;
+						deliveryCost = 15;
 					}
-					total += d;
+					total += deliveryCost;
 				}
 
 				let newOrder: IOrder = {
@@ -493,6 +504,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 						toast.success('Order Added successfully');
 					})
 					.catch((e) => {
+						setLoading(false);
 						console.error(e);
 						toast.error('Please try again');
 					});
