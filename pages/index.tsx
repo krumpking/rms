@@ -23,6 +23,7 @@ import {
 	MEAL_ITEM_COLLECTION,
 	MEAL_STORAGE_REF,
 	MENU_ITEM_COLLECTION,
+	MENU_STORAGE_REF,
 } from '../app/constants/menuConstants';
 import { getDataFromAll } from '../app/api/mainApi';
 import { IMeal } from '../app/types/menuTypes';
@@ -312,7 +313,7 @@ const Home: NextPage = () => {
 									{meals.slice(0, 8).map((v) => (
 										<div className='flex flex-col shadow-2xl rounded-[25px]'>
 											<ShowImage
-												src={`/${v.adminId}/${MEAL_STORAGE_REF}/${v.pic.thumbnail}`}
+												src={`/${v.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
 												alt={'Meal Item'}
 												style={'rounded-[25px] h-64 w-full'}
 											/>
