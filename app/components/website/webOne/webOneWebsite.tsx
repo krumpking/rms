@@ -904,6 +904,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 												style={'rounded-md h-64 w-full'}
 											/>
 											<h1 className='font-bold text-xl px-4'>{v.title}</h1>
+											<p className='text-xs px-4 w-full'>{v.description}</p>
 											<div className='flex flex-row justify-between p-4 items-center'>
 												<h1 className='font-bold text-xl'>{v.price}USD</h1>
 												<button
@@ -1417,8 +1418,10 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 												style={'rounded-md h-64 w-full'}
 											/>
 											<h1 className='font-bold text-xl px-4'>{v.title}</h1>
+											<p className='text-xs px-4 w-full'>{v.description}</p>
 											<div className='flex flex-row justify-between p-4 items-center'>
 												<h1 className='font-bold text-xl'>{v.price}USD</h1>
+
 												<button
 													onClick={() => {
 														addToCart(v);
@@ -1441,6 +1444,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 											<h1 className='font-bold text-xl px-4'>{v.title}</h1>
 											<div className='flex flex-row justify-between p-4 items-center'>
 												<h1 className='font-bold text-xl'>{v.price}USD</h1>
+												<p className='text-xs w-full'>{v.description}</p>
 												<button
 													onClick={() => {
 														addToCart(v);
