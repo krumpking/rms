@@ -199,7 +199,7 @@ const Home: NextPage = () => {
 	}, []);
 
 	const getMenuItems = () => {
-		getDataFromAll(MEAL_ITEM_COLLECTION)
+		getDataFromAll(MENU_ITEM_COLLECTION)
 			.then((v) => {
 				if (v !== null) {
 					v.data.forEach((element) => {
