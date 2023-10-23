@@ -152,6 +152,9 @@ const Login = (props: {
 					);
 				});
 		} else {
+			toast.info(
+				'Please check the box to ensure your are not a robot,scroll to your bottom left'
+			);
 			const appVerifier = window.recaptchaVerifier;
 			signInWithPhoneNumber(auth, phone, appVerifier)
 				.then((confirmationResult) => {

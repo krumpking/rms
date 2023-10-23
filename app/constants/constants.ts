@@ -12,7 +12,7 @@ export const FOODIES_BOOTH_URL = 'https://foodiesbooth.com';
 export const API_ROUTE = 'https://meganb-backend.herokuapp.com'; //'http://localhost:3146'//
 
 export const WHATSAPP_CONTACT =
-	'https://wa.me/263713020524?text=Hello%20I%20want%20to%20know%20more%20about%20Digital%20Data%20Tree%20I%20got%20your%20number%20from%20whatsapp';
+	'https://wa.me/263713020524?text=Hello%20I%20want%20to%20know%20more%20about%20Foodiesbooth%20I%20got%20your%20number%20from%20your%20website';
 
 export const DOWNLOAD_APP =
 	'https://play.google.com/store/apps/details?id=com.visionisprimary.digitaldatatree';

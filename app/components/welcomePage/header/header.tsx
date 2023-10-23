@@ -49,7 +49,7 @@ const Header = () => {
 						</button>
 						<button
 							onClick={() => {
-								router.push('#services');
+								router.push('/signup');
 							}}
 							style={{ borderColor: PRIMARY_COLOR, color: PRIMARY_COLOR }}
 							className='
@@ -67,7 +67,7 @@ const Header = () => {
                                         hover:bg-opacity-90
                                         transition'
 						>
-							Learn More
+							Sign Up
 						</button>
 					</div>
 				</div>
