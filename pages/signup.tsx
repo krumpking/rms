@@ -79,30 +79,12 @@ const SignUp = () => {
 		return () => {};
 	}, []);
 
-	const shownSlides = [
-		{
-			image: '/images/bg-swurl.png',
-		},
-		{
-			image: '/images/bg-swurl.png',
-		},
-		{
-			image: '/images/bg-swurl.png',
-		},
-	];
-
-	const slide = (image: string) => {
-		return (
-			<div className='w-full h-96 rounded-lg'>
-				<img src={image} className='w-full h-full' />
-			</div>
-		);
-	};
-
 	const signUp = () => {
 		if (checked) {
 			setLoading(true);
-
+			toast.info(
+				'Please check the box to ensure your are not a robot,scroll to your bottom left'
+			);
 			const appVerifier = window.recaptchaVerifier;
 			signInWithPhoneNumber(auth, phone, appVerifier)
 				.then((confirmationResult) => {
@@ -245,18 +227,18 @@ const SignUp = () => {
 							</svg>
 						</a>
 					</div>
-					<div className='grid grid-cols-1 lg:grid-cols-2 place-items-center p-4 '>
-						<div className='hidden lg:block'>
-							<img
-								src={'images/webOneDefaultPicture.jpg'}
-								className='h-96 w-full'
-							/>
-						</div>
+					{loading ? (
+						<Loader color={''} />
+					) : (
+						<div className='grid grid-cols-1 lg:grid-cols-2 place-items-center p-4 '>
+							<div className='hidden lg:block'>
+								<img
+									src={'images/webOneDefaultPicture.jpg'}
+									className='h-96 w-full'
+								/>
+							</div>
 
-						<div className='w-full flex justify-center items-center'>
-							{loading ? (
-								<Loader color={''} />
-							) : (
+							<div className='w-full flex justify-center items-center'>
 								<div>
 									{sent ? (
 										<form
@@ -454,9 +436,9 @@ const SignUp = () => {
 										</form>
 									)}
 								</div>
-							)}
+							</div>
 						</div>
-					</div>
+					)}
 				</div>
 				<div id='recaptcha-container'></div>
 				<ToastContainer position='top-right' autoClose={5000} />
