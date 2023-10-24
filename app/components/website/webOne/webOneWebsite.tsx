@@ -27,7 +27,7 @@ import {
 } from '../../../utils/arrayM';
 import { print } from '../../../utils/console';
 import Head from 'next/head';
-import { Popover, Transition } from '@headlessui/react';
+import { Disclosure, Popover, Transition } from '@headlessui/react';
 import Drawer from '../../drawer';
 import { IOrder } from '../../../types/orderTypes';
 import { createId, numberWithCommas } from '../../../utils/stringM';
@@ -1372,17 +1372,6 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 												{v.category}
 											</h1>
 										))}
-										{meals.map((v) => (
-											<h1
-												className='hover:cursor-pointer'
-												onClick={() => {
-													setSearch(v.category);
-													searchFor();
-												}}
-											>
-												{v.category}
-											</h1>
-										))}
 									</div>
 								</div>
 								<input
@@ -1418,7 +1407,16 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 												style={'rounded-md h-64 w-full'}
 											/>
 											<h1 className='font-bold text-xl px-4'>{v.title}</h1>
-											<p className='text-xs px-4 w-full'>{v.description}</p>
+											<Disclosure>
+												<Disclosure.Button
+													className={' underline text-xs text-left px-4'}
+												>
+													See Details
+												</Disclosure.Button>
+												<Disclosure.Panel>
+													<p className='text-xs px-4 w-full'>{v.description}</p>
+												</Disclosure.Panel>
+											</Disclosure>
 											<div className='flex flex-row justify-between p-4 items-center'>
 												<h1 className='font-bold text-xl'>{v.price}USD</h1>
 
@@ -1444,7 +1442,18 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 											<h1 className='font-bold text-xl px-4'>{v.title}</h1>
 											<div className='flex flex-row justify-between p-4 items-center'>
 												<h1 className='font-bold text-xl'>{v.price}USD</h1>
-												<p className='text-xs w-full'>{v.description}</p>
+												<Disclosure>
+													<Disclosure.Button
+														className={' underline text-xs text-left px-4'}
+													>
+														See Details
+													</Disclosure.Button>
+													<Disclosure.Panel>
+														<p className='text-xs px-4 w-full'>
+															{v.description}
+														</p>
+													</Disclosure.Panel>
+												</Disclosure>
 												<button
 													onClick={() => {
 														addToCart(v);

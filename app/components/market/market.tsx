@@ -38,6 +38,7 @@ import { print } from '../../utils/console';
 import DateMethods from '../../utils/date';
 import { isAfter, isEqual } from 'date-fns';
 import { sendOrderEmail } from '../../api/emailApi';
+import { Disclosure } from '@headlessui/react';
 
 const MarketPlace = (props: {
 	info: IWebsiteOneInfo;
@@ -623,7 +624,17 @@ const MarketPlace = (props: {
 												style={'rounded-[25px] h-64 w-full'}
 											/>
 											<h1 className='font-bold text-xl px-4'>{v.title}</h1>
-											<p className='text-xs px-4 w-full'>{v.description}</p>
+											<Disclosure>
+												<Disclosure.Button
+													className={' underline text-xs text-left px-4'}
+												>
+													See Details
+												</Disclosure.Button>
+												<Disclosure.Panel>
+													<p className='text-xs px-4 w-full'>{v.description}</p>
+												</Disclosure.Panel>
+											</Disclosure>
+
 											<div className='flex flex-row justify-between p-4 items-center'>
 												<h1 className='font-bold text-xl'>{v.price}USD</h1>
 
