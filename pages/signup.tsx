@@ -194,7 +194,10 @@ const SignUp = () => {
 					});
 			})
 			.catch((err: any) => {
-				alert('The One Time Password you sent was not correct please retry');
+				toast.error(
+					'The One Time Password you sent was not correct please retry'
+				);
+				setLoading(false);
 			});
 	};
 

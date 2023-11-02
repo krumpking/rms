@@ -505,7 +505,7 @@ const Home = () => {
 															Order No: {v.orderNo}
 														</h1>
 														<h1 className='font-bold text-sm'>
-															Due: {v.totalCost}USD
+															Due: {v.totalCost.toFixed(2)}USD
 														</h1>
 														<h1 className='font-bold text-sm'>
 															{v.customerName}

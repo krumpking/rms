@@ -23,7 +23,7 @@ export const sendOrderEmail = (email: string, order: IOrder) => {
 export const sendEmail = (email: string, message: string) => {
 	// Send every order to me
 	axios.post(`${RMS_SERVER}/api/v1/email`, {
-		message: message,
+		message: `Here is an update on a dine order made ${message} `,
 		email: 'unashe@visionisprimary.com',
 	});
 

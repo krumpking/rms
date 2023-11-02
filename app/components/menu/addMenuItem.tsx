@@ -267,11 +267,13 @@ const AddMenuItem = () => {
 		setMenuItems([]);
 		updateDocument(MENU_ITEM_COLLECTION, editItem.id, menuItem)
 			.then((v) => {
+				setEdit(false);
 				setFiles([]);
 				getMenuItems();
 				setOpen(false);
 			})
 			.catch((e: any) => {
+				setEdit(false);
 				setFiles([]);
 				getMenuItems();
 				setOpen(false);
@@ -289,6 +291,7 @@ const AddMenuItem = () => {
 			deleteFile(`${adminId}/${MENU_STORAGE_REF}/${pic.thumbnail}`);
 			deleteDocument(MENU_ITEM_COLLECTION, id)
 				.then(() => {
+					setMenuItems([]);
 					getMenuItems();
 				})
 				.catch((e: any) => {
