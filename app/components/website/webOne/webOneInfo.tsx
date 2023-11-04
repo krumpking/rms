@@ -185,106 +185,123 @@ const WebOneWebsiteInfo = () => {
 
 	const addWebsiteInfo = async () => {
 		if (
-			files.length > 0 &&
-			typeof aboutUsImageFile !== 'undefined' &&
-			typeof headerImageFile !== 'undefined'
+			(files.length > 0 &&
+				typeof aboutUsImageFile !== 'undefined' &&
+				typeof headerImageFile !== 'undefined') ||
+			info.id !== ''
 		) {
 			setLoading(true);
 
 			try {
 				let res = await checkForWebsiteName(info.websiteName);
 				if (res) {
-					const name = files[0].name;
 					const options = {
 						maxSizeMB: 1,
 						maxWidthOrHeight: 1920,
 						useWebWorker: true,
 					};
 
-					// Upload Logo
-					await uploadFile(`${info.websiteName}/logo/${name}`, files[0]);
-
-					const compressedLogoFile = await imageCompression(files[0], options);
-					// Thumbnail
-					await uploadFile(
-						`${info.websiteName}/logo/thumbnail_${name}`,
-						compressedLogoFile
-					);
-
-					// Upload Header
-					await uploadFile(
-						`${info.websiteName}/header/${headerImageFile.name}`,
-						headerImageFile
-					);
-
-					const compressedHeaderFile = await imageCompression(
-						headerImageFile,
-						options
-					);
-					// Thumbnail
-					await uploadFile(
-						`${info.websiteName}/header/thumbnail_${headerImageFile.name}`,
-						compressedHeaderFile
-					);
-
-					// Upload About Us
-					await uploadFile(
-						`${info.websiteName}/about/${aboutUsImageFile.name}`,
-						aboutUsImageFile
-					);
-
-					const compressedAboutUsImageFileFile = await imageCompression(
-						aboutUsImageFile,
-						options
-					);
-					// Thumbnail
-					await uploadFile(
-						`${info.websiteName}/about/thumbnail_${aboutUsImageFile.name}`,
-						compressedAboutUsImageFileFile
-					);
-
-					// Upload Contact Us
-					await uploadFile(
-						`${info.websiteName}/contact/${contactImageFile.name}`,
-						contactImageFile
-					);
-
-					const compressedContactUsImageFileFile = await imageCompression(
-						contactImageFile,
-						options
-					);
-					// Thumbnail
-					await uploadFile(
-						`${info.websiteName}/contact/thumbnail_${contactImageFile.name}`,
-						compressedContactUsImageFileFile
-					);
-
 					let newInfo: IWebsiteOneInfo = {
 						...info,
 						adminId: adminId,
 						userId: userId,
-						logo: {
-							original: name,
-							thumbnail: `thumbnail_${name}`,
-						},
-						headerImage: {
-							original: headerImageFile.name,
-							thumbnail: `thumbnail_${headerImageFile.name}`,
-						},
-						aboutUsImage: {
-							original: aboutUsImageFile.name,
-							thumbnail: `thumbnail_${aboutUsImageFile.name}`,
-						},
 						themeMainColor: colorPrimary,
 						themeSecondaryColor: colorSec,
 						reservation: reservation,
-						contactUsImage: {
-							original: contactImageFile.name,
-							thumbnail: `thumbnail_${contactImageFile.name}`,
-						},
 						mapLocation: location,
 						daysOfWork: selectedDaysOfTheWeek,
 					};
+
+					if (files.length > 0) {
+						const name = files[0].name;
+						// Upload Logo
+						await uploadFile(`${info.websiteName}/logo/${name}`, files[0]);
+
+						const compressedLogoFile = await imageCompression(
+							files[0],
+							options
+						);
+						// Thumbnail
+						await uploadFile(
+							`${info.websiteName}/logo/thumbnail_${name}`,
+							compressedLogoFile
+						);
+
+						newInfo.logo = {
+							original: name,
+							thumbnail: `thumbnail_${name}`,
+						};
+					}
+
+					if (typeof aboutUsImageFile !== 'undefined') {
+						// Upload Header
+						await uploadFile(
+							`${info.websiteName}/header/${headerImageFile.name}`,
+							headerImageFile
+						);
+
+						const compressedHeaderFile = await imageCompression(
+							headerImageFile,
+							options
+						);
+
+						// Thumbnail
+						await uploadFile(
+							`${info.websiteName}/header/thumbnail_${headerImageFile.name}`,
+							compressedHeaderFile
+						);
+
+						newInfo.headerImage = {
+							original: headerImageFile.name,
+							thumbnail: `thumbnail_${headerImageFile.name}`,
+						};
+					}
+
+					if (typeof aboutUsImageFile !== 'undefined') {
+						// Upload About Us
+						await uploadFile(
+							`${info.websiteName}/about/${aboutUsImageFile.name}`,
+							aboutUsImageFile
+						);
+
+						const compressedAboutUsImageFileFile = await imageCompression(
+							aboutUsImageFile,
+							options
+						);
+						// Thumbnail
+						await uploadFile(
+							`${info.websiteName}/about/thumbnail_${aboutUsImageFile.name}`,
+							compressedAboutUsImageFileFile
+						);
+
+						newInfo.aboutUsImage = {
+							original: aboutUsImageFile.name,
+							thumbnail: `thumbnail_${aboutUsImageFile.name}`,
+						};
+					}
+
+					if (typeof aboutUsImageFile !== 'undefined') {
+						// Upload Contact Us
+						await uploadFile(
+							`${info.websiteName}/contact/${contactImageFile.name}`,
+							contactImageFile
+						);
+
+						const compressedContactUsImageFileFile = await imageCompression(
+							contactImageFile,
+							options
+						);
+						// Thumbnail
+						await uploadFile(
+							`${info.websiteName}/contact/thumbnail_${contactImageFile.name}`,
+							compressedContactUsImageFileFile
+						);
+
+						newInfo.contactUsImage = {
+							original: contactImageFile.name,
+							thumbnail: `thumbnail_${contactImageFile.name}`,
+						};
+					}
 
 					if (info.id === '') {
 						addDocument(WEBSITE_INFO_COLLECTION, newInfo)
@@ -515,6 +532,7 @@ const WebOneWebsiteInfo = () => {
                                         border-[#8b0e06]
                                         py-3
                                         px-5
+										h-64
                                         bg-white
                                         text-base text-body-color
                                         placeholder-[#ACB6BE]
@@ -602,12 +620,12 @@ const WebOneWebsiteInfo = () => {
 							</p>
 							<textarea
 								value={info.aboutUsInfo}
-								placeholder={'About Us Title'}
+								placeholder={'About Us Description'}
 								onChange={handleChange}
 								name='aboutUsInfo'
 								className='
                                         w-full
-                                        h-48
+                                        h-64
                                         rounded-[25px]
                                         border-2
                                         border-[#8b0e06]
@@ -657,6 +675,7 @@ const WebOneWebsiteInfo = () => {
                                         border-[#8b0e06]
                                         py-3
                                         px-5
+										
                                         bg-white
                                         text-base text-body-color
                                         placeholder-[#ACB6BE]
@@ -752,7 +771,7 @@ const WebOneWebsiteInfo = () => {
 									},
 									searchBox: {
 										border: 'display',
-										height: '50px',
+										// height: '0px',
 										'border-bottom': '2px solid ' + PRIMARY_COLOR,
 										'border-top': '2px solid ' + PRIMARY_COLOR,
 										'border-radius': '25px',

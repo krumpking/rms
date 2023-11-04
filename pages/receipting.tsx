@@ -448,7 +448,9 @@ const Accounting = () => {
 												</button>
 											))}
 										</div>
-										<div className={changeToZWL ? 'mb-6' : 'hidden'}>
+										<div
+											className={changeToZWL ? 'mb-6 flex flex-col' : 'hidden'}
+										>
 											<input
 												type='string'
 												value={zwlRate}
@@ -472,6 +474,9 @@ const Accounting = () => {
                                         '
 												onKeyDown={handleKeyDown}
 											/>
+											<p className='text-gray-500 text-xs w-full px-4 py-2'>
+												Click enter after typing to change the currency
+											</p>
 										</div>
 
 										<div className='mb-6'>
