@@ -3,25 +3,17 @@ import { firestore } from '../../firebase/clientApp';
 
 export const MENU_REF = collection(firestore, 'menu-categories');
 
-
 export const MENU_CAT_COLLECTION = 'menu-categories';
-
 
 export const MENU_ITEM_COLLECTION = 'menu-items';
 
-
 export const MENU_STORAGE_REF = 'menu-item';
-
 
 export const MEAL_ITEM_COLLECTION = 'meal-items';
 
-
 export const MEAL_STORAGE_REF = 'meal-item';
 
-
 export const MENU_CAT_STORAGE_REF = 'menu-category';
-
-
 
 export const CATEGORY_STORAGE_REF = 'menu-category';
 
@@ -30,3 +22,5 @@ export const ORDER_IN_PREP = 'In Prep';
 export const ORDER_READY = 'Ready';
 export const ORDER_SHIPPED = 'Order Shipped';
 export const ORDER_DELIVERED = 'Delivered';
+
+export const MENU_PROMO_ITEM_COLLECTION = 'menu-items-promotions';

@@ -7,12 +7,17 @@ import { useRouter } from 'next/router';
 import Loader from '../../loader';
 import { IContact, IWebsiteOneInfo } from '../../../types/websiteTypes';
 import ShowImage from '../../showImage';
-import { IMeal, IMenuItem } from '../../../types/menuTypes';
+import {
+	IMeal,
+	IMenuItem,
+	IMenuItemPromotions,
+} from '../../../types/menuTypes';
 import { addDocument, getDataFromDBOne } from '../../../api/mainApi';
 import {
 	MEAL_ITEM_COLLECTION,
 	MEAL_STORAGE_REF,
 	MENU_ITEM_COLLECTION,
+	MENU_PROMO_ITEM_COLLECTION,
 	MENU_STORAGE_REF,
 } from '../../../constants/menuConstants';
 import {
@@ -59,6 +64,8 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 	const [mealsSto, setMealsSto] = useState<IMeal[]>([]);
 	const [menuItems, setMenuItems] = useState<IMenuItem[]>([]);
 	const [menuItemsSto, setMenuItemsSto] = useState<IMenuItem[]>([]);
+	const [promos, setPromos] = useState<IMenuItemPromotions[]>([]);
+	const [promosSto, setPromosSto] = useState<IMenuItemPromotions[]>([]);
 	const [search, setSearch] = useState('');
 	const [reservation, setReservation] = useState({
 		id: '',
@@ -147,6 +154,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 
 	useEffect(() => {
 		getMeals();
+		getPromos();
 		getMenuItems();
 	}, []);
 
@@ -242,6 +250,57 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 								date: d.date,
 								dateString: d.dateString,
 								price: d.price,
+							},
+						]);
+					});
+				}
+				setLoading(false);
+			})
+			.catch((e) => {
+				console.error(e);
+				setLoading(true);
+			});
+	};
+
+	const getPromos = () => {
+		getDataFromDBOne(MENU_PROMO_ITEM_COLLECTION, AMDIN_FIELD, info.adminId)
+			.then((v) => {
+				if (v !== null) {
+					v.data.forEach((element) => {
+						let d = element.data();
+
+						setPromos((promos) => [
+							...promos,
+							{
+								id: element.id,
+								adminId: d.adminId,
+								userId: d.userId,
+								pic: d.pic,
+								title: d.title,
+								description: d.description,
+								category: d.category,
+								date: d.date,
+								dateString: d.dateString,
+								oldPrice: d.oldPrice,
+								newPrice: d.newPrice,
+								endDate: d.endDate,
+							},
+						]);
+						setPromosSto((promos) => [
+							...promos,
+							{
+								id: element.id,
+								adminId: d.adminId,
+								userId: d.userId,
+								pic: d.pic,
+								title: d.title,
+								description: d.description,
+								category: d.category,
+								date: d.date,
+								dateString: d.dateString,
+								oldPrice: d.oldPrice,
+								newPrice: d.newPrice,
+								endDate: d.endDate,
 							},
 						]);
 					});
@@ -813,50 +872,108 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 								</div>
 							</div>
 							<div className='flex flex-col mb-6'>
-								<h1 className='text-4xl text-center mb-12'>
-									Our Favorite Menu
-								</h1>
-								<div className='grid grid-cols-1 lg:grid-cols-3 gap-8 p-4 lg:p-8'>
-									{menuItems.slice(0, 3).map((v) => (
-										<div className='relative shadow-2xl rounded-md p-4 w-full lg:w-3/4'>
-											<div className='p-4'>
-												<p className='text-xl'>{v.title}</p>
-												<div className='flex justify-between'>
-													<p className='text-md'>{v.price}USD</p>
-													<button
-														onClick={() => {
-															addToCart(v);
-														}}
-														className='relative rounded-md p-2'
-														style={{ backgroundColor: info.themeMainColor }}
-													>
-														<svg
-															xmlns='http://www.w3.org/2000/svg'
-															fill='none'
-															viewBox='0 0 24 24'
-															stroke-width='1.5'
-															stroke='currentColor'
-															className='w-6 h-6 text-white'
-														>
-															<path
-																stroke-linecap='round'
-																stroke-linejoin='round'
-																d='M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z'
-															/>
-														</svg>
-													</button>
-												</div>
-											</div>
-											<div className='absolute -top-10 -left-10 right-10 z-10 '>
-												<ShowImage
-													src={`/${info.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
-													alt={'Menu Item'}
-													style={'rounded-full h-20 w-20 '}
-												/>
+								<div>
+									{promos.length > 0 ? (
+										<div className='flex justify-between content-center items-center mb-6'>
+											<h1 className='text-2xl'>Order now at a special price</h1>
+											<div
+												className='flex flex-row space-x-4 max-w-[800px] overflow-x-auto'
+												onClick={() => {
+													setIndex(1);
+													setMenuItems(menuItemsSto);
+													setMeals(mealsSto);
+												}}
+											>
+												<h1 className='underline'>See All</h1>
 											</div>
 										</div>
-									))}
+									) : (
+										<h1 className='text-4xl text-center mb-12'>
+											Our Favorite Menu
+										</h1>
+									)}
 								</div>
+
+								{promos.length > 0 ? (
+									<div className='grid grid-cols-1 lg:grid-cols-3 gap-8 p-4 lg:p-8'>
+										{promos.slice(0, 3).map((v) => (
+											<div className='relative shadow-2xl p-4 w-[250px] rounded-[25px]'>
+												<div className='p-4 flex flex-col'>
+													<ShowImage
+														src={`/${v.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
+														alt={'Menu Item'}
+														style={'rounded-[25px] h-20 w-full '}
+													/>
+													<p className='text-xl'>{v.title}</p>
+													<div className='flex flex-row space-x-4 justify-end content-center items-center'>
+														<p className='text-xs line-through'>
+															{v.oldPrice}USD
+														</p>
+														<p className='text-md'>{v.newPrice}USD</p>
+													</div>
+													<div className='rounded-[25px] font-bold w-full h-fit font-bold text-xs text-center flex flex-row justify-end'>
+														<p className=''>
+															{DateMethods.diffDatesDays(
+																new Date().toDateString(),
+																v.endDate
+															)}{' '}
+															days left
+														</p>
+													</div>
+												</div>
+
+												<div
+													className='absolute -top-2 -right-2  z-10 rounded-full text-white font-bold w-12 h-12 font-bold text-xs text-center flex items-center'
+													style={{ backgroundColor: info.themeMainColor }}
+												>
+													{100 - (v.newPrice / v.oldPrice) * 100} % OFF
+												</div>
+											</div>
+										))}
+									</div>
+								) : (
+									<div className='grid grid-cols-1 lg:grid-cols-3 gap-8 p-4 lg:p-8'>
+										{menuItems.slice(0, 3).map((v) => (
+											<div className='relative shadow-2xl rounded-md p-4 w-full lg:w-3/4'>
+												<div className='p-4'>
+													<p className='text-xl'>{v.title}</p>
+													<div className='flex justify-between'>
+														<p className='text-md'>{v.price}USD</p>
+														<button
+															onClick={() => {
+																addToCart(v);
+															}}
+															className='relative rounded-md p-2'
+															style={{ backgroundColor: info.themeMainColor }}
+														>
+															<svg
+																xmlns='http://www.w3.org/2000/svg'
+																fill='none'
+																viewBox='0 0 24 24'
+																stroke-width='1.5'
+																stroke='currentColor'
+																className='w-6 h-6 text-white'
+															>
+																<path
+																	stroke-linecap='round'
+																	stroke-linejoin='round'
+																	d='M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z'
+																/>
+															</svg>
+														</button>
+													</div>
+												</div>
+												<div className='absolute -top-10 -left-10 right-10 z-10 '>
+													<ShowImage
+														src={`/${info.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
+														alt={'Menu Item'}
+														style={'rounded-full h-20 w-20 '}
+													/>
+												</div>
+											</div>
+										))}
+									</div>
+								)}
 							</div>
 							<div
 								className='grid grid-cols-1 lg:grid-cols-2 place-content-center place-items-center mb-6 gap-4'
