@@ -116,9 +116,9 @@ const ManageUsers = () => {
 								name: d.name,
 								email: d.email,
 								access: d.access,
-								date: new Date(),
-								dateString: new Date().toDateString(),
-								dateOfUpdate: new Date(),
+								date: d.date,
+								dateString: d.dateString,
+								dateOfUpdate: d.dateOfUpdate,
 							},
 						]);
 						setUsersTemp((users) => [
@@ -131,9 +131,9 @@ const ManageUsers = () => {
 								name: d.name,
 								email: d.email,
 								access: d.access,
-								date: new Date(),
-								dateString: new Date().toDateString(),
-								dateOfUpdate: new Date(),
+								date: d.date,
+								dateString: d.dateString,
+								dateOfUpdate: d.dateOfUpdate,
 							},
 						]);
 					});
@@ -268,6 +268,8 @@ const ManageUsers = () => {
 		deleteDocument(USER_COLLECTION, user.id)
 			.then((v) => {
 				if (v !== null) {
+					setUsersTemp([]);
+					setUsers([]);
 					getUsers();
 					toast.success('Account successfully deleted');
 				}

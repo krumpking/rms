@@ -117,21 +117,6 @@ const OrderStatus = (props: { level: number }) => {
 			});
 	};
 
-	const deleteItem = (id: string) => {
-		var result = confirm('Are you sure you want to delete?');
-		if (result) {
-			//Logic to delete the item
-			setLoading(true);
-			deleteDocument(ORDER_COLLECTION, id)
-				.then(() => {
-					getOrders();
-				})
-				.catch((e: any) => {
-					console.error(e);
-				});
-		}
-	};
-
 	const updateOrder = (v: IOrder) => {
 		setLoading(true);
 

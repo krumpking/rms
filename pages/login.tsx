@@ -146,6 +146,7 @@ const Login = (props: {
 				})
 				.catch((err: any) => {
 					alert('The One Time Password you sent was not correct please retry');
+					setLoading(false);
 					console.error(err);
 					toast.error(
 						'There was an error with the One Time Password, please try again'

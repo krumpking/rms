@@ -62,14 +62,14 @@ const AddReservation = () => {
 								name: d.name,
 								phoneNumber: d.phoneNumber,
 								email: d.email,
-								date: new Date(),
+								date: d.date,
 								time: d.time,
 								peopleNumber: d.peopleNumber,
 								notes: d.notes,
 								category: d.category,
-								dateAdded: new Date(),
-								dateOfUpdate: new Date(),
-								dateAddedString: new Date().toDateString(),
+								dateAdded: d.dateAdded,
+								dateOfUpdate: d.dateOfUpdate,
+								dateAddedString: d.dateAddedString,
 							},
 						]);
 					});
