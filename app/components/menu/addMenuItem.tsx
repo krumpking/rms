@@ -493,19 +493,19 @@ const AddMenuItem = () => {
 												setTitle(e.target.value);
 											}}
 											className='
-                         w-full
-                         rounded-[25px]
-                         border-2
-                         border-[#8b0e06]
-                         py-3
-                         px-5
-                         bg-white
-                         text-base text-body-color
-                         placeholder-[#ACB6BE]
-                         outline-none
-                         focus-visible:shadow-none
-                         focus:border-primary
-                         '
+												w-full
+												rounded-[25px]
+												border-2
+												border-[#8b0e06]
+												py-3
+												px-5
+												bg-white
+												text-base text-body-color
+												placeholder-[#ACB6BE]
+												outline-none
+												focus-visible:shadow-none
+												focus:border-primary
+											'
 											required
 										/>
 									</div>
@@ -517,20 +517,20 @@ const AddMenuItem = () => {
 												setDescription(e.target.value);
 											}}
 											className='
-                        h-25
-                         w-full
-                         rounded-[25px]
-                         border-2
-                         border-[#8b0e06]
-                         py-3
-                         px-5
-                         bg-white
-                         text-base text-body-color
-                         placeholder-[#ACB6BE]
-                         outline-none
-                         focus-visible:shadow-none
-                         focus:border-primary
-                         '
+												h-25
+												w-full
+												rounded-[25px]
+												border-2
+												border-[#8b0e06]
+												py-3
+												px-5
+												bg-white
+												text-base text-body-color
+												placeholder-[#ACB6BE]
+												outline-none
+												focus-visible:shadow-none
+												focus:border-primary
+											'
 											required
 										/>
 									</div>

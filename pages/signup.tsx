@@ -34,6 +34,7 @@ const SignUp = () => {
 	const [email, setEmail] = useState('');
 	const [checked, setChecked] = useState(false);
 	const [accessArray, setAccessArray] = useState<any[]>([
+		'customer-loyalty',
 		'menu',
 		'orders',
 		'move-from-pantry',

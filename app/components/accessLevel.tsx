@@ -13,6 +13,7 @@ const AppAccess: FC<MyProps> = ({ children, access, component }) => {
 	const router = useRouter();
 	const solo = [
 		'menu',
+		'customer-loyalty',
 		'orders',
 		'move-from-pantry',
 		'move-from-kitchen',
@@ -33,6 +34,7 @@ const AppAccess: FC<MyProps> = ({ children, access, component }) => {
 	];
 	const team = [
 		'menu',
+		'customer-loyalty',
 		'orders',
 		'move-from-pantry',
 		'move-from-kitchen',

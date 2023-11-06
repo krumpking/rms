@@ -333,19 +333,19 @@ const AddMenuCategory = () => {
 												setTitle(e.target.value);
 											}}
 											className='
-                         w-full
-                         rounded-[25px]
-                         border-2
-                         border-[#8b0e06]
-                         py-3
-                         px-5
-                         bg-white
-                         text-base text-body-color
-                         placeholder-[#ACB6BE]
-                         outline-none
-                         focus-visible:shadow-none
-                         focus:border-primary
-                         '
+												w-full
+												rounded-[25px]
+												border-2
+												border-[#8b0e06]
+												py-3
+												px-5
+												bg-white
+												text-base text-body-color
+												placeholder-[#ACB6BE]
+												outline-none
+												focus-visible:shadow-none
+												focus:border-primary
+												'
 											required
 										/>
 									</div>
@@ -354,21 +354,21 @@ const AddMenuCategory = () => {
 											addCategory();
 										}}
 										className='
-                    font-bold
-                    w-full
-                    rounded-[25px]
-                    border-2
-                    border-[#8b0e06]
-                    border-primary
-                    py-3
-                    px-10
-                    bg-[#8b0e06]
-                    text-base 
-                    text-white
-                    cursor-pointer
-                    hover:bg-opacity-90
-                    transition
-                '
+											font-bold
+											w-full
+											rounded-[25px]
+											border-2
+											border-[#8b0e06]
+											border-primary
+											py-3
+											px-10
+											bg-[#8b0e06]
+											text-base 
+											text-white
+											cursor-pointer
+											hover:bg-opacity-90
+											transition
+										'
 									>
 										Add Category
 									</button>
