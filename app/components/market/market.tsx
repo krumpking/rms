@@ -642,13 +642,12 @@ const MarketPlace = (props: {
 																category: v.category,
 																title: v.title,
 																description: v.description,
-																discount: 0,
+																discount: v.oldPrice - v.newPrice,
 																pic: v.pic,
 																date: v.date,
 																dateString: v.dateString,
 																price: 1,
 															};
-															console.log(item);
 															addToCart(item);
 														}}
 														className='py-2 px-5 text-white rounded-md w-full'
