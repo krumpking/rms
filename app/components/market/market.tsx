@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router';
-import { IMeal, IMenuItem } from '../../types/menuTypes';
+import { IMeal, IMenuItem, IMenuItemPromotions } from '../../types/menuTypes';
 import {
 	DEFAULT_LOCATION,
 	DEFAULT_ZOOM,
@@ -15,6 +15,7 @@ import {
 	MEAL_ITEM_COLLECTION,
 	MEAL_STORAGE_REF,
 	MENU_ITEM_COLLECTION,
+	MENU_PROMO_ITEM_COLLECTION,
 	MENU_STORAGE_REF,
 } from '../../constants/menuConstants';
 import {
@@ -25,6 +26,7 @@ import {
 } from '../../constants/constants';
 import {
 	findOccurrencesObjectId,
+	returnOnlyUnique,
 	searchStringInArray,
 } from '../../utils/arrayM';
 import { ORDER_COLLECTION } from '../../constants/orderConstants';
@@ -48,6 +50,8 @@ const MarketPlace = (props: {
 	const router = useRouter();
 	const [isOpen, setIsOpen] = useState(false);
 	const [search, setSearch] = useState('');
+	const [promos, setPromos] = useState<IMenuItemPromotions[]>([]);
+	const [categories, setCategories] = useState<string[]>([]);
 	const [meals, setMeals] = useState<IMeal[]>([]);
 	const [mealsSto, setMealsSto] = useState<IMeal[]>([]);
 	const [menuItems, setMenuItems] = useState<IMenuItem[]>([]);
@@ -91,6 +95,7 @@ const MarketPlace = (props: {
 
 	useEffect(() => {
 		getMeals();
+		getPromos();
 		getMenuItems();
 	}, []);
 
@@ -139,6 +144,7 @@ const MarketPlace = (props: {
 								pic: d.pic,
 							},
 						]);
+						setCategories((categories) => [...categories, d.category]);
 					});
 				}
 			})
@@ -185,6 +191,40 @@ const MarketPlace = (props: {
 								date: d.date,
 								dateString: d.dateString,
 								price: d.price,
+							},
+						]);
+						setCategories((categories) => [...categories, d.category]);
+					});
+				}
+			})
+			.catch((e) => {
+				console.error(e);
+				setLoading(true);
+			});
+	};
+
+	const getPromos = () => {
+		getDataFromDBOne(MENU_PROMO_ITEM_COLLECTION, AMDIN_FIELD, info.adminId)
+			.then((v) => {
+				if (v !== null) {
+					v.data.forEach((element) => {
+						let d = element.data();
+
+						setPromos((promos) => [
+							...promos,
+							{
+								id: element.id,
+								adminId: d.adminId,
+								userId: d.userId,
+								pic: d.pic,
+								title: d.title,
+								description: d.description,
+								category: d.category,
+								date: d.date,
+								dateString: d.dateString,
+								oldPrice: d.oldPrice,
+								newPrice: d.newPrice,
+								endDate: d.endDate,
 							},
 						]);
 					});
@@ -295,8 +335,11 @@ const MarketPlace = (props: {
 			}
 			total += deliveryCost;
 		}
-
-		return total.toFixed(2);
+		if (total > 1) {
+			return total.toFixed(2);
+		} else {
+			return total;
+		}
 	};
 
 	const addToCart = (v: any) => {
@@ -560,32 +603,98 @@ const MarketPlace = (props: {
 									style={'rounded-full h-40 w-40 '}
 								/>
 							</div>
+							<div className='flex flex-col mb-6 p-8'>
+								<div>
+									{promos.length > 0 ? (
+										<div className='flex justify-center content-center items-center mb-6'>
+											<h1 className='text-2xl' style={{ color: PRIMARY_COLOR }}>
+												PROMO ALERT
+											</h1>
+										</div>
+									) : (
+										<p></p>
+									)}
+								</div>
+
+								{promos.length > 0 ? (
+									<div className='grid grid-cols-1 lg:grid-cols-4 gap-8 p-4 lg:p-8'>
+										{promos.slice(0, 4).map((v) => (
+											<div className='relative shadow-2xl p-4 w-[250px] rounded-[25px]'>
+												<div className='p-4 flex flex-col'>
+													<ShowImage
+														src={`/${v.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
+														alt={'Menu Item'}
+														style={'rounded-[25px] h-20 w-full '}
+													/>
+													<p className='text-xl'>{v.title}</p>
+													<div className='flex flex-row space-x-4 justify-between content-center items-center my-1'>
+														<p className='text-md line-through'>
+															{v.oldPrice}USD
+														</p>
+														<p className='text-md'>{v.newPrice}USD</p>
+													</div>
+													<button
+														onClick={() => {
+															let item: IMenuItem = {
+																id: v.id,
+																adminId: v.adminId,
+																userId: v.userId,
+																category: v.category,
+																title: v.title,
+																description: v.description,
+																discount: 0,
+																pic: v.pic,
+																date: v.date,
+																dateString: v.dateString,
+																price: 1,
+															};
+															console.log(item);
+															addToCart(item);
+														}}
+														className='py-2 px-5 text-white rounded-md w-full'
+														style={{
+															backgroundColor: `${PRIMARY_COLOR}`,
+														}}
+													>
+														Add
+													</button>
+													<div className='rounded-[25px] font-bold w-full h-fit font-bold text-xs text-center flex flex-row justify-center my-1'>
+														<p className='text-gray-400'>
+															{DateMethods.diffDatesDays(
+																new Date().toDateString(),
+																v.endDate
+															)}{' '}
+															days left
+														</p>
+													</div>
+												</div>
+
+												<div
+													className='absolute -top-2 -right-2  z-10 rounded-full text-white font-bold w-12 h-12 font-bold text-xs text-center flex items-center'
+													style={{ backgroundColor: PRIMARY_COLOR }}
+												>
+													{100 - (v.newPrice / v.oldPrice) * 100} % OFF
+												</div>
+											</div>
+										))}
+									</div>
+								) : (
+									<p></p>
+								)}
+							</div>
 							<div className='p-2 sm:p-8'>
 								<div className='flex justify-between content-center items-center mb-6'>
-									<h1 className='hidden lg:block text-md md:text-2xl'>
-										Order Now
-									</h1>
+									<h1 className='hidden md:block md:text-2xl'>Order Now</h1>
 									<div className='flex flex-row space-x-4 max-w-[800px] overflow-x-auto'>
-										{menuItems.map((v) => (
+										{returnOnlyUnique(categories).map((v) => (
 											<h1
 												className='hover:cursor-pointer'
 												onClick={() => {
-													setSearch(v.category);
+													setSearch(v);
 													searchFor();
 												}}
 											>
-												{v.category}
-											</h1>
-										))}
-										{meals.map((v) => (
-											<h1
-												className='hover:cursor-pointer'
-												onClick={() => {
-													setSearch(v.category);
-													searchFor();
-												}}
-											>
-												{v.category}
+												{v}
 											</h1>
 										))}
 									</div>
