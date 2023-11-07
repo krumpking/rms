@@ -16,6 +16,8 @@ import {
 	deleteDocument,
 	deleteFile,
 	getDataFromDBOne,
+	getDataFromDBThree,
+	getDataFromDBTwo,
 	updateDocument,
 	uploadFile,
 } from '../../api/mainApi';
@@ -33,18 +35,24 @@ import { Dialog, Transition } from '@headlessui/react';
 import {
 	findOccurrences,
 	findOccurrencesObjectId,
+	returnOnlyUnique,
 	searchStringInArray,
 } from '../../utils/arrayM';
 import { createId } from '../../utils/stringM';
 import { ORDER_COLLECTION } from '../../constants/orderConstants';
 import { IOrder } from '../../types/orderTypes';
 import { useAuthIds } from '../authHook';
+import { IPoints, IPointsRate } from '../../types/loyaltyTypes';
+import {
+	POINTS_COLLECTION,
+	REWARD_PARAMS_COLLECTION,
+} from '../../constants/loyaltyConstants';
 
 const CreateOrder = () => {
 	const [loading, setLoading] = useState(true);
 	const router = useRouter();
 	const { adminId, userId, access } = useAuthIds();
-	const [categories, setCategories] = useState<ICategory[]>([]);
+	const [categories, setCategories] = useState<string[]>([]);
 	const [meals, setMeals] = useState<IMeal[]>([]);
 	const [mealsSto, setMealsSto] = useState<IMeal[]>([]);
 	const [menuItems, setMenuItems] = useState<IMenuItem[]>([]);
@@ -56,15 +64,23 @@ const CreateOrder = () => {
 		description: '',
 		price: 0,
 	});
-	const [open, setOpen] = useState(false);
 	const [addItems, setAddItems] = useState<any[]>([]);
-	const [discount, setDiscount] = useState(0);
 	const [search, setSearch] = useState('');
-	const [finalTotal, setFinalTotal] = useState(0);
 	const [displayedItems, setDisplayedItems] = useState<any>([]);
 	const [customerName, setCustomerName] = useState('');
 	const [tableNo, setTableNo] = useState('');
 	const [orderNo, setOrderNo] = useState(1);
+	const [phone, setPhone] = useState('+263');
+	const [email, setEmail] = useState('');
+	const [category, setCategory] = useState<string[]>(['First Time', 'Regular']);
+	const [choosePoints, setChoosePoints] = useState<string[]>([
+		'Use Points',
+		'DO NOT use points',
+	]);
+	const [currentNoOfPoints, setCurrentNoOfPoints] = useState(0);
+	const [rewards, setRewards] = useState<IPointsRate[]>([]);
+	const [points, setPoints] = useState<IPoints[]>([]);
+	const [usePoints, setUsePoints] = useState(false);
 
 	useEffect(() => {
 		document.body.style.backgroundColor = LIGHT_GRAY;
@@ -82,18 +98,7 @@ const CreateOrder = () => {
 					v.data.forEach((element) => {
 						let d = element.data();
 
-						setCategories((categories) => [
-							...categories,
-							{
-								id: element.id,
-								adminId: d.adminId,
-								userId: d.userId,
-								pic: d.pic,
-								category: d.category,
-								date: d.date,
-								dateString: d.dateString,
-							},
-						]);
+						setCategories((categories) => [...categories, d.category]);
 					});
 				}
 				setLoading(false);
@@ -355,6 +360,23 @@ const CreateOrder = () => {
 			total += el.price;
 		});
 
+		// use points and update
+		if (usePoints) {
+			let discount =
+				(currentNoOfPoints / rewards[0].numberOfPoints) *
+				rewards[0].dollarAmount;
+			if (discount > total) {
+				updatePoints(
+					Math.floor((discount - total) * rewards[0].numberOfPoints)
+				);
+				total = 0;
+			} else {
+				total -= discount;
+				updatePoints(0);
+			}
+			setCurrentNoOfPoints(0);
+		}
+
 		const order: IOrder = {
 			id: 'id',
 			orderNo: orderNo,
@@ -381,14 +403,36 @@ const CreateOrder = () => {
 			deliveredSignature: null,
 		};
 
+		if (!usePoints) {
+			const point: IPoints = {
+				adminId: adminId,
+				userId: userId,
+				id: 'id',
+				dateString: new Date().toDateString(),
+				date: new Date(),
+				name: customerName,
+				email: email,
+				phone: phone,
+				order: order,
+				orderTotal: total,
+				pointsTotal: Math.floor(total),
+				used: false,
+			};
+
+			addPoints(point);
+		}
+
+		// Send Order
 		addDocument(ORDER_COLLECTION, order)
 			.then((v) => {
+				toast.success('Order added successfully');
 				setDisplayedItems([]);
 				setAddItems([]);
 				setCustomerName('');
+				setPhone('');
+				setEmail('');
 				setTableNo('');
 				setLoading(false);
-				toast.success('Order added successfully');
 				getOrders();
 			})
 			.catch((e: any) => {
@@ -397,7 +441,117 @@ const CreateOrder = () => {
 				console.error(e);
 				toast.error('There was an error please try again');
 			});
-		setLoading(false);
+	};
+
+	const checkforPoints = () => {
+		if (phone !== '') {
+			getDataFromDBThree(
+				POINTS_COLLECTION,
+				AMDIN_FIELD,
+				adminId,
+				'phone',
+				phone,
+				'used',
+				false
+			)
+				.then((v) => {
+					if (v !== null) {
+						let pnts = 0;
+						v.data.forEach((element) => {
+							let d = element.data();
+							pnts += d.pointsTotal;
+
+							setPoints((prevPoints) => [
+								...prevPoints,
+								{
+									adminId: d.adminId,
+									userId: d.userId,
+									id: element.id,
+									dateString: d.datestring,
+									date: d.date,
+									name: d.name,
+									phone: d.phone,
+									order: d.order,
+									email: d.email,
+									orderTotal: d.orderTotal,
+									pointsTotal: d.pointsTotal,
+									used: d.used,
+								},
+							]);
+						});
+						setCurrentNoOfPoints(pnts);
+						getRewardsParams();
+					}
+				})
+				.catch((e) => {
+					console.error(e);
+				});
+		}
+	};
+
+	const getRewardsParams = () => {
+		getDataFromDBOne(REWARD_PARAMS_COLLECTION, AMDIN_FIELD, adminId)
+			.then((v) => {
+				if (v !== null) {
+					v.data.forEach((element) => {
+						let d = element.data();
+						setRewards((prevRes) => [
+							...prevRes,
+							{
+								id: element.id,
+								adminId: d.adminId,
+								userId: d.userId,
+								date: d.date,
+								dateString: d.dateString,
+								numberOfPoints: d.numberOfPoints,
+								dollarAmount: d.dollarAmount,
+								rewardType: d.rewardType,
+							},
+						]);
+					});
+				} else {
+					setRewards((prevRes) => [
+						...prevRes,
+						{
+							id: 'id',
+							adminId: adminId,
+							userId: userId,
+							date: new Date(),
+							dateString: new Date().toDateString(),
+							numberOfPoints: 10,
+							dollarAmount: 1,
+							rewardType: 'Discount',
+						},
+					]);
+				}
+				setLoading(false);
+			})
+			.catch((e) => {
+				console.error(e);
+			});
+	};
+
+	const addPoints = (points: IPoints) => {
+		// Add points
+		addDocument(POINTS_COLLECTION, points)
+			.then((v) => {})
+			.catch((e: any) => {
+				setLoading(false);
+				console.error(e);
+				toast.error('There was an error please try again');
+			});
+	};
+
+	const updatePoints = (extraPoints: number) => {
+		points.forEach((e) => {
+			updateDocument(POINTS_COLLECTION, e.id, { used: true });
+		});
+		if (extraPoints > 0) {
+			updateDocument(POINTS_COLLECTION, points[points.length - 1].id, {
+				used: false,
+				pointsTotal: extraPoints,
+			});
+		}
 	};
 
 	return (
@@ -411,10 +565,10 @@ const CreateOrder = () => {
 					<div className='grid grid-cols-12'>
 						<div className='col-span-6   overflow-y-scroll max-h-[700px] w-full gap-4 p-4'>
 							<div className='flex flex-row items-center  overflow-x-scroll space-x-2 m-2'>
-								{categories.map((v) => (
+								{returnOnlyUnique(categories).map((v) => (
 									<button
 										onClick={() => {
-											setSearch(v.category);
+											setSearch(v);
 											searchFor();
 										}}
 										className='font-bold
@@ -435,7 +589,7 @@ const CreateOrder = () => {
 										{/* <div>
                                             <ShowImage src={`/${webfrontId}/${MENU_CAT_STORAGE_REF}/${v.pic.thumbnail}`} alt={'Category'} style={'rounded-full h-6'} />
                                         </div> */}
-										<h1 className=''>{v.category}</h1>
+										<h1 className=''>{v}</h1>
 									</button>
 								))}
 							</div>
@@ -516,8 +670,8 @@ const CreateOrder = () => {
 						</div>
 						<div className='col-span-6 flex flex-col p-4 '>
 							<div className='shadow-xl rounded-[25px]  px-2 py-8'>
-								<h1>Order Number: {orderNo}</h1>
-								<div className='mb-6'>
+								<h1 className='my-2'>Order Number: {orderNo}</h1>
+								<div className='mb-4'>
 									<input
 										type='text'
 										value={customerName}
@@ -539,10 +693,57 @@ const CreateOrder = () => {
                                         focus-visible:shadow-none
                                         focus:border-primary
                                         '
-										onKeyDown={handleKeyDown}
 									/>
 								</div>
-								<div className='mb-6'>
+								<div className='mb-4'>
+									<input
+										type='text'
+										value={phone}
+										placeholder={'Phone number'}
+										onChange={(e) => {
+											setPhone(e.target.value);
+										}}
+										className='
+                                        w-full
+                                        rounded-[25px]
+                                        border-2
+                                        border-[#8b0e06]
+                                        py-3
+                                        px-5
+                                        bg-white
+                                        text-base text-body-color
+                                        placeholder-[#ACB6BE]
+                                        outline-none
+                                        focus-visible:shadow-none
+                                        focus:border-primary
+                                        '
+									/>
+								</div>
+								<div className='mb-4'>
+									<input
+										type='text'
+										value={email}
+										placeholder={'Email'}
+										onChange={(e) => {
+											setEmail(e.target.value);
+										}}
+										className='
+                                        w-full
+                                        rounded-[25px]
+                                        border-2
+                                        border-[#8b0e06]
+                                        py-3
+                                        px-5
+                                        bg-white
+                                        text-base text-body-color
+                                        placeholder-[#ACB6BE]
+                                        outline-none
+                                        focus-visible:shadow-none
+                                        focus:border-primary
+                                        '
+									/>
+								</div>
+								<div className='mb-4'>
 									<input
 										type='text'
 										value={tableNo}
@@ -567,7 +768,72 @@ const CreateOrder = () => {
 										onKeyDown={handleKeyDown}
 									/>
 								</div>
-
+								<div className='mb-4'>
+									<button
+										className='font-bold rounded-[25px] border-2 border-[#8b0e06] bg-white px-4 py-3 w-full'
+										onClick={(e) => e.preventDefault()}
+									>
+										<select
+											// value={category}
+											onChange={(e) => {
+												if (e.target.value == 'Regular') {
+													checkforPoints();
+												}
+											}}
+											className='bg-white w-full'
+											data-required='1'
+											required
+										>
+											<option value='Regular' hidden>
+												Regular Customer / First Time
+											</option>
+											{category.map((v) => (
+												<option value={v}>{v}</option>
+											))}
+										</select>
+									</button>
+								</div>
+								<div>
+									{currentNoOfPoints > 0 ? (
+										<div className='flex flex-col'>
+											<div className='mb-4  px-4'>
+												<h1>
+													Points:
+													{currentNoOfPoints}
+												</h1>
+											</div>
+											<div className='mb-4'>
+												<button
+													className='font-bold rounded-[25px] border-2 border-[#8b0e06] bg-white px-4 py-3 w-full'
+													onClick={(e) => e.preventDefault()}
+												>
+													<select
+														// value={category}
+														onChange={(e) => {
+															if (e.target.value == 'Use Points') {
+																setUsePoints(true);
+															} else {
+																setUsePoints(false);
+															}
+														}}
+														className='bg-white w-full'
+														data-required='1'
+														required
+													>
+														<option value='Regular' hidden>
+															Use points / Do not use points
+														</option>
+														{choosePoints.map((v) => (
+															<option value={v}>{v}</option>
+														))}
+													</select>
+												</button>
+											</div>
+										</div>
+									) : (
+										<p></p>
+									)}
+								</div>
 								<div className='flex flex-row justify-between shadow-md m-4 p-4 rounded-[25px]'>
 									<p className='text-xs'> Item</p>
 									<div className='flex justify-between space-x-2'>
@@ -615,6 +881,7 @@ const CreateOrder = () => {
 									<h1 className='text-xl'>Combined Total</h1>
 									<h1 className='text-xl'>{getTotal()}USD</h1>
 								</div>
+
 								<button
 									onClick={() => {
 										addOrder();

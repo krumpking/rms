@@ -13,6 +13,7 @@ import Meal from '../app/components/menu/meal';
 import AppAccess from '../app/components/accessLevel';
 import { useAuthIds } from '../app/components/authHook';
 import Head from 'next/head';
+import AddPromotion from '../app/components/menu/addPromo';
 
 function classNames(...classes: string[]) {
 	return classes.filter(Boolean).join(' ');
@@ -22,7 +23,8 @@ const Menu = () => {
 	const [loading, setLoading] = useState(false);
 	const [tabs, setTabs] = useState([
 		'Meals',
-		'Create Meal',
+		'Create Combo Meal',
+		'Add Promotion',
 		'Add Menu Item',
 		'Create Category',
 	]);
@@ -86,6 +88,14 @@ const Menu = () => {
 												)}
 											>
 												<CreateMeal />
+											</Tab.Panel>
+											<Tab.Panel
+												className={classNames(
+													'rounded-xl bg-white p-3',
+													'ring-white  ring-offset-2 focus:outline-none focus:ring-2'
+												)}
+											>
+												<AddPromotion />
 											</Tab.Panel>
 											<Tab.Panel
 												className={classNames(

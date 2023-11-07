@@ -72,6 +72,7 @@ const ManageUsers = () => {
 	const [accessArray, setAccessArray] = useState<any[]>([
 		'menu',
 		'orders',
+		'customer-loyalty',
 		'move-from-pantry',
 		'move-from-kitchen',
 		'cash-in',

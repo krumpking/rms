@@ -85,7 +85,6 @@ const Meal = () => {
 						]);
 					});
 				}
-				setLoading(false);
 			})
 			.catch((e) => {
 				console.error(e);
