@@ -5,7 +5,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import { useRouter } from 'next/router';
 import Loader from '../loader';
 import { ITransaction } from '../../types/cashbookTypes';
-import { getDataFromDBOne } from '../../api/mainApi';
+import { getDataFromDBOne, getDataFromDBTwo } from '../../api/mainApi';
 import {
 	CASHBOOOK_COLLECTION,
 	CASHBOOOK_STORAGE_REF,
@@ -68,7 +68,7 @@ const CustomerPoints = () => {
 	}, []);
 
 	const getTransactions = () => {
-		getDataFromDBOne(POINTS_COLLECTION, AMDIN_FIELD, adminId)
+		getDataFromDBTwo(POINTS_COLLECTION, AMDIN_FIELD, adminId, 'used', false)
 			.then((v) => {
 				if (v != null) {
 					v.data.forEach((element) => {

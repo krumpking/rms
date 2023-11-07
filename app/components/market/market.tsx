@@ -10,7 +10,12 @@ import {
 } from '../../constants/websiteConstants';
 import { IOrder } from '../../types/orderTypes';
 import { IWebsiteOneInfo } from '../../types/websiteTypes';
-import { addDocument, getDataFromDBOne } from '../../api/mainApi';
+import {
+	addDocument,
+	getDataFromDBOne,
+	getDataFromDBThree,
+	updateDocument,
+} from '../../api/mainApi';
 import {
 	MEAL_ITEM_COLLECTION,
 	MEAL_STORAGE_REF,
@@ -40,6 +45,11 @@ import { print } from '../../utils/console';
 import DateMethods from '../../utils/date';
 import { isAfter, isEqual } from 'date-fns';
 import { sendOrderEmail } from '../../api/emailApi';
+import { IPoints, IPointsRate } from '../../types/loyaltyTypes';
+import {
+	POINTS_COLLECTION,
+	REWARD_PARAMS_COLLECTION,
+} from '../../constants/loyaltyConstants';
 
 const MarketPlace = (props: {
 	info: IWebsiteOneInfo;
@@ -92,6 +102,15 @@ const MarketPlace = (props: {
 	const [addItems, setAddItems] = useState<any[]>([]);
 	const [loadDist, setLoadDist] = useState(false);
 	const [booths, setBooths] = useState<IWebsiteOneInfo[]>([]);
+	const [category, setCategory] = useState<string[]>(['First Time', 'Regular']);
+	const [choosePoints, setChoosePoints] = useState<string[]>([
+		'Use Points',
+		'DO NOT use points',
+	]);
+	const [currentNoOfPoints, setCurrentNoOfPoints] = useState(0);
+	const [rewards, setRewards] = useState<IPointsRate[]>([]);
+	const [points, setPoints] = useState<IPoints[]>([]);
+	const [usePoints, setUsePoints] = useState(false);
 
 	useEffect(() => {
 		getMeals();
@@ -433,6 +452,23 @@ const MarketPlace = (props: {
 					total += deliveryCost;
 				}
 
+				// use points and update
+				if (usePoints) {
+					let discount =
+						(currentNoOfPoints / rewards[0].numberOfPoints) *
+						rewards[0].dollarAmount;
+					if (discount > total) {
+						updatePoints(
+							Math.floor((discount - total) * rewards[0].numberOfPoints)
+						);
+						total = 0;
+					} else {
+						total -= discount;
+						updatePoints(0);
+					}
+					setCurrentNoOfPoints(0);
+				}
+
 				let newOrder: IOrder = {
 					...order,
 					orderNo: oN,
@@ -447,6 +483,25 @@ const MarketPlace = (props: {
 					adminId: info.adminId,
 					userId: info.userId,
 				};
+
+				if (!usePoints) {
+					const point: IPoints = {
+						adminId: info.adminId,
+						userId: info.userId,
+						id: 'id',
+						dateString: new Date().toDateString(),
+						date: new Date(),
+						name: order.customerName,
+						email: order.customerEmail,
+						phone: order.customerPhone,
+						order: order,
+						orderTotal: total,
+						pointsTotal: Math.floor(total),
+						used: false,
+					};
+
+					addPoints(point);
+				}
 
 				addDocument(ORDER_COLLECTION, newOrder)
 					.then((v) => {
@@ -555,6 +610,116 @@ const MarketPlace = (props: {
 			return 10;
 		} else if (d > 20 && d < 30) {
 			return 15;
+		}
+	};
+	const checkforPoints = () => {
+		if (order.customerPhone !== '') {
+			getDataFromDBThree(
+				POINTS_COLLECTION,
+				AMDIN_FIELD,
+				info.adminId,
+				'phone',
+				order.customerPhone,
+				'used',
+				false
+			)
+				.then((v) => {
+					if (v !== null) {
+						let pnts = 0;
+						v.data.forEach((element) => {
+							let d = element.data();
+							pnts += d.pointsTotal;
+
+							setPoints((prevPoints) => [
+								...prevPoints,
+								{
+									adminId: d.adminId,
+									userId: d.userId,
+									id: element.id,
+									dateString: d.datestring,
+									date: d.date,
+									name: d.name,
+									phone: d.phone,
+									order: d.order,
+									email: d.email,
+									orderTotal: d.orderTotal,
+									pointsTotal: d.pointsTotal,
+									used: d.used,
+								},
+							]);
+						});
+						setCurrentNoOfPoints(pnts);
+						getRewardsParams();
+					}
+				})
+				.catch((e) => {
+					console.error(e);
+				});
+		}
+	};
+
+	const getRewardsParams = () => {
+		getDataFromDBOne(REWARD_PARAMS_COLLECTION, AMDIN_FIELD, info.adminId)
+			.then((v) => {
+				if (v !== null) {
+					v.data.forEach((element) => {
+						let d = element.data();
+						setRewards((prevRes) => [
+							...prevRes,
+							{
+								id: element.id,
+								adminId: d.adminId,
+								userId: d.userId,
+								date: d.date,
+								dateString: d.dateString,
+								numberOfPoints: d.numberOfPoints,
+								dollarAmount: d.dollarAmount,
+								rewardType: d.rewardType,
+							},
+						]);
+					});
+				} else {
+					setRewards((prevRes) => [
+						...prevRes,
+						{
+							id: 'id',
+							adminId: info.adminId,
+							userId: info.userId,
+							date: info.date,
+							dateString: info.dateString,
+							numberOfPoints: 10,
+							dollarAmount: 1,
+							rewardType: 'Discount',
+						},
+					]);
+				}
+				setLoading(false);
+			})
+			.catch((e) => {
+				console.error(e);
+			});
+	};
+
+	const addPoints = (points: IPoints) => {
+		// Add points
+		addDocument(POINTS_COLLECTION, points)
+			.then((v) => {})
+			.catch((e: any) => {
+				setLoading(false);
+				console.error(e);
+				toast.error('There was an error please try again');
+			});
+	};
+
+	const updatePoints = (extraPoints: number) => {
+		points.forEach((e) => {
+			updateDocument(POINTS_COLLECTION, e.id, { used: true });
+		});
+		if (extraPoints > 0) {
+			updateDocument(POINTS_COLLECTION, points[points.length - 1].id, {
+				used: false,
+				pointsTotal: extraPoints,
+			});
 		}
 	};
 
@@ -975,6 +1140,72 @@ const MarketPlace = (props: {
                                                 focus:border-primary
                                         '
 								/>
+							</div>
+							<div className='mb-4 w-full'>
+								<button
+									className='font-bold rounded-[25px] border-2 border-[#8b0e06] bg-white py-3 px-4 w-full'
+									onClick={(e) => e.preventDefault()}
+								>
+									<select
+										// value={category}
+										onChange={(e) => {
+											if (e.target.value == 'Regular') {
+												checkforPoints();
+											}
+										}}
+										className='bg-white w-full'
+										data-required='1'
+										required
+									>
+										<option value='Regular' hidden>
+											Regular Customer / First Time
+										</option>
+										{category.map((v) => (
+											<option value={v}>{v}</option>
+										))}
+									</select>
+								</button>
+							</div>
+							<div className='w-full'>
+								{currentNoOfPoints > 0 ? (
+									<div className='flex flex-col'>
+										<div className='mb-4  px-4'>
+											<h1>
+												Points:
+												{currentNoOfPoints}
+											</h1>
+										</div>
+										<div className='mb-4'>
+											<button
+												className='font-bold rounded-[25px] border-2 border-[#8b0e06] bg-white px-4 py-3 w-full'
+												onClick={(e) => e.preventDefault()}
+											>
+												<select
+													// value={category}
+													onChange={(e) => {
+														if (e.target.value == 'Use Points') {
+															setUsePoints(true);
+														} else {
+															setUsePoints(false);
+														}
+													}}
+													className='bg-white w-full'
+													data-required='1'
+													required
+												>
+													<option value='Regular' hidden>
+														Use points / Do not use points
+													</option>
+													{choosePoints.map((v) => (
+														<option value={v}>{v}</option>
+													))}
+												</select>
+											</button>
+										</div>
+									</div>
+								) : (
+									<p></p>
+								)}
 							</div>
 							<div className='mb-2 overflow-y-auto max-h-54 w-full'>
 								<div>

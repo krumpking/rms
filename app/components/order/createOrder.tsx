@@ -79,6 +79,7 @@ const CreateOrder = () => {
 	]);
 	const [currentNoOfPoints, setCurrentNoOfPoints] = useState(0);
 	const [rewards, setRewards] = useState<IPointsRate[]>([]);
+	const [points, setPoints] = useState<IPoints[]>([]);
 	const [usePoints, setUsePoints] = useState(false);
 
 	useEffect(() => {
@@ -354,15 +355,28 @@ const CreateOrder = () => {
 	const addOrder = () => {
 		setLoading(true);
 		let total = 0;
-		let discount = 0;
+
 		addItems.forEach((el) => {
 			total += el.price;
 		});
 
 		// use points and update
 		if (usePoints) {
-			total -= currentNoOfPoints;
+			let discount =
+				(currentNoOfPoints / rewards[0].numberOfPoints) *
+				rewards[0].dollarAmount;
+			if (discount > total) {
+				updatePoints(
+					Math.floor((discount - total) * rewards[0].numberOfPoints)
+				);
+				total = 0;
+			} else {
+				total -= discount;
+				updatePoints(0);
+			}
+			setCurrentNoOfPoints(0);
 		}
+
 		const order: IOrder = {
 			id: 'id',
 			orderNo: orderNo,
@@ -389,37 +403,29 @@ const CreateOrder = () => {
 			deliveredSignature: null,
 		};
 
-		const point: IPoints = {
-			adminId: adminId,
-			userId: userId,
-			id: 'id',
-			dateString: new Date().toDateString(),
-			date: new Date(),
-			name: customerName,
-			email: email,
-			phone: phone,
-			order: order,
-			orderTotal: total,
-			pointsTotal: Math.floor(total),
-			used: false,
-		};
+		if (!usePoints) {
+			const point: IPoints = {
+				adminId: adminId,
+				userId: userId,
+				id: 'id',
+				dateString: new Date().toDateString(),
+				date: new Date(),
+				name: customerName,
+				email: email,
+				phone: phone,
+				order: order,
+				orderTotal: total,
+				pointsTotal: Math.floor(total),
+				used: false,
+			};
+
+			addPoints(point);
+		}
 
 		// Send Order
 		addDocument(ORDER_COLLECTION, order)
 			.then((v) => {
 				toast.success('Order added successfully');
-				getOrders();
-			})
-			.catch((e: any) => {
-				setLoading(false);
-
-				console.error(e);
-				toast.error('There was an error please try again');
-			});
-
-		// Add points
-		addDocument(POINTS_COLLECTION, point)
-			.then((v) => {
 				setDisplayedItems([]);
 				setAddItems([]);
 				setCustomerName('');
@@ -427,9 +433,11 @@ const CreateOrder = () => {
 				setEmail('');
 				setTableNo('');
 				setLoading(false);
+				getOrders();
 			})
 			.catch((e: any) => {
 				setLoading(false);
+
 				console.error(e);
 				toast.error('There was an error please try again');
 			});
@@ -452,6 +460,24 @@ const CreateOrder = () => {
 						v.data.forEach((element) => {
 							let d = element.data();
 							pnts += d.pointsTotal;
+
+							setPoints((prevPoints) => [
+								...prevPoints,
+								{
+									adminId: d.adminId,
+									userId: d.userId,
+									id: element.id,
+									dateString: d.datestring,
+									date: d.date,
+									name: d.name,
+									phone: d.phone,
+									order: d.order,
+									email: d.email,
+									orderTotal: d.orderTotal,
+									pointsTotal: d.pointsTotal,
+									used: d.used,
+								},
+							]);
 						});
 						setCurrentNoOfPoints(pnts);
 						getRewardsParams();
@@ -483,12 +509,49 @@ const CreateOrder = () => {
 							},
 						]);
 					});
+				} else {
+					setRewards((prevRes) => [
+						...prevRes,
+						{
+							id: 'id',
+							adminId: adminId,
+							userId: userId,
+							date: new Date(),
+							dateString: new Date().toDateString(),
+							numberOfPoints: 10,
+							dollarAmount: 1,
+							rewardType: 'Discount',
+						},
+					]);
 				}
 				setLoading(false);
 			})
 			.catch((e) => {
 				console.error(e);
 			});
+	};
+
+	const addPoints = (points: IPoints) => {
+		// Add points
+		addDocument(POINTS_COLLECTION, points)
+			.then((v) => {})
+			.catch((e: any) => {
+				setLoading(false);
+				console.error(e);
+				toast.error('There was an error please try again');
+			});
+	};
+
+	const updatePoints = (extraPoints: number) => {
+		points.forEach((e) => {
+			updateDocument(POINTS_COLLECTION, e.id, { used: true });
+		});
+		if (extraPoints > 0) {
+			updateDocument(POINTS_COLLECTION, points[points.length - 1].id, {
+				used: false,
+				pointsTotal: extraPoints,
+			});
+		}
 	};
 
 	return (
@@ -734,7 +797,10 @@ const CreateOrder = () => {
 									{currentNoOfPoints > 0 ? (
 										<div className='flex flex-col'>
 											<div className='mb-4  px-4'>
-												<h1>Points: {currentNoOfPoints}</h1>
+												<h1>
+													Points:
+													{currentNoOfPoints}
+												</h1>
 											</div>
 											<div className='mb-4'>
 												<button
