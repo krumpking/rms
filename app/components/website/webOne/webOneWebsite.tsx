@@ -7,12 +7,22 @@ import { useRouter } from 'next/router';
 import Loader from '../../loader';
 import { IContact, IWebsiteOneInfo } from '../../../types/websiteTypes';
 import ShowImage from '../../showImage';
-import { IMeal, IMenuItem } from '../../../types/menuTypes';
-import { addDocument, getDataFromDBOne } from '../../../api/mainApi';
+import {
+	IMeal,
+	IMenuItem,
+	IMenuItemPromotions,
+} from '../../../types/menuTypes';
+import {
+	addDocument,
+	getDataFromDBOne,
+	getDataFromDBThree,
+	updateDocument,
+} from '../../../api/mainApi';
 import {
 	MEAL_ITEM_COLLECTION,
 	MEAL_STORAGE_REF,
 	MENU_ITEM_COLLECTION,
+	MENU_PROMO_ITEM_COLLECTION,
 	MENU_STORAGE_REF,
 } from '../../../constants/menuConstants';
 import {
@@ -23,6 +33,7 @@ import {
 } from '../../../constants/constants';
 import {
 	findOccurrencesObjectId,
+	returnOnlyUnique,
 	searchStringInArray,
 } from '../../../utils/arrayM';
 import { print } from '../../../utils/console';
@@ -48,6 +59,11 @@ import { useAuthIds } from '../../authHook';
 import DateMethods from '../../../utils/date';
 import { isEqual, isAfter } from 'date-fns';
 import { sendOrderEmail } from '../../../api/emailApi';
+import {
+	POINTS_COLLECTION,
+	REWARD_PARAMS_COLLECTION,
+} from '../../../constants/loyaltyConstants';
+import { IPoints, IPointsRate } from '../../../types/loyaltyTypes';
 
 interface MyProps {
 	info: IWebsiteOneInfo;
@@ -59,6 +75,8 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 	const [mealsSto, setMealsSto] = useState<IMeal[]>([]);
 	const [menuItems, setMenuItems] = useState<IMenuItem[]>([]);
 	const [menuItemsSto, setMenuItemsSto] = useState<IMenuItem[]>([]);
+	const [promos, setPromos] = useState<IMenuItemPromotions[]>([]);
+	const [categories, setCategories] = useState<string[]>([]);
 	const [search, setSearch] = useState('');
 	const [reservation, setReservation] = useState({
 		id: '',
@@ -144,9 +162,19 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 		{ title: 'Contact Us', id: '#contact' },
 	]);
 	const [navOpen, setNavOpen] = useState(false);
+	const [category, setCategory] = useState<string[]>(['First Time', 'Regular']);
+	const [choosePoints, setChoosePoints] = useState<string[]>([
+		'Use Points',
+		'DO NOT use points',
+	]);
+	const [currentNoOfPoints, setCurrentNoOfPoints] = useState(0);
+	const [rewards, setRewards] = useState<IPointsRate[]>([]);
+	const [points, setPoints] = useState<IPoints[]>([]);
+	const [usePoints, setUsePoints] = useState(false);
 
 	useEffect(() => {
 		getMeals();
+		getPromos();
 		getMenuItems();
 	}, []);
 
@@ -195,6 +223,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 								pic: d.pic,
 							},
 						]);
+						setCategories((categories) => [...categories, d.category]);
 					});
 				}
 				setLoading(false);
@@ -242,6 +271,40 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 								date: d.date,
 								dateString: d.dateString,
 								price: d.price,
+							},
+						]);
+						setCategories((categories) => [...categories, d.category]);
+					});
+				}
+			})
+			.catch((e) => {
+				console.error(e);
+				setLoading(true);
+			});
+	};
+
+	const getPromos = () => {
+		getDataFromDBOne(MENU_PROMO_ITEM_COLLECTION, AMDIN_FIELD, info.adminId)
+			.then((v) => {
+				if (v !== null) {
+					v.data.forEach((element) => {
+						let d = element.data();
+
+						setPromos((promos) => [
+							...promos,
+							{
+								id: element.id,
+								adminId: d.adminId,
+								userId: d.userId,
+								pic: d.pic,
+								title: d.title,
+								description: d.description,
+								category: d.category,
+								date: d.date,
+								dateString: d.dateString,
+								oldPrice: d.oldPrice,
+								newPrice: d.newPrice,
+								endDate: d.endDate,
 							},
 						]);
 					});
@@ -367,7 +430,11 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 			total += deliveryCost;
 		}
 
-		return total.toFixed(2);
+		if (total > 1) {
+			return total.toFixed(2);
+		} else {
+			return total;
+		}
 	};
 
 	const addToCart = (v: any) => {
@@ -482,6 +549,23 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 					total += deliveryCost;
 				}
 
+				// use points and update
+				if (usePoints) {
+					let discount =
+						(currentNoOfPoints / rewards[0].numberOfPoints) *
+						rewards[0].dollarAmount;
+					if (discount > total) {
+						updatePoints(
+							Math.floor((discount - total) * rewards[0].numberOfPoints)
+						);
+						total = 0;
+					} else {
+						total -= discount;
+						updatePoints(0);
+					}
+					setCurrentNoOfPoints(0);
+				}
+
 				let newOrder: IOrder = {
 					...order,
 					orderNo: oN,
@@ -496,6 +580,25 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 					adminId: info.adminId,
 					userId: info.userId,
 				};
+
+				if (!usePoints) {
+					const point: IPoints = {
+						adminId: info.adminId,
+						userId: info.userId,
+						id: 'id',
+						dateString: new Date().toDateString(),
+						date: new Date(),
+						name: order.customerName,
+						email: order.customerEmail,
+						phone: order.customerPhone,
+						order: order,
+						orderTotal: total,
+						pointsTotal: Math.floor(total),
+						used: false,
+					};
+
+					addPoints(point);
+				}
 
 				addDocument(ORDER_COLLECTION, newOrder)
 					.then((v) => {
@@ -616,6 +719,117 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 				console.error(e);
 				toast.error('There was an error sending a message please try again');
 			});
+	};
+
+	const checkforPoints = () => {
+		if (order.customerPhone !== '') {
+			getDataFromDBThree(
+				POINTS_COLLECTION,
+				AMDIN_FIELD,
+				info.adminId,
+				'phone',
+				order.customerPhone,
+				'used',
+				false
+			)
+				.then((v) => {
+					if (v !== null) {
+						let pnts = 0;
+						v.data.forEach((element) => {
+							let d = element.data();
+							pnts += d.pointsTotal;
+
+							setPoints((prevPoints) => [
+								...prevPoints,
+								{
+									adminId: d.adminId,
+									userId: d.userId,
+									id: element.id,
+									dateString: d.datestring,
+									date: d.date,
+									name: d.name,
+									phone: d.phone,
+									order: d.order,
+									email: d.email,
+									orderTotal: d.orderTotal,
+									pointsTotal: d.pointsTotal,
+									used: d.used,
+								},
+							]);
+						});
+						setCurrentNoOfPoints(pnts);
+						getRewardsParams();
+					}
+				})
+				.catch((e) => {
+					console.error(e);
+				});
+		}
+	};
+
+	const getRewardsParams = () => {
+		getDataFromDBOne(REWARD_PARAMS_COLLECTION, AMDIN_FIELD, info.adminId)
+			.then((v) => {
+				if (v !== null) {
+					v.data.forEach((element) => {
+						let d = element.data();
+						setRewards((prevRes) => [
+							...prevRes,
+							{
+								id: element.id,
+								adminId: d.adminId,
+								userId: d.userId,
+								date: d.date,
+								dateString: d.dateString,
+								numberOfPoints: d.numberOfPoints,
+								dollarAmount: d.dollarAmount,
+								rewardType: d.rewardType,
+							},
+						]);
+					});
+				} else {
+					setRewards((prevRes) => [
+						...prevRes,
+						{
+							id: 'id',
+							adminId: info.adminId,
+							userId: info.userId,
+							date: info.date,
+							dateString: info.dateString,
+							numberOfPoints: 10,
+							dollarAmount: 1,
+							rewardType: 'Discount',
+						},
+					]);
+				}
+				setLoading(false);
+			})
+			.catch((e) => {
+				console.error(e);
+			});
+	};
+
+	const addPoints = (points: IPoints) => {
+		// Add points
+		addDocument(POINTS_COLLECTION, points)
+			.then((v) => {})
+			.catch((e: any) => {
+				setLoading(false);
+				console.error(e);
+				toast.error('There was an error please try again');
+			});
+	};
+
+	const updatePoints = (extraPoints: number) => {
+		points.forEach((e) => {
+			updateDocument(POINTS_COLLECTION, e.id, { used: true });
+		});
+		if (extraPoints > 0) {
+			updateDocument(POINTS_COLLECTION, points[points.length - 1].id, {
+				used: false,
+				pointsTotal: extraPoints,
+			});
+		}
 	};
 
 	const getView = () => {
@@ -812,54 +1026,117 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 									)}
 								</div>
 							</div>
-							<div className='flex flex-col mb-6'>
-								<h1 className='text-4xl text-center mb-12'>
-									Our Favorite Menu
-								</h1>
-								<div className='grid grid-cols-1 lg:grid-cols-3 gap-8 p-4 lg:p-8'>
-									{menuItems.slice(0, 3).map((v) => (
-										<div className='relative shadow-2xl rounded-md p-4 w-full lg:w-3/4'>
-											<div className='p-4'>
-												<p className='text-xl'>{v.title}</p>
-												<div className='flex justify-between'>
-													<p className='text-md'>{v.price}USD</p>
-													<button
-														onClick={() => {
-															addToCart(v);
-														}}
-														className='relative rounded-md p-2'
-														style={{ backgroundColor: info.themeMainColor }}
-													>
-														<svg
-															xmlns='http://www.w3.org/2000/svg'
-															fill='none'
-															viewBox='0 0 24 24'
-															stroke-width='1.5'
-															stroke='currentColor'
-															className='w-6 h-6 text-white'
-														>
-															<path
-																stroke-linecap='round'
-																stroke-linejoin='round'
-																d='M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z'
-															/>
-														</svg>
-													</button>
-												</div>
-											</div>
-											<div className='absolute -top-10 -left-10 right-10 z-10 '>
-												<ShowImage
-													src={`/${info.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
-													alt={'Menu Item'}
-													style={'rounded-full h-20 w-20 '}
-												/>
+							<div className='flex flex-col mb-6 p-8'>
+								<div>
+									{promos.length > 0 ? (
+										<div className='flex justify-between content-center items-center mb-6'>
+											<h1
+												className='text-2xl'
+												style={{ color: info.themeMainColor }}
+											>
+												PROMO ALERT
+											</h1>
+											<div
+												className='flex flex-row space-x-4 max-w-[800px] overflow-x-auto'
+												onClick={() => {
+													setIndex(1);
+													setMenuItems(menuItemsSto);
+													setMeals(mealsSto);
+												}}
+											>
+												<h1 className='underline'>See All</h1>
 											</div>
 										</div>
-									))}
+									) : (
+										<h1 className='text-4xl text-center mb-12'>
+											Our Favorite Menu
+										</h1>
+									)}
 								</div>
+
+								{promos.length > 0 ? (
+									<div className='grid grid-cols-1 lg:grid-cols-4 gap-8 p-4 lg:p-8'>
+										{promos.slice(0, 4).map((v) => (
+											<div className='relative shadow-2xl p-4 w-[250px] rounded-[25px]'>
+												<div className='p-4 flex flex-col'>
+													<ShowImage
+														src={`/${v.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
+														alt={'Menu Item'}
+														style={'rounded-[25px] h-20 w-full '}
+													/>
+													<p className='text-xl'>{v.title}</p>
+													<div className='flex flex-row space-x-4 justify-end content-center items-center'>
+														<p className='text-xs line-through'>
+															{v.oldPrice}USD
+														</p>
+														<p className='text-md'>{v.newPrice}USD</p>
+													</div>
+													<div className='rounded-[25px] font-bold w-full h-fit font-bold text-xs text-center flex flex-row justify-end'>
+														<p className=''>
+															{DateMethods.diffDatesDays(
+																new Date().toDateString(),
+																v.endDate
+															)}{' '}
+															days left
+														</p>
+													</div>
+												</div>
+
+												<div
+													className='absolute -top-2 -right-2  z-10 rounded-full text-white font-bold w-12 h-12 font-bold text-xs text-center flex items-center'
+													style={{ backgroundColor: info.themeMainColor }}
+												>
+													{100 - (v.newPrice / v.oldPrice) * 100} % OFF
+												</div>
+											</div>
+										))}
+									</div>
+								) : (
+									<div className='grid grid-cols-1 lg:grid-cols-3 gap-8 p-4 lg:p-8'>
+										{menuItems.slice(0, 3).map((v) => (
+											<div className='relative shadow-2xl rounded-md p-4 w-full lg:w-3/4'>
+												<div className='p-4'>
+													<p className='text-xl'>{v.title}</p>
+													<div className='flex justify-between'>
+														<p className='text-md'>{v.price}USD</p>
+														<button
+															onClick={() => {
+																addToCart(v);
+															}}
+															className='relative rounded-md p-2'
+															style={{ backgroundColor: info.themeMainColor }}
+														>
+															<svg
+																xmlns='http://www.w3.org/2000/svg'
+																fill='none'
+																viewBox='0 0 24 24'
+																stroke-width='1.5'
+																stroke='currentColor'
+																className='w-6 h-6 text-white'
+															>
+																<path
+																	stroke-linecap='round'
+																	stroke-linejoin='round'
+																	d='M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z'
+																/>
+															</svg>
+														</button>
+													</div>
+												</div>
+												<div className='absolute -top-10 -left-10 right-10 z-10 '>
+													<ShowImage
+														src={`/${info.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
+														alt={'Menu Item'}
+														style={'rounded-full h-20 w-20 '}
+													/>
+												</div>
+											</div>
+										))}
+									</div>
+								)}
 							</div>
 							<div
-								className='grid grid-cols-1 lg:grid-cols-2 place-content-center place-items-center mb-6 gap-4'
+								className='grid grid-cols-1 lg:grid-cols-2 place-content-center place-items-center my-8 gap-4'
 								id='about'
 							>
 								<div>
@@ -1357,30 +1634,100 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 									</svg>
 								</button>
 							</div>
+							<div className='flex flex-col mb-6 p-8'>
+								<div>
+									{promos.length > 0 ? (
+										<div className='flex justify-center content-center items-center mb-6'>
+											<h1
+												className='text-2xl'
+												style={{ color: info.themeMainColor }}
+											>
+												PROMO ALERT
+											</h1>
+										</div>
+									) : (
+										<p></p>
+									)}
+								</div>
+
+								{promos.length > 0 ? (
+									<div className='grid grid-cols-1 lg:grid-cols-4 gap-8 p-4 lg:p-8'>
+										{promos.slice(0, 4).map((v) => (
+											<div className='relative shadow-2xl p-4 w-[250px] rounded-[25px]'>
+												<div className='p-4 flex flex-col'>
+													<ShowImage
+														src={`/${v.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
+														alt={'Menu Item'}
+														style={'rounded-[25px] h-20 w-full '}
+													/>
+													<p className='text-xl'>{v.title}</p>
+													<div className='flex flex-row space-x-4 justify-between content-center items-center my-1'>
+														<p className='text-md line-through'>
+															{v.oldPrice}USD
+														</p>
+														<p className='text-md'>{v.newPrice}USD</p>
+													</div>
+													<button
+														onClick={() => {
+															let item: IMenuItem = {
+																id: v.id,
+																adminId: v.adminId,
+																userId: v.userId,
+																category: v.category,
+																title: v.title,
+																description: v.description,
+																discount: v.oldPrice - v.newPrice,
+																pic: v.pic,
+																date: v.date,
+																dateString: v.dateString,
+																price: 1,
+															};
+															addToCart(item);
+														}}
+														className='py-2 px-5 text-white rounded-md w-full'
+														style={{
+															backgroundColor: `${info.themeMainColor}`,
+														}}
+													>
+														Add
+													</button>
+													<div className='rounded-[25px] font-bold w-full h-fit font-bold text-xs text-center flex flex-row justify-center my-1'>
+														<p className='text-gray-400'>
+															{DateMethods.diffDatesDays(
+																new Date().toDateString(),
+																v.endDate
+															)}{' '}
+															days left
+														</p>
+													</div>
+												</div>
+
+												<div
+													className='absolute -top-2 -right-2  z-10 rounded-full text-white font-bold w-12 h-12 font-bold text-xs text-center flex items-center'
+													style={{ backgroundColor: info.themeMainColor }}
+												>
+													{100 - (v.newPrice / v.oldPrice) * 100} % OFF
+												</div>
+											</div>
+										))}
+									</div>
+								) : (
+									<p></p>
+								)}
+							</div>
 							<div className='p-8'>
 								<div className='flex justify-between content-center items-center mb-6'>
 									<h1 className='hidden md:block md:text-2xl'>Order Now</h1>
 									<div className='flex flex-row space-x-4 max-w-[800px] overflow-x-auto'>
-										{menuItems.map((v) => (
+										{returnOnlyUnique(categories).map((v) => (
 											<h1
 												className='hover:cursor-pointer'
 												onClick={() => {
-													setSearch(v.category);
+													setSearch(v);
 													searchFor();
 												}}
 											>
-												{v.category}
-											</h1>
-										))}
-										{meals.map((v) => (
-											<h1
-												className='hover:cursor-pointer'
-												onClick={() => {
-													setSearch(v.category);
-													searchFor();
-												}}
-											>
-												{v.category}
+												{v}
 											</h1>
 										))}
 									</div>
@@ -1442,9 +1789,10 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 												style={'rounded-md h-64 w-full'}
 											/>
 											<h1 className='font-bold text-xl px-4'>{v.title}</h1>
+											<p className='text-xs px-4 w-full'>{v.description}</p>
 											<div className='flex flex-row justify-between p-4 items-center'>
 												<h1 className='font-bold text-xl'>{v.price}USD</h1>
-												<p className='text-xs w-full'>{v.description}</p>
+
 												<button
 													onClick={() => {
 														addToCart(v);
@@ -1458,6 +1806,773 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 										</div>
 									))}
 								</div>
+							</div>
+						</div>
+						<div className='fixed bottom-10 left-0 right-10 z-10'>
+							<div className='flex flex-row-reverse space-x-4'>
+								<button
+									style={{
+										backgroundColor: info.themeMainColor,
+										borderColor: info.themeMainColor,
+									}}
+									className='
+										py-4 
+										px-4 
+										relative 
+										border-2 
+										border-transparent 
+										text-gray-800 
+										rounded-full
+										hover:text-gray-400 
+										focus:outline-none 
+										ocus:text-gray-500 
+										transition duration-150 
+										ease-in-out'
+									aria-label='Cart'
+									onClick={() => {
+										setIsOpen(true);
+									}}
+								>
+									<svg
+										className='h-6 w-6 text-white'
+										fill='none'
+										stroke-linecap='round'
+										stroke-linejoin='round'
+										stroke-width='2'
+										viewBox='0 0 24 24'
+										stroke='currentColor'
+									>
+										<path d='M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z'></path>
+									</svg>
+									<span className='absolute inset-0 object-right-top -mr-12'>
+										<div
+											className={
+												'inline-flex items-center px-1.5 py-0.5 border-2 border-white rounded-full text-xs font-semibold leading-4 text-white'
+											}
+											style={{ backgroundColor: `${info.themeMainColor}` }}
+										>
+											{addItems.length}
+										</div>
+									</span>
+								</button>
+							</div>
+						</div>
+					</div>
+				);
+
+			default:
+				return (
+					<div className='relative'>
+						<div className='flex flex-col'>
+							<div className='flex justify-between items-center content-center'>
+								<div className='flex flex-row items-center space-x-4 content-center'>
+									{info.logo.thumbnail !== '' ? (
+										<ShowImage
+											src={`${info.websiteName}/logo/${info.logo.thumbnail}`}
+											alt={''}
+											style={'h-8 w-8 rounded-[25px]'}
+										/>
+									) : (
+										<img
+											src='images/logo.png'
+											className='h-8 w-8 rounded-[25px] w-8 self-center'
+										/>
+									)}
+
+									<h1>{info.serviceProviderName}</h1>
+								</div>
+								<div className='hidden nineSixteen:block'>
+									<div className='flex flex-row items-center space-x-4 font-bold'>
+										{navItems.map((v) => (
+											<a href={v.id}>
+												<h1>{v.title}</h1>
+											</a>
+										))}
+
+										<button
+											className='py-4 px-1 relative border-2 border-transparent text-gray-800 rounded-full hover:text-gray-400 focus:outline-none focus:text-gray-500 transition duration-150 ease-in-out'
+											aria-label='Cart'
+											onClick={() => {
+												setIsOpen(true);
+											}}
+										>
+											<svg
+												className='h-6 w-6'
+												fill='none'
+												stroke-linecap='round'
+												stroke-linejoin='round'
+												stroke-width='2'
+												viewBox='0 0 24 24'
+												stroke='currentColor'
+											>
+												<path d='M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z'></path>
+											</svg>
+											<span className='absolute inset-0 object-right-top -mr-6'>
+												<div
+													className={
+														'inline-flex items-center px-1.5 py-0.5 border-2 border-white rounded-full text-xs font-semibold leading-4 text-white'
+													}
+													style={{ backgroundColor: `${info.themeMainColor}` }}
+												>
+													{addItems.length}
+												</div>
+											</span>
+										</button>
+									</div>
+								</div>
+								<div className='nineSixteen:hidden'>
+									<div className='-mr-2 flex '>
+										<button
+											onClick={() => setNavOpen(!navOpen)}
+											type='button'
+											style={{ backgroundColor: info.themeMainColor }}
+											className='inline-flex items-center justify-center p-2 rounded-md text-white hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white'
+											aria-controls='mobile-menu'
+											aria-expanded='false'
+										>
+											<span className='sr-only'>Open main menu</span>
+											{!navOpen ? (
+												<svg
+													className='block h-6 w-6'
+													xmlns='http://www.w3.org/2000/svg'
+													fill='none'
+													viewBox='0 0 24 24'
+													stroke='currentColor'
+													aria-hidden='true'
+												>
+													<path
+														strokeLinecap='round'
+														strokeLinejoin='round'
+														strokeWidth='2'
+														d='M4 6h16M4 12h16M4 18h16'
+													/>
+												</svg>
+											) : (
+												<svg
+													className='block h-6 w-6'
+													xmlns='http://www.w3.org/2000/svg'
+													fill='none'
+													viewBox='0 0 24 24'
+													stroke='currentColor'
+													aria-hidden='true'
+												>
+													<path
+														strokeLinecap='round'
+														strokeLinejoin='round'
+														strokeWidth='2'
+														d='M6 18L18 6M6 6l12 12'
+													/>
+												</svg>
+											)}
+										</button>
+									</div>
+								</div>
+							</div>
+							<Transition
+								show={navOpen}
+								enter='transition ease-out duration-100 transform'
+								enterFrom='opacity-0 scale-95'
+								enterTo='opacity-100 scale-100'
+								leave='transition ease-in duration-75 transform'
+								leaveFrom='opacity-100 scale-100'
+								leaveTo='opacity-0 scale-95'
+							>
+								{(ref) => (
+									<div className='nineSixteen:hidden' id='mobile-menu'>
+										<div
+											ref={ref}
+											style={{ backgroundColor: info.themeMainColor }}
+											className='flex flex-col px-2 pt-2 pb-3 space-y-1 
+                            						sm:px-3 shadow-lg rounded-lg p-4'
+										>
+											{navItems.map((v, index) => {
+												return (
+													<div
+														className={`bg-[#fff] rounded-[20px] p-2`}
+														key={index}
+													>
+														<a
+															style={{ color: info.themeMainColor }}
+															className='smXS:text-xs md:text-sm afterMini:text-xs xl:text-xl text-center p-4'
+															href={v.id}
+														>
+															{v.title}
+														</a>
+													</div>
+												);
+											})}
+										</div>
+									</div>
+								)}
+							</Transition>
+							<div
+								className='grid grid-cols-1 xl:grid-cols-2 place-content-center place-items-center mb-6 p-8'
+								id='about'
+							>
+								<div className='flex flex-col space-y-10'>
+									<h1 className='text-2xl lg:text-4xl xl:text-6xl font-bold'>
+										{info.headerTitle}
+									</h1>
+									<p className='text-bold'>{info.headerText}</p>
+									<h1>Days Open:</h1>
+									<div className='flex flex-col lg:flex-row space-y-2 lg:space-y-0  lg:space-x-2'>
+										{info.daysOfWork.map((v) => (
+											<p
+												style={{ backgroundColor: info.themeMainColor }}
+												className='rounded-md p-2 text-white'
+											>
+												{v}
+											</p>
+										))}
+									</div>
+									<button
+										className='py-2 px-5 text-white rounded-md w-1/2 md:w-1/4'
+										onClick={() => {
+											setIndex(1);
+											setMenuItems(menuItemsSto);
+											setMeals(mealsSto);
+										}}
+										style={{ backgroundColor: `${info.themeMainColor}` }}
+									>
+										Order Now
+									</button>
+								</div>
+								<div className='p-4 '>
+									{info.headerImage.thumbnail !== '' ? (
+										<ShowImage
+											src={`${info.websiteName}/header/${info.headerImage.thumbnail}`}
+											alt={''}
+											style={''}
+										/>
+									) : (
+										<img
+											src='images/webOneDefaultPicture.jpg'
+											className='h-96 rounded-[25px] w-96'
+										/>
+									)}
+								</div>
+							</div>
+							<div className='flex flex-col mb-6 p-8'>
+								<div>
+									{promos.length > 0 ? (
+										<div className='flex justify-between content-center items-center mb-6'>
+											<h1
+												className='text-2xl'
+												style={{ color: info.themeMainColor }}
+											>
+												PROMO ALERT
+											</h1>
+											<div
+												className='flex flex-row space-x-4 max-w-[800px] overflow-x-auto'
+												onClick={() => {
+													setIndex(1);
+													setMenuItems(menuItemsSto);
+													setMeals(mealsSto);
+												}}
+											>
+												<h1 className='underline'>See All</h1>
+											</div>
+										</div>
+									) : (
+										<h1 className='text-4xl text-center mb-12'>
+											Our Favorite Menu
+										</h1>
+									)}
+								</div>
+
+								{promos.length > 0 ? (
+									<div className='grid grid-cols-1 lg:grid-cols-4 gap-8 p-4 lg:p-8'>
+										{promos.slice(0, 4).map((v) => (
+											<div className='relative shadow-2xl p-4 w-[250px] rounded-[25px]'>
+												<div className='p-4 flex flex-col'>
+													<ShowImage
+														src={`/${v.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
+														alt={'Menu Item'}
+														style={'rounded-[25px] h-20 w-full '}
+													/>
+													<p className='text-xl'>{v.title}</p>
+													<div className='flex flex-row space-x-4 justify-end content-center items-center'>
+														<p className='text-xs line-through'>
+															{v.oldPrice}USD
+														</p>
+														<p className='text-md'>{v.newPrice}USD</p>
+													</div>
+													<div className='rounded-[25px] font-bold w-full h-fit font-bold text-xs text-center flex flex-row justify-end'>
+														<p className=''>
+															{DateMethods.diffDatesDays(
+																new Date().toDateString(),
+																v.endDate
+															)}{' '}
+															days left
+														</p>
+													</div>
+												</div>
+
+												<div
+													className='absolute -top-2 -right-2  z-10 rounded-full text-white font-bold w-12 h-12 font-bold text-xs text-center flex items-center'
+													style={{ backgroundColor: info.themeMainColor }}
+												>
+													{100 - (v.newPrice / v.oldPrice) * 100} % OFF
+												</div>
+											</div>
+										))}
+									</div>
+								) : (
+									<div className='grid grid-cols-1 lg:grid-cols-3 gap-8 p-4 lg:p-8'>
+										{menuItems.slice(0, 3).map((v) => (
+											<div className='relative shadow-2xl rounded-md p-4 w-full lg:w-3/4'>
+												<div className='p-4'>
+													<p className='text-xl'>{v.title}</p>
+													<div className='flex justify-between'>
+														<p className='text-md'>{v.price}USD</p>
+														<button
+															onClick={() => {
+																addToCart(v);
+															}}
+															className='relative rounded-md p-2'
+															style={{ backgroundColor: info.themeMainColor }}
+														>
+															<svg
+																xmlns='http://www.w3.org/2000/svg'
+																fill='none'
+																viewBox='0 0 24 24'
+																stroke-width='1.5'
+																stroke='currentColor'
+																className='w-6 h-6 text-white'
+															>
+																<path
+																	stroke-linecap='round'
+																	stroke-linejoin='round'
+																	d='M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z'
+																/>
+															</svg>
+														</button>
+													</div>
+												</div>
+												<div className='absolute -top-10 -left-10 right-10 z-10 '>
+													<ShowImage
+														src={`/${info.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
+														alt={'Menu Item'}
+														style={'rounded-full h-20 w-20 '}
+													/>
+												</div>
+											</div>
+										))}
+									</div>
+								)}
+							</div>
+							<div
+								className='grid grid-cols-1 lg:grid-cols-2 place-content-center place-items-center my-8 gap-4'
+								id='about'
+							>
+								<div>
+									{info.aboutUsImage.thumbnail !== '' ? (
+										<ShowImage
+											src={`${info.websiteName}/about/${info.aboutUsImage.thumbnail}`}
+											alt={''}
+											style={'h-96 rounded-md w-full lg:w-96'}
+										/>
+									) : (
+										<img
+											src='images/webOneDefaultPicture.jpg'
+											className='h-96 rounded-[25px] w-96'
+										/>
+									)}
+								</div>
+								<div>
+									<h1 className='text-5xl'>{info.aboutUsTitle}</h1>
+									<p>{info.aboutUsInfo}</p>
+								</div>
+							</div>
+							<div className='flex flex-col' id='menu'>
+								<div className='flex justify-between content-center items-center mb-6'>
+									<h1 className='text-2xl'>Order Now</h1>
+									<div
+										className='flex flex-row space-x-4 max-w-[800px] overflow-x-auto'
+										onClick={() => {
+											setIndex(1);
+											setMenuItems(menuItemsSto);
+											setMeals(mealsSto);
+										}}
+									>
+										<h1 className='underline'>See All</h1>
+									</div>
+								</div>
+								<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6'>
+									{menuItems.slice(0, 4).map((v) => (
+										<div className='flex flex-col shadow-2xl rounded-md'>
+											<ShowImage
+												src={`/${info.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
+												alt={'Menu Item'}
+												style={'rounded-md h-64 w-full'}
+											/>
+											<h1 className='font-bold text-xl px-4'>{v.title}</h1>
+											<p className='text-xs px-4 w-full'>{v.description}</p>
+											<div className='flex flex-row justify-between p-4 items-center'>
+												<h1 className='font-bold text-xl'>{v.price}USD</h1>
+												<button
+													onClick={() => {
+														addToCart(v);
+													}}
+													className='py-2 px-5 text-white rounded-md w-1/2'
+													style={{ backgroundColor: `${info.themeMainColor}` }}
+												>
+													Add
+												</button>
+											</div>
+										</div>
+									))}
+									{meals.slice(0, 4).map((v) => (
+										<div className='flex flex-col shadow-2xl rounded-md'>
+											<ShowImage
+												src={`/${info.adminId}/${MEAL_STORAGE_REF}/${v.pic.thumbnail}`}
+												alt={'Menu Item'}
+												style={'rounded-md h-64 w-full'}
+											/>
+											<h1 className='font-bold text-xl px-4'>{v.title}</h1>
+											<div className='flex flex-row justify-between p-4 items-center'>
+												<h1 className='font-bold text-xl'>{v.price}USD</h1>
+												<button
+													onClick={() => {
+														addToCart(v);
+													}}
+													className='py-2 px-5 text-white rounded-md w-1/2'
+													style={{ backgroundColor: `${info.themeMainColor}` }}
+												>
+													Add
+												</button>
+											</div>
+										</div>
+									))}
+								</div>
+							</div>
+							{info.reservation ? (
+								<div className='flex flex-col p-4 mb-6'>
+									<h1 className='text-4xl text-center'>Make a reservation</h1>
+									<div className='grid grid-cols-1 md:grid-cols-2 mb-6 gap-4 shadow-md p-8'>
+										<input
+											type='text'
+											// value={reservation}
+											name='name'
+											placeholder={'Full Name'}
+											onChange={handleChange}
+											style={{ borderColor: `${info.themeMainColor}` }}
+											className='
+                                        w-full
+                                        rounded-md
+                                        border-2
+                                        py-3
+                                        px-5
+                                        bg-white
+                                        text-base text-body-color
+                                        placeholder-[#ACB6BE]
+                                        outline-none
+                                        focus-visible:shadow-none
+                                        focus:border-primary
+                                        mb-6
+                                        '
+										/>
+										<input
+											type='text'
+											// value={reservation}
+											name='phoneNumber'
+											placeholder={'Phone Number'}
+											onChange={handleChange}
+											style={{ borderColor: `${info.themeMainColor}` }}
+											className='
+                                        w-full
+                                        rounded-md
+                                        border-2
+                                        py-3
+                                        px-5
+                                        bg-white
+                                        text-base text-body-color
+                                        placeholder-[#ACB6BE]
+                                        outline-none
+                                        focus-visible:shadow-none
+                                        focus:border-primary
+                                        mb-6
+                                        '
+										/>
+										<input
+											type='date'
+											// value={search}
+											// placeholder={"Date"}
+											name='date'
+											onChange={handleChange}
+											style={{ borderColor: `${info.themeMainColor}` }}
+											className='
+                                            w-full
+                                            rounded-md
+                                            border-2
+                                            py-3
+                                            px-5
+                                            bg-white
+                                            text-base text-body-color
+                                            placeholder-[#ACB6BE]
+                                            outline-none
+                                            focus-visible:shadow-none
+                                            focus:border-primary
+                                            mb-6
+                                        '
+										/>
+										<input
+											type='time'
+											// value={search}
+											placeholder={'time'}
+											name='time'
+											onChange={handleChange}
+											style={{ borderColor: `${info.themeMainColor}` }}
+											className='
+                                            w-full
+                                            rounded-md
+                                            border-2
+                                            py-3
+                                            px-5
+                                            bg-white
+                                            text-base text-body-color
+                                            placeholder-[#ACB6BE]
+                                            outline-none
+                                            focus-visible:shadow-none
+                                            focus:border-primary
+                                            mb-6
+                                        '
+										/>
+										<input
+											type='text'
+											// value={search}
+											placeholder={'Email'}
+											name='email'
+											onChange={handleChange}
+											style={{ borderColor: `${info.themeMainColor}` }}
+											className='
+                                            md:col-span-2
+                                            w-full
+                                            rounded-md
+                                            border-2
+                                            py-3
+                                            px-5
+                                            bg-white
+                                            text-base text-body-color
+                                            placeholder-[#ACB6BE]
+                                            outline-none
+                                            focus-visible:shadow-none
+                                            focus:border-primary
+                                            mb-6
+                                        '
+										/>
+										<textarea
+											name='notes'
+											// value={search}
+											placeholder={'Notes'}
+											onChange={handleChange}
+											style={{ borderColor: `${info.themeMainColor}` }}
+											className='
+                                            md:col-span-2
+                                            w-full
+                                            rounded-md
+                                            border-2
+                                            py-3
+                                            px-5
+                                            bg-white
+                                            text-base text-body-color
+                                            placeholder-[#ACB6BE]
+                                            outline-none
+                                            focus-visible:shadow-none
+                                            focus:border-primary
+                                            mb-6
+                                        '
+										/>
+										<input
+											type='number'
+											name='peopleNumber'
+											placeholder={'Number of people'}
+											onChange={handleChange}
+											style={{ borderColor: `${info.themeMainColor}` }}
+											className='
+                                            w-full
+                                            rounded-md
+                                            border-2
+                                            py-3
+                                            px-5
+                                            bg-white
+                                            text-base text-body-color
+                                            placeholder-[#ACB6BE]
+                                            outline-none
+                                            focus-visible:shadow-none
+                                            focus:border-primary                                        
+                                        '
+										/>
+
+										<button
+											onClick={() => {
+												addReservation();
+											}}
+											className='py-3 px-5 text-white rounded-md w-full border'
+											style={{
+												backgroundColor: `${info.themeMainColor}`,
+												borderColor: info.themeMainColor,
+											}}
+										>
+											Add Reservation
+										</button>
+									</div>
+								</div>
+							) : (
+								<p></p>
+							)}
+							<div
+								className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 place-items-center'
+								id='contact'
+							>
+								<div>
+									{info.id !== '' ? (
+										<ShowImage
+											src={`${info.websiteName}/contact/${info.contactUsImage.thumbnail}`}
+											alt={'contact image'}
+											style={'h-96 rounded-[25px] w-96'}
+										/>
+									) : (
+										<img
+											src='images/webOneDefaultPicture.jpg'
+											className='h-96 rounded-[25px] w-96'
+										/>
+									)}
+								</div>
+								<div>
+									<h1 className='text-4xl text-center mb-6'>Contact Us</h1>
+									<input
+										type='text'
+										// value={reservation}
+										name='name'
+										placeholder={'Full Name'}
+										onChange={handleChangeContact}
+										style={{ borderColor: `${info.themeMainColor}` }}
+										className='
+                                        w-full
+                                        rounded-md
+                                        border-2
+                                        py-3
+                                        px-5
+                                        bg-white
+                                        text-base text-body-color
+                                        placeholder-[#ACB6BE]
+                                        outline-none
+                                        focus-visible:shadow-none
+                                        focus:border-primary
+                                        mb-6
+                                        '
+									/>
+									<input
+										type='text'
+										// value={reservation}
+										name='phoneNumber'
+										placeholder={'Phone Number'}
+										onChange={handleChangeContact}
+										style={{ borderColor: `${info.themeMainColor}` }}
+										className='
+                                        w-full
+                                        rounded-md
+                                        border-2
+                                        py-3
+                                        px-5
+                                        bg-white
+                                        text-base text-body-color
+                                        placeholder-[#ACB6BE]
+                                        outline-none
+                                        focus-visible:shadow-none
+                                        focus:border-primary
+                                        mb-6
+                                        '
+									/>
+									<input
+										type='text'
+										// value={reservation}
+										name='email'
+										placeholder={'Email'}
+										onChange={handleChangeContact}
+										style={{ borderColor: `${info.themeMainColor}` }}
+										className='
+                                        w-full
+                                        rounded-md
+                                        border-2
+                                        py-3
+                                        px-5
+                                        bg-white
+                                        text-base text-body-color
+                                        placeholder-[#ACB6BE]
+                                        outline-none
+                                        focus-visible:shadow-none
+                                        focus:border-primary
+                                        mb-6
+                                        '
+									/>
+									<textarea
+										// value={reservation}
+										name='message'
+										placeholder={'Message'}
+										onChange={handleChangeContact}
+										style={{ borderColor: `${info.themeMainColor}` }}
+										className='
+                                        w-full
+                                        rounded-md
+                                        border-2
+                                        py-3
+                                        px-5
+                                        bg-white
+                                        text-base text-body-color
+                                        placeholder-[#ACB6BE]
+                                        outline-none
+                                        focus-visible:shadow-none
+                                        focus:border-primary
+                                        mb-6
+                                        '
+									/>
+									<button
+										onClick={() => {
+											addContact();
+										}}
+										className='py-3 px-5 text-white rounded-md w-full'
+										style={{ backgroundColor: `${info.themeMainColor}` }}
+									>
+										Send Message
+									</button>
+								</div>
+							</div>
+							<div className='w-full'>
+								<MapPicker
+									defaultLocation={{
+										lat: info.mapLocation.lat,
+										lng: info.mapLocation.lng,
+									}}
+									zoom={14}
+									// mapTypeId={createId()}
+									style={{ height: '500px', width: '100%' }}
+									// onChangeLocation={handleChangeLocation}
+									apiKey={MAP_API}
+								/>
+							</div>
+							<div
+								className='flex flex-col content-center items-center min-h-48 text-white p-8'
+								style={{ backgroundColor: `${info.themeMainColor}` }}
+							>
+								{info.id !== '' ? (
+									<ShowImage
+										src={`${info.websiteName}/logo/${info.logo.thumbnail}`}
+										alt={'logo image'}
+										style={'h-8 rounded-[25px] w-8'}
+									/>
+								) : (
+									<img
+										src='images/logo.png'
+										className='h-8 rounded-[25px] w-8'
+									/>
+								)}
+								<h1 className='mb-6'>{info.serviceProviderName}</h1>
+								<h1 className='mb-6'>{info.email}</h1>
+								<h1 className='mb-6'>{info.phone}</h1>
+								<h1 className='mb-6'>{info.address}</h1>
+								<h1 className='mb-6'>&copy;2023 {info.serviceProviderName}</h1>
 							</div>
 						</div>
 						<div className='fixed bottom-10 left-0 right-10 z-10'>
@@ -1511,9 +2626,6 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 						</div>
 					</div>
 				);
-
-			default:
-				break;
 		}
 	};
 
@@ -1697,7 +2809,76 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                                         '
 										/>
 									</div>
-
+									<div className='mb-4 w-full'>
+										<button
+											className='font-bold rounded-md border-2  bg-white py-3 px-4 w-full'
+											style={{
+												borderColor: info.themeMainColor,
+											}}
+											onClick={(e) => e.preventDefault()}
+										>
+											<select
+												// value={category}
+												onChange={(e) => {
+													if (e.target.value == 'Regular') {
+														checkforPoints();
+													}
+												}}
+												className='bg-white w-full'
+												data-required='1'
+												required
+											>
+												<option value='Regular' hidden>
+													Regular Customer / First Time
+												</option>
+												{category.map((v) => (
+													<option value={v}>{v}</option>
+												))}
+											</select>
+										</button>
+									</div>
+									<div className='w-full'>
+										{currentNoOfPoints > 0 ? (
+											<div className='flex flex-col'>
+												<div className='mb-4  px-4'>
+													<h1>
+														Points:
+														{currentNoOfPoints}
+													</h1>
+												</div>
+												<div className='mb-4'>
+													<button
+														className='font-bold rounded-md border-2  bg-white px-4 py-3 w-full'
+														onClick={(e) => e.preventDefault()}
+														style={{ borderColor: info.themeMainColor }}
+													>
+														<select
+															// value={category}
+															onChange={(e) => {
+																if (e.target.value == 'Use Points') {
+																	setUsePoints(true);
+																} else {
+																	setUsePoints(false);
+																}
+															}}
+															className='bg-white w-full'
+															data-required='1'
+															required
+														>
+															<option value='Regular' hidden>
+																Use points / Do not use points
+															</option>
+															{choosePoints.map((v) => (
+																<option value={v}>{v}</option>
+															))}
+														</select>
+													</button>
+												</div>
+											</div>
+										) : (
+											<p></p>
+										)}
+									</div>
 									<div className='mb-2 overflow-y-auto max-h-54 w-full'>
 										<div>
 											<div className='flex flex-row justify-between shadow-md m-4 p-4'>
@@ -1741,7 +2922,6 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 											))}
 										</div>
 									</div>
-
 									{order.deliveryMethod == 'Delivery' ? (
 										<div className='w-full'>
 											<div className={'mb-2 w-full'}>

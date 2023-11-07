@@ -13,6 +13,7 @@ const AppAccess: FC<MyProps> = ({ children, access, component }) => {
 	const router = useRouter();
 	const solo = [
 		'menu',
+		'customer-loyalty',
 		'orders',
 		'move-from-pantry',
 		'move-from-kitchen',
@@ -33,6 +34,7 @@ const AppAccess: FC<MyProps> = ({ children, access, component }) => {
 	];
 	const team = [
 		'menu',
+		'customer-loyalty',
 		'orders',
 		'move-from-pantry',
 		'move-from-kitchen',
@@ -73,21 +75,19 @@ const AppAccess: FC<MyProps> = ({ children, access, component }) => {
 				'It appears your payment is due, please pay up to continue enjoying FoodiesBooth'
 			);
 
-			router.push({
-				pathname: '/payments',
-			});
+			window.location.pathname = '/payments';
 		} else {
 			let packageTitle = paymentStatus.package;
 			// check payment level
 			if (packageTitle == 'Solo') {
 				if (!solo.includes(component)) {
 					alert('Your package does not permit access to this page');
-					window.location.pathname = '/home';
+					window.location.pathname = '/login';
 				}
 			} else if ([packageTitle == 'Team']) {
 				if (!team.includes(component)) {
 					alert('Your package does not permit access to this page');
-					window.location.pathname = '/home';
+					window.location.pathname = '/login';
 				}
 			}
 		}
