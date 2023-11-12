@@ -81,7 +81,7 @@ const Header = () => {
 					<div className='flex flex-row'>
 						<button
 							onClick={() => {
-								router.push('/booths');
+								router.push('/market');
 							}}
 							style={{ backgroundColor: PRIMARY_COLOR }}
 							className='font-bold

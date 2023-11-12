@@ -303,7 +303,7 @@ const Home: NextPage = () => {
 									<div
 										className='flex flex-row space-x-4 max-w-[800px] overflow-x-auto'
 										onClick={() => {
-											router.push('/booths');
+											router.push('/market');
 										}}
 									>
 										<h1 className='underline'>See all</h1>
@@ -322,7 +322,7 @@ const Home: NextPage = () => {
 												<h1 className='font-bold text-xl'>{v.price}USD</h1>
 												<button
 													onClick={() => {
-														router.push('/booths');
+														router.push('/market');
 													}}
 													className='py-2 px-5 text-white rounded-[25px] w-1/2'
 													style={{ backgroundColor: PRIMARY_COLOR }}
