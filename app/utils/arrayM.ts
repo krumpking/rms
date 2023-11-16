@@ -30,9 +30,18 @@ export function findOccurrencesObjectId(array: any[], id: any): number {
 export function returnOccurrencesIndex(array: any[], id: any): number {
 	let count = -1;
 	for (let i = 0; i < array.length; i++) {
-		print(array[i].id === id);
-		print(array[i]);
 		if (array[i].id === id) {
+			count = i;
+			break;
+		}
+	}
+	return count;
+}
+
+export function returnOccurrencesIndexAdmin(array: any[], id: any): number {
+	let count = -1;
+	for (let i = 0; i < array.length; i++) {
+		if (array[i].adminId === id) {
 			count = i;
 			break;
 		}

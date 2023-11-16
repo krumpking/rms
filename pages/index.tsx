@@ -33,6 +33,7 @@ import { WEBSITE_INFO_COLLECTION } from '../app/constants/websiteConstants';
 import { Disclosure, Switch } from '@headlessui/react';
 import { SocialIcon } from 'react-social-icons';
 import DateMethods from '../app/utils/date';
+import YouTube from 'react-youtube';
 
 const Home: NextPage = () => {
 	const [trackingId, settrackingId] = useState('AW-11208371394');
@@ -179,6 +180,12 @@ const Home: NextPage = () => {
 		'https://www.facebook.com/foodiesboothofficial',
 		'https://www.twitter.comfoodiesbooth',
 	]);
+	const [ytV, setYTV] = useState<any[]>([
+		'NF1Eu-PHhqU',
+		'byJM-b5YtVo',
+		'KO0pDE711uM',
+		'2U1Ny1Nw9HI',
+	]);
 
 	useEffect(() => {
 		let url = window.location.href;
@@ -303,7 +310,7 @@ const Home: NextPage = () => {
 									<div
 										className='flex flex-row space-x-4 max-w-[800px] overflow-x-auto'
 										onClick={() => {
-											router.push('/booths');
+											router.push('/market');
 										}}
 									>
 										<h1 className='underline'>See all</h1>
@@ -322,7 +329,7 @@ const Home: NextPage = () => {
 												<h1 className='font-bold text-xl'>{v.price}USD</h1>
 												<button
 													onClick={() => {
-														router.push('/booths');
+														router.push('/market');
 													}}
 													className='py-2 px-5 text-white rounded-[25px] w-1/2'
 													style={{ backgroundColor: PRIMARY_COLOR }}
@@ -415,6 +422,26 @@ const Home: NextPage = () => {
 										</div>
 									))}
 								</div>
+							</div>
+							<h1 className='text-4xl text-center mb-12'>
+								Learn to use the system with these overview videos
+							</h1>
+							<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 place-items-center mb-6'>
+								{ytV.map((v) => (
+									<div className='rounded-[20px] shadow-xl w-fit h-fit p-3'>
+										<YouTube
+											videoId={v}
+											opts={{
+												height: '200',
+												width: '250',
+												playerVars: {
+													// https://developers.google.com/youtube/player_parameters
+													autoplay: 0,
+												},
+											}}
+										/>
+									</div>
+								))}
 							</div>
 							<div
 								className='flex flex-col justify-center items-center'

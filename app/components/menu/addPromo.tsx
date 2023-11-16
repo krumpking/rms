@@ -381,7 +381,7 @@ const AddPromotion = () => {
 										className='absolute -top-2 -right-2  z-10 rounded-full text-white font-bold w-12 h-12 font-bold text-xs text-center flex items-center'
 										style={{ backgroundColor: PRIMARY_COLOR }}
 									>
-										{100 - (v.newPrice / v.oldPrice) * 100} % OFF
+										{Math.ceil(100 - (v.newPrice / v.oldPrice) * 100)} % OFF
 									</div>
 								</div>
 							);
