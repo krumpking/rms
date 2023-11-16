@@ -7,7 +7,7 @@ const Nav = () => {
 	const [navItems, setNavItems] = useState([
 		{
 			name: 'Market Place',
-			url: '/booths',
+			url: '/market',
 		},
 		{
 			name: 'Services',
