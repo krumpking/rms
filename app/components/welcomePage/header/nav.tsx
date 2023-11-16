@@ -123,9 +123,12 @@ const Nav = () => {
                             sm:px-3 shadow-lg rounded-lg p-4'
 						>
 							{navItems.map((v, index) => {
-								if (index === 3 || index === 4) {
+								if (index === 4 || index === 5) {
 									return (
-										<div className={`bg-[#fff] rounded-[20px] p-2`} key={index}>
+										<div
+											className={`bg-[#fff] rounded-[20px] p-2 `}
+											key={index}
+										>
 											<a
 												style={{ color: PRIMARY_COLOR }}
 												className='smXS:text-xs md:text-sm afterMini:text-xs xl:text-xl text-center p-4'
@@ -138,7 +141,7 @@ const Nav = () => {
 								} else {
 									return (
 										<a
-											className='text-white space-x-1 smXS:text-xs md:text-sm afterMini:text-xs   xl:text-xl  p-2'
+											className='text-white space-x-1 smXS:text-xs md:text-sm afterMini:text-xs   xl:text-xl  p-2 '
 											href={v.url}
 											key={index}
 										>

@@ -29,7 +29,7 @@ const Header = () => {
 					<div className='flex flex-row'>
 						<button
 							onClick={() => {
-								router.push('/signup');
+								router.push('/login');
 							}}
 							style={{ backgroundColor: PRIMARY_COLOR }}
 							className='font-bold
@@ -45,7 +45,7 @@ const Header = () => {
                                         hover:bg-opacity-90
                                         transition'
 						>
-							Start for Free
+							Login
 						</button>
 						<button
 							onClick={() => {

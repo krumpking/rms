@@ -31,6 +31,7 @@ import {
 } from '../../constants/constants';
 import {
 	findOccurrencesObjectId,
+	returnOccurrencesIndexAdmin,
 	returnOnlyUnique,
 	searchStringInArray,
 } from '../../utils/arrayM';
@@ -53,7 +54,7 @@ import {
 } from '../../constants/loyaltyConstants';
 
 const FoodiesBoothMarketPlace = (props: {
-	info: IWebsiteOneInfo;
+	info: IWebsiteOneInfo[];
 	changeIndex: (index: number) => void;
 }) => {
 	const { info, changeIndex } = props;
@@ -100,7 +101,7 @@ const FoodiesBoothMarketPlace = (props: {
 		deliverer: '',
 		deliveredSignature: null,
 	});
-	const [addItems, setAddItems] = useState<any[]>([]);
+	const [addItems, setAddItems] = useState<IMenuItem[]>([]);
 	const [loadDist, setLoadDist] = useState(false);
 	const [booths, setBooths] = useState<IWebsiteOneInfo[]>([]);
 	const [category, setCategory] = useState<string[]>(['First Time', 'Regular']);
@@ -124,137 +125,143 @@ const FoodiesBoothMarketPlace = (props: {
 	};
 
 	const getMeals = () => {
-		getDataFromDBOne(MEAL_ITEM_COLLECTION, AMDIN_FIELD, info.adminId)
-			.then((v) => {
-				if (v !== null) {
-					v.data.forEach((element) => {
-						let d = element.data();
+		info.forEach((element) => {
+			getDataFromDBOne(MEAL_ITEM_COLLECTION, AMDIN_FIELD, element.adminId)
+				.then((v) => {
+					if (v !== null) {
+						v.data.forEach((element) => {
+							let d = element.data();
 
-						setMeals((meals) => [
-							...meals,
-							{
-								id: element.id,
-								adminId: d.adminId,
-								userId: d.userId,
-								menuItems: d.menuItems,
-								title: d.title,
-								discount: d.discount,
-								description: d.description,
-								category: d.category,
-								date: d.date,
-								dateString: d.dateString,
-								price: d.price,
-								pic: d.pic,
-							},
-						]);
-						setMealsSto((meals) => [
-							...meals,
-							{
-								id: element.id,
-								adminId: d.adminId,
-								userId: d.userId,
-								menuItems: d.menuItems,
-								title: d.title,
-								discount: d.discount,
-								description: d.description,
-								category: d.category,
-								date: d.date,
-								dateString: d.dateString,
-								price: d.price,
-								pic: d.pic,
-							},
-						]);
-						setCategories((categories) => [...categories, d.category]);
-					});
-				}
-			})
-			.catch((e) => {
-				console.error(e);
-				setLoading(true);
-			});
+							setMeals((meals) => [
+								...meals,
+								{
+									id: element.id,
+									adminId: d.adminId,
+									userId: d.userId,
+									menuItems: d.menuItems,
+									title: d.title,
+									discount: d.discount,
+									description: d.description,
+									category: d.category,
+									date: d.date,
+									dateString: d.dateString,
+									price: d.price,
+									pic: d.pic,
+								},
+							]);
+							setMealsSto((meals) => [
+								...meals,
+								{
+									id: element.id,
+									adminId: d.adminId,
+									userId: d.userId,
+									menuItems: d.menuItems,
+									title: d.title,
+									discount: d.discount,
+									description: d.description,
+									category: d.category,
+									date: d.date,
+									dateString: d.dateString,
+									price: d.price,
+									pic: d.pic,
+								},
+							]);
+							setCategories((categories) => [...categories, d.category]);
+						});
+					}
+				})
+				.catch((e) => {
+					console.error(e);
+					setLoading(true);
+				});
+		});
 	};
 
 	const getMenuItems = () => {
-		getDataFromDBOne(MENU_ITEM_COLLECTION, AMDIN_FIELD, info.adminId)
-			.then((v) => {
-				if (v !== null) {
-					v.data.forEach((element) => {
-						let d = element.data();
+		info.forEach((element) => {
+			getDataFromDBOne(MENU_ITEM_COLLECTION, AMDIN_FIELD, element.adminId)
+				.then((v) => {
+					if (v !== null) {
+						v.data.forEach((element) => {
+							let d = element.data();
 
-						setMenuItems((menuItems) => [
-							...menuItems,
-							{
-								id: element.id,
-								adminId: d.adminId,
-								userId: d.userId,
-								pic: d.pic,
-								title: d.title,
-								discount: d.discount,
-								description: d.description,
-								category: d.category,
-								date: d.date,
-								dateString: d.dateString,
-								price: d.price,
-							},
-						]);
-						setMenuItemsSto((menuItems) => [
-							...menuItems,
-							{
-								id: element.id,
-								adminId: d.adminId,
-								userId: d.userId,
-								pic: d.pic,
-								title: d.title,
-								discount: d.discount,
-								description: d.description,
-								category: d.category,
-								date: d.date,
-								dateString: d.dateString,
-								price: d.price,
-							},
-						]);
-						setCategories((categories) => [...categories, d.category]);
-					});
-				}
-			})
-			.catch((e) => {
-				console.error(e);
-				setLoading(true);
-			});
+							setMenuItems((menuItems) => [
+								...menuItems,
+								{
+									id: element.id,
+									adminId: d.adminId,
+									userId: d.userId,
+									pic: d.pic,
+									title: d.title,
+									discount: d.discount,
+									description: d.description,
+									category: d.category,
+									date: d.date,
+									dateString: d.dateString,
+									price: d.price,
+								},
+							]);
+							setMenuItemsSto((menuItems) => [
+								...menuItems,
+								{
+									id: element.id,
+									adminId: d.adminId,
+									userId: d.userId,
+									pic: d.pic,
+									title: d.title,
+									discount: d.discount,
+									description: d.description,
+									category: d.category,
+									date: d.date,
+									dateString: d.dateString,
+									price: d.price,
+								},
+							]);
+							setCategories((categories) => [...categories, d.category]);
+						});
+					}
+				})
+				.catch((e) => {
+					console.error(e);
+					setLoading(true);
+				});
+		});
 	};
 
 	const getPromos = () => {
-		getDataFromDBOne(MENU_PROMO_ITEM_COLLECTION, AMDIN_FIELD, info.adminId)
-			.then((v) => {
-				if (v !== null) {
-					v.data.forEach((element) => {
-						let d = element.data();
+		info.forEach((element) => {
+			getDataFromDBOne(MENU_PROMO_ITEM_COLLECTION, AMDIN_FIELD, element.adminId)
+				.then((v) => {
+					if (v !== null) {
+						v.data.forEach((element) => {
+							let d = element.data();
 
-						setPromos((promos) => [
-							...promos,
-							{
-								id: element.id,
-								adminId: d.adminId,
-								userId: d.userId,
-								pic: d.pic,
-								title: d.title,
-								description: d.description,
-								category: d.category,
-								date: d.date,
-								dateString: d.dateString,
-								oldPrice: d.oldPrice,
-								newPrice: d.newPrice,
-								endDate: d.endDate,
-							},
-						]);
-					});
-				}
-				setLoading(false);
-			})
-			.catch((e) => {
-				console.error(e);
-				setLoading(true);
-			});
+							setPromos((promos) => [
+								...promos,
+								{
+									id: element.id,
+									adminId: d.adminId,
+									userId: d.userId,
+									pic: d.pic,
+									title: d.title,
+									description: d.description,
+									category: d.category,
+									date: d.date,
+									dateString: d.dateString,
+									oldPrice: d.oldPrice,
+									newPrice: d.newPrice,
+									endDate: d.endDate,
+								},
+							]);
+						});
+					}
+					setLoading(false);
+				})
+				.catch((e) => {
+					console.error(e);
+					setLoading(true);
+				});
+		});
 	};
 
 	const handleKeyDown = (event: { key: string }) => {
@@ -328,33 +335,36 @@ const FoodiesBoothMarketPlace = (props: {
 
 	const getTotal = () => {
 		let total = 0;
+		if (addItems.length > 0) {
+			let index = returnOccurrencesIndexAdmin(info, addItems[0].adminId);
+			addItems.forEach((el) => {
+				total += el.price;
+			});
 
-		addItems.forEach((el) => {
-			total += el.price;
-		});
-
-		if (order.deliveryMethod == 'Delivery') {
-			let dis = computeDistanceBetween(
-				new LatLng(location.lat, location.lng),
-				new LatLng(info.mapLocation.lat, info.mapLocation.lng)
-			);
-			let d = dis / 1000;
-			let deliveryCost = 0;
-			if (d > 0 && d < 3) {
-				deliveryCost = 2;
-			} else if (d > 3 && d < 5) {
-				deliveryCost = 3;
-			} else if (d > 5 && d < 10) {
-				deliveryCost = 5;
-			} else if (d > 10 && d < 15) {
-				deliveryCost = 7;
-			} else if (d > 15 && d < 20) {
-				deliveryCost = 10;
-			} else if (d > 20 && d < 30) {
-				deliveryCost = 15;
+			if (order.deliveryMethod == 'Delivery') {
+				let dis = computeDistanceBetween(
+					new LatLng(location.lat, location.lng),
+					new LatLng(info[index].mapLocation.lat, info[index].mapLocation.lng)
+				);
+				let d = dis / 1000;
+				let deliveryCost = 0;
+				if (d > 0 && d < 3) {
+					deliveryCost = 2;
+				} else if (d > 3 && d < 5) {
+					deliveryCost = 3;
+				} else if (d > 5 && d < 10) {
+					deliveryCost = 5;
+				} else if (d > 10 && d < 15) {
+					deliveryCost = 7;
+				} else if (d > 15 && d < 20) {
+					deliveryCost = 10;
+				} else if (d > 20 && d < 30) {
+					deliveryCost = 15;
+				}
+				total += deliveryCost;
 			}
-			total += deliveryCost;
 		}
+
 		if (total > 1) {
 			return total.toFixed(2);
 		} else {
@@ -363,35 +373,51 @@ const FoodiesBoothMarketPlace = (props: {
 	};
 
 	const addToCart = (v: any) => {
-		setAddItems((categories) => [...categories, v]);
-		let display = displayedItems;
+		let isDifferentBus = true;
+		for (let i = 0; i < addItems.length; i++) {
+			console.log(addItems[i].adminId !== v.adminId);
 
-		let count = 0;
-		let index = 0;
-		for (let i = 0; i < displayedItems.length; i++) {
-			if (displayedItems[i].id === v.id) {
-				count = displayedItems[i].count + 1;
-				index = i;
+			if (addItems[i].adminId !== v.adminId) {
+				isDifferentBus = false;
+				toast.error(
+					'Hmmmm looks like you are ordering from a different Food business, you can ADD that in a separate order'
+				);
 				return;
 			}
 		}
-		if (count > 0) {
-			display[index] = {
-				id: displayedItems[index].id,
-				itemName: displayedItems[index].itemName,
-				count: count,
-				price: displayedItems[index].price,
-			};
-		} else {
-			display.push({
-				id: v.id,
-				itemName: v.title,
-				count: 1,
-				price: v.price,
-			});
+
+		if (isDifferentBus) {
+			setAddItems((categories) => [...categories, v]);
+			let display = displayedItems;
+
+			let count = 0;
+			let index = 0;
+
+			for (let i = 0; i < displayedItems.length; i++) {
+				if (displayedItems[i].id === v.id) {
+					count = displayedItems[i].count + 1;
+					index = i;
+					return;
+				}
+			}
+			if (count > 0) {
+				display[index] = {
+					id: displayedItems[index].id,
+					itemName: displayedItems[index].itemName,
+					count: count,
+					price: displayedItems[index].price,
+				};
+			} else {
+				display.push({
+					id: v.id,
+					itemName: v.title,
+					count: 1,
+					price: v.price,
+				});
+			}
+			toast.success('Added to order');
+			setDisplayedItems(display);
 		}
-		toast.success('Added to order');
-		setDisplayedItems(display);
 	};
 
 	const getCount = (id: string) => {
@@ -419,7 +445,8 @@ const FoodiesBoothMarketPlace = (props: {
 	};
 
 	const submitOrder = () => {
-		getDataFromDBOne(ORDER_COLLECTION, AMDIN_FIELD, info.adminId)
+		let index = returnOccurrencesIndexAdmin(info, addItems[0].adminId);
+		getDataFromDBOne(ORDER_COLLECTION, AMDIN_FIELD, info[index].adminId)
 			.then((v) => {
 				let oN = 1;
 				if (v !== null) {
@@ -433,7 +460,7 @@ const FoodiesBoothMarketPlace = (props: {
 				if (order.deliveryMethod == 'Delivery') {
 					let dis = computeDistanceBetween(
 						new LatLng(location.lat, location.lng),
-						new LatLng(info.mapLocation.lat, info.mapLocation.lng)
+						new LatLng(info[index].mapLocation.lat, info[index].mapLocation.lng)
 					);
 					let d = dis / 1000;
 					let deliveryCost = 0;
@@ -481,14 +508,14 @@ const FoodiesBoothMarketPlace = (props: {
 					deliveryDateString: new Date(order.deliveryDate).toDateString(),
 					date: new Date(),
 					dateString: new Date().toDateString(),
-					adminId: info.adminId,
-					userId: info.userId,
+					adminId: order.adminId,
+					userId: order.adminId,
 				};
 
 				if (!usePoints) {
 					const point: IPoints = {
-						adminId: info.adminId,
-						userId: info.userId,
+						adminId: info[index].adminId,
+						userId: info[index].userId,
 						id: 'id',
 						dateString: new Date().toDateString(),
 						date: new Date(),
@@ -506,7 +533,7 @@ const FoodiesBoothMarketPlace = (props: {
 
 				addDocument(ORDER_COLLECTION, newOrder)
 					.then((v) => {
-						sendOrderEmail(info.email, newOrder).catch(console.error);
+						sendOrderEmail(info[index].email, newOrder).catch(console.error);
 						setLoading(false);
 						toast.success('Order Added successfully');
 					})
@@ -535,38 +562,6 @@ const FoodiesBoothMarketPlace = (props: {
 			) {
 				if (isEqual(deliveryDate, new Date())) {
 					if (new Date().getHours() + 2 < deliveryTime) {
-						let ifOpen = DateMethods.checkIfOpen(
-							new Date(order.deliveryDate),
-							info.daysOfWork
-						);
-						if (ifOpen) {
-							setLoading(true);
-							if (
-								order.customerEmail !== '' &&
-								order.customerName !== '' &&
-								order.customerPhone !== ''
-							) {
-								submitOrder();
-							} else {
-								setLoading(false);
-								toast.error('Ensure you enter all details');
-							}
-						} else {
-							toast.info(
-								'Ooops looks like you selected a date which we are not open, please change date'
-							);
-						}
-					} else {
-						toast.info(
-							'Order can not be done in less than 2 hours, kindly change the date'
-						);
-					}
-				} else {
-					let ifOpen = DateMethods.checkIfOpen(
-						new Date(order.deliveryDate),
-						info.daysOfWork
-					);
-					if (ifOpen) {
 						setLoading(true);
 						if (
 							order.customerEmail !== '' &&
@@ -580,8 +575,20 @@ const FoodiesBoothMarketPlace = (props: {
 						}
 					} else {
 						toast.info(
-							'Ooops looks like you selected a date which we are not open, please change date'
+							'Order can not be done in less than 2 hours, kindly change the date'
 						);
+					}
+				} else {
+					setLoading(true);
+					if (
+						order.customerEmail !== '' &&
+						order.customerName !== '' &&
+						order.customerPhone !== ''
+					) {
+						submitOrder();
+					} else {
+						setLoading(false);
+						toast.error('Ensure you enter all details');
 					}
 				}
 			} else {
@@ -593,9 +600,10 @@ const FoodiesBoothMarketPlace = (props: {
 	};
 
 	const getDeliveryCost = () => {
+		let index = returnOccurrencesIndexAdmin(info, addItems[0].adminId);
 		let dis = computeDistanceBetween(
 			new LatLng(location.lat, location.lng),
-			new LatLng(info.mapLocation.lat, info.mapLocation.lng)
+			new LatLng(info[index].mapLocation.lat, info[index].mapLocation.lng)
 		);
 		let d = dis / 1000;
 
@@ -613,12 +621,14 @@ const FoodiesBoothMarketPlace = (props: {
 			return 15;
 		}
 	};
+
 	const checkforPoints = () => {
+		let index = returnOccurrencesIndexAdmin(info, addItems[0].adminId);
 		if (order.customerPhone !== '') {
 			getDataFromDBThree(
 				POINTS_COLLECTION,
 				AMDIN_FIELD,
-				info.adminId,
+				info[index].adminId,
 				'phone',
 				order.customerPhone,
 				'used',
@@ -660,7 +670,8 @@ const FoodiesBoothMarketPlace = (props: {
 	};
 
 	const getRewardsParams = () => {
-		getDataFromDBOne(REWARD_PARAMS_COLLECTION, AMDIN_FIELD, info.adminId)
+		let index = returnOccurrencesIndexAdmin(info, addItems[0].adminId);
+		getDataFromDBOne(REWARD_PARAMS_COLLECTION, AMDIN_FIELD, info[index].adminId)
 			.then((v) => {
 				if (v !== null) {
 					v.data.forEach((element) => {
@@ -684,11 +695,11 @@ const FoodiesBoothMarketPlace = (props: {
 						...prevRes,
 						{
 							id: 'id',
-							adminId: info.adminId,
-							userId: info.userId,
-							date: info.date,
-							dateString: info.dateString,
-							numberOfPoints: 10,
+							adminId: info[index].adminId,
+							userId: info[index].userId,
+							date: info[index].date,
+							dateString: info[index].dateString,
+							numberOfPoints: 0,
 							dollarAmount: 1,
 							rewardType: 'Discount',
 						},
@@ -734,19 +745,12 @@ const FoodiesBoothMarketPlace = (props: {
 				<div className='bg-white rounded-[30px] p-0 sm:p-4 '>
 					<div className='relative'>
 						<div className='w-full h-full'>
-							<div className='flex items-center w-full justify-center m-4'>
-								<ShowImage
-									src={`/${info.websiteName}/logo/${info.logo.thumbnail}`}
-									alt={'Logo'}
-									style={'rounded-full h-40 w-40 '}
-								/>
-							</div>
 							<div className='flex flex-col mb-6 p-8'>
 								<div>
 									{promos.length > 0 ? (
 										<div className='flex justify-center content-center items-center mb-6'>
 											<h1 className='text-2xl' style={{ color: PRIMARY_COLOR }}>
-												PROMO ALERT
+												PROMOS
 											</h1>
 										</div>
 									) : (
@@ -755,16 +759,27 @@ const FoodiesBoothMarketPlace = (props: {
 								</div>
 
 								{promos.length > 0 ? (
-									<div className='grid grid-cols-1 lg:grid-cols-4 gap-8 p-4 lg:p-8'>
-										{promos.slice(0, 4).map((v) => (
-											<div className='relative shadow-2xl p-4 w-[250px] rounded-[25px]'>
-												<div className='p-4 flex flex-col'>
+									<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
+										{promos.map((v) => (
+											<div className='relative shadow-2xl rounded-[25px]'>
+												<div className='p-4 flex flex-col space-y-1'>
 													<ShowImage
 														src={`/${v.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
 														alt={'Menu Item'}
-														style={'rounded-[25px] h-20 w-full '}
+														style={'rounded-[25px] h-40 w-full '}
 													/>
+
 													<p className='text-xl'>{v.title}</p>
+													<Disclosure>
+														<Disclosure.Button
+															className={' underline text-xs text-left'}
+														>
+															See Details
+														</Disclosure.Button>
+														<Disclosure.Panel>
+															<p className='text-xs w-full'>{v.description}</p>
+														</Disclosure.Panel>
+													</Disclosure>
 													<div className='flex flex-row space-x-4 justify-between content-center items-center my-1'>
 														<p className='text-md line-through'>
 															{v.oldPrice}USD
@@ -820,12 +835,11 @@ const FoodiesBoothMarketPlace = (props: {
 								)}
 							</div>
 							<div className='p-2 sm:p-8'>
-								<div className='flex justify-between content-center items-center mb-6'>
-									<h1 className='hidden md:block md:text-2xl'>Order Now</h1>
-									<div className='flex flex-row space-x-4 max-w-[800px] overflow-x-auto'>
+								<div className='flex justify-center content-center items-center mb-6'>
+									<div className='flex flex-row space-x-4 w-full overflow-x-auto'>
 										{returnOnlyUnique(categories).map((v) => (
 											<h1
-												className='hover:cursor-pointer'
+												className='hover:cursor-pointer w-full whitespace-nowrap'
 												onClick={() => {
 													setSearch(v);
 													searchFor();

@@ -143,6 +143,7 @@ const Market = () => {
 		getDataFromAll(WEBSITE_INFO_COLLECTION)
 			.then((v) => {
 				if (v !== null) {
+					let b: IWebsiteOneInfo[] = [];
 					v.data.forEach((element) => {
 						let d = element.data();
 
@@ -177,8 +178,36 @@ const Market = () => {
 									daysOfWork: d.daysOfWork,
 								},
 							]);
+
+							b.push({
+								id: d.id,
+								websiteName: d.websiteName,
+								adminId: d.adminId,
+								userId: d.userId,
+								logo: d.logo,
+								serviceProviderName: d.serviceProviderName,
+								headerTitle: d.headerTitle,
+								headerText: d.headerText,
+								headerImage: d.headerImage,
+								aboutUsImage: d.aboutUsImage,
+								aboutUsTitle: d.aboutUsTitle,
+								aboutUsInfo: d.aboutUsInfo,
+								themeMainColor: d.themeMainColor,
+								themeSecondaryColor: d.themeSecondayColor,
+								reservation: d.reservation,
+								contactUsImage: d.contactUsImage,
+								email: d.email,
+								address: d.address,
+								phone: d.phone,
+								date: d.date,
+								dateString: d.dateString,
+								deliveryCost: d.deliveryCost,
+								mapLocation: d.mapLocation,
+								daysOfWork: d.daysOfWork,
+							});
 						}
 					});
+					getMenuItems(b);
 				}
 				setLoading(false);
 			})
@@ -186,6 +215,13 @@ const Market = () => {
 				console.error(e);
 				setLoading(true);
 			});
+	};
+
+	const getMenuItems = (b: IWebsiteOneInfo[]) => {
+		setMenuItemsLoading(false);
+		if (booths.length > 0) {
+			console.log(booths.length);
+		}
 	};
 
 	const handleKeyDown = (event: { key: string }) => {
@@ -232,7 +268,7 @@ const Market = () => {
 			>
 				<div
 					style={{ backgroundColor: PRIMARY_COLOR }}
-					className='h-fit p-2 rounded-t-[25px] flex flex-row justify-between'
+					className='h-fit p-2 rounded-t-[25px] flex flex-col space md:space-y-0 md:flex-row md:justify-between'
 				>
 					<button
 						onClick={() => {
@@ -254,7 +290,7 @@ const Market = () => {
 							/>
 						</svg>
 					</button>
-					<div className='flex flex-row space-x-4'>
+					{/* <div className='flex flex-row space-x-4'>
 						<button
 							onClick={() => {
 								// router.push('/signup');
@@ -299,38 +335,40 @@ const Market = () => {
 						>
 							Login
 						</button>
-					</div>
+					</div> */}
 				</div>
-				<div
-					x-data='{}'
-					x-init="$nextTick(() => {
+				<div className='flex items-center content-center items-center w-full'>
+					<div
+						x-data='{}'
+						x-init="$nextTick(() => {
 							let ul = $refs.logos;
 							ul.insertAdjacentHTML('afterend', ul.outerHTML);
 							ul.nextSibling.setAttribute('aria-hidden', 'true');
 						})"
-					className='w-full inline-flex flex-nowrap overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)] p-2'
-				>
-					<ul
-						x-ref='logos'
-						className='flex items-center justify-center md:justify-start [&_li]:mx-8 [&_img]:max-w-none animate-infinite-scroll'
+						className='w-full inline-flex flex-nowrap overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)] p-2'
 					>
-						{booths.map((v) => (
-							<li>
-								<ShowImage
-									src={`/${v.websiteName}/logo/${v.logo.thumbnail}`}
-									alt={'Logo'}
-									style={'rounded-full h-20 w-20 '}
-								/>
-							</li>
-						))}
-					</ul>
+						<ul
+							x-ref='logos'
+							className='flex items-center justify-center [&_li]:mx-8 [&_img]:max-w-none animate-infinite-scroll'
+						>
+							{booths.map((v) => (
+								<li>
+									<ShowImage
+										src={`/${v.websiteName}/logo/${v.logo.thumbnail}`}
+										alt={'Logo'}
+										style={'rounded-full h-20 w-20 '}
+									/>
+								</li>
+							))}
+						</ul>
+					</div>
 				</div>
 
 				{menuItemsLoading ? (
 					<Loader color={''} />
 				) : (
 					<FoodiesBoothMarketPlace
-						info={info}
+						info={booths}
 						changeIndex={(index: number) => {
 							setIndex(index);
 						}}
@@ -342,9 +380,6 @@ const Market = () => {
 
 	return (
 		<div>
-			<Head>
-				<meta name='viewport' content='width=978'></meta>
-			</Head>
 			{loading ? (
 				<div className='flex flex-col items-center content-center'>
 					<Loader color={''} />
