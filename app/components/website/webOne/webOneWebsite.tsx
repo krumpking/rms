@@ -1651,16 +1651,26 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 								</div>
 
 								{promos.length > 0 ? (
-									<div className='grid grid-cols-1 lg:grid-cols-4 gap-8 p-4 lg:p-8'>
-										{promos.slice(0, 4).map((v) => (
-											<div className='relative shadow-2xl p-4 w-[250px] rounded-[25px]'>
+									<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 '>
+										{promos.map((v) => (
+											<div className='relative shadow-2xl p-4 w-full rounded-[25px]'>
 												<div className='p-4 flex flex-col'>
 													<ShowImage
 														src={`/${v.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
 														alt={'Menu Item'}
-														style={'rounded-[25px] h-20 w-full '}
+														style={'rounded-[25px] h-40 w-full '}
 													/>
 													<p className='text-xl'>{v.title}</p>
+													<Disclosure>
+														<Disclosure.Button
+															className={' underline text-xs text-left'}
+														>
+															See Details
+														</Disclosure.Button>
+														<Disclosure.Panel>
+															<p className='text-xs w-full'>{v.description}</p>
+														</Disclosure.Panel>
+													</Disclosure>
 													<div className='flex flex-row space-x-4 justify-between content-center items-center my-1'>
 														<p className='text-md line-through'>
 															{v.oldPrice}USD
@@ -1721,7 +1731,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 									<div className='flex flex-row space-x-4 max-w-[800px] overflow-x-auto'>
 										{returnOnlyUnique(categories).map((v) => (
 											<h1
-												className='hover:cursor-pointer'
+												className='hover:cursor-pointer whitespace-nowrap'
 												onClick={() => {
 													setSearch(v);
 													searchFor();
