@@ -36,9 +36,6 @@ const Menu = () => {
 
 	return (
 		<div>
-			<Head>
-				<meta name='viewport' content='width=978'></meta>
-			</Head>
 			<AppAccess access={access} component={'menu'}>
 				<div>
 					<div>
@@ -52,7 +49,7 @@ const Menu = () => {
 									<Loader color={''} />
 								</div>
 							) : (
-								<div className='bg-white col-span-8 my-8 rounded-[30px] flex flex-col p-8'>
+								<div className='bg-white col-span-8 my-8 rounded-[30px] flex flex-col p-2 lg:p-8'>
 									<Tab.Group>
 										<Tab.List className='flex space-x-4 rounded-[25px] bg-[#f3f3f3] p-1 overflow-x-auto whitespace-nowrap'>
 											{tabs.map((category) => (
@@ -63,7 +60,7 @@ const Menu = () => {
 															'w-full  py-2.5 text-sm font-medium leading-5 text-black rounded-[25px]',
 															'ring-white m-1',
 															selected
-																? 'bg-white shadow-md focus:outline-none'
+																? 'bg-white shadow-md focus:outline-none p-4'
 																: 'text-black hover:bg-white/[0.12] hover:text-white focus:outline-none'
 														)
 													}
