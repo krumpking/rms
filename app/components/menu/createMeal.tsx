@@ -352,8 +352,8 @@ const CreateMeal = () => {
 					<div>
 						{menuItems.length > 0 ? (
 							<div>
-								<div className='grid grid-cols-12'>
-									<div className='col-span-6   overflow-y-scroll max-h-[700px] w-full gap-4 p-4'>
+								<div className='grid grid-cols-1 lg:grid-cols-2'>
+									<div className=' max-h-[350px] lg:max-h-[700px] overflow-y-auto  w-full gap-4 p-4'>
 										<div className='mb-6'>
 											<input
 												type='text'
@@ -387,7 +387,7 @@ const CreateMeal = () => {
 														return (
 															<div
 																className={
-																	'flex flex-col shadow-xl rounded-[25px] p-8 w-[250px] ' +
+																	'flex flex-col shadow-xl rounded-[25px] p-8 w-full lg:w-[200px] xl:w-[250px] ' +
 																	checkIfItOccurs(v.id)
 																}
 																onClick={() => {
@@ -418,7 +418,7 @@ const CreateMeal = () => {
 											)}
 										</div>
 									</div>
-									<div className='col-span-6 flex flex-col p-4 '>
+									<div className=' flex flex-col p-4 '>
 										<div className='max-h-[150px] overflow-y-scroll'>
 											<div className='flex flex-row justify-between shadow-md m-4 p-4 rounded-[25px]'>
 												<p className='text-xs'> Item</p>

@@ -327,7 +327,7 @@ const AddPromotion = () => {
 						<Loader color={''} />
 					</div>
 				) : (
-					<div className='grid grid-cols-2 lg:grid-cols-4 overflow-y-scroll max-h-[700px] w-full gap-4 p-4'>
+					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4  h-full w-full gap-4 p-4'>
 						<div
 							className='flex shadow-xl rounded-[25px] p-8 w-[250px]  items-center justify-center'
 							onClick={() => {
@@ -354,7 +354,7 @@ const AddPromotion = () => {
 						</div>
 						{menuItems.map((v) => {
 							return (
-								<div className='relative shadow-2xl p-4 w-[250px] rounded-[25px]'>
+								<div className='relative shadow-2xl p-4 w-full md:w-[250px]  rounded-[25px]'>
 									<div className='p-4 flex flex-col'>
 										<ShowImage
 											src={`/${v.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}

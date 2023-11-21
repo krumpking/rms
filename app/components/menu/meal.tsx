@@ -55,42 +55,8 @@ const Meal = () => {
 
 	useEffect(() => {
 		document.body.style.backgroundColor = LIGHT_GRAY;
-
-		getMenuItems();
 		getMeals();
 	}, []);
-
-	const getMenuItems = () => {
-		getDataFromDBOne(MENU_ITEM_COLLECTION, AMDIN_FIELD, adminId)
-			.then((v) => {
-				if (v !== null) {
-					v.data.forEach((element) => {
-						let d = element.data();
-
-						setMenuItems((menuItems) => [
-							...menuItems,
-							{
-								id: element.id,
-								adminId: d.adminId,
-								userId: d.userId,
-								pic: d.pic,
-								title: d.title,
-								discount: d.discount,
-								description: d.description,
-								category: d.category,
-								date: d.date,
-								dateString: d.dateString,
-								price: d.price,
-							},
-						]);
-					});
-				}
-			})
-			.catch((e) => {
-				console.error(e);
-				setLoading(true);
-			});
-	};
 
 	const getMeals = () => {
 		getDataFromDBOne(MEAL_ITEM_COLLECTION, AMDIN_FIELD, adminId)
@@ -254,10 +220,10 @@ const Meal = () => {
 				) : (
 					<div className='w-full'>
 						{meals.length > 0 ? (
-							<div className='grid grid-cols-2 lg:grid-cols-4 overflow-y-scroll max-h-[700px] w-full gap-4 p-4'>
+							<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 overflow-y-scroll max-h-[700px] w-full gap-4 p-4'>
 								{meals.map((v) => {
 									return (
-										<div className='flex flex-col shadow-xl rounded-[25px] p-8 w-[250px] '>
+										<div className='flex flex-col shadow-xl rounded-[25px] p-8 w-full md:w-[250px] '>
 											<div className='flex flex-row-reverse'>
 												<button
 													onClick={() => {

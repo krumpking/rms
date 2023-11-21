@@ -227,7 +227,7 @@ const OrderStatus = (props: { level: number }) => {
 						<Loader color={''} />
 					</div>
 				) : (
-					<div className='flex flex-col  overflow-y-scroll  w-full p-4'>
+					<div className='flex flex-col  w-full p-0 md:p-4'>
 						<div className='mb-6'>
 							<input
 								type='text'
@@ -253,10 +253,10 @@ const OrderStatus = (props: { level: number }) => {
 								onKeyDown={handleKeyDown}
 							/>
 						</div>
-						<div className='grid grid-cols-2 lg:grid-cols-4  gap-4 '>
+						<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4  gap-4 '>
 							{orders.map((v) => {
 								return (
-									<div className='flex flex-col shadow-xl rounded-[25px] p-8 w-[250px] '>
+									<div className='flex flex-col shadow-xl rounded-[25px] p-8 w-full md:w-[250px] '>
 										<h1 className='font-bold text-xl text-[#8b0e06]'>
 											Order No: {v.orderNo}
 										</h1>
