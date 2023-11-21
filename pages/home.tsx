@@ -410,9 +410,7 @@ const Home = () => {
                     }
                 }}
             /> */}
-			<Head>
-				<meta name='viewport' content='width=978'></meta>
-			</Head>
+
 			<div>
 				<div className='flex flex-col '>
 					<div className='lg:col-span-3' id='nav'>
@@ -426,53 +424,53 @@ const Home = () => {
 					) : (
 						<div className='bg-white col-span-8 my-8 rounded-[30px] flex flex-col p-8 '>
 							<div className='mt-5'>Transaction Overview</div>
-							<div className='grid grid-cols-4 shadow-lg p-8 rounded-[25px]'>
-								<div className='flex flex-col items-center border-r-2'>
+							<div className='grid  grid-cols-1  lg:grid-cols-4 shadow-lg p-8 rounded-[25px] place-items-center'>
+								<div className='flex flex-col items-center border-none lg:border-r-2'>
 									<h1 className='text-2xl'>{transactions.length}</h1>
 									<h1>Transactions</h1>
 								</div>
-								<div className='grid grid-cols-2 border-r-2'>
-									<div className='flex flex-col items-center'>
+								<div className='grid grid-cols-1 md:grid-cols-2 gap-4  border-none lg:border-r-2 '>
+									<div className='flex flex-row space-x-1 lg:space-x-0 lg:flex-col justify-center items-center '>
 										<h1 className='text-md'>{totalUSD.toFixed(2)}</h1>
 										<h1>USD</h1>
 									</div>
-									<div className='flex flex-col items-center'>
+									<div className='flex fflex-row space-x-1 lg:space-x-0 lg:flex-col justify-center items-center'>
 										<h1 className='text-md'>{totalZWL.toFixed(2)}</h1>
 										<h1>ZWL</h1>
 									</div>
 								</div>
-								<div className='grid grid-cols-2 border-r-2'>
-									<div className='flex flex-col items-center'>
+								<div className='grid grid-cols-1 md:grid-cols-2  gap-4 border-none lg:border-r-2'>
+									<div className='flex flex-row space-x-1 lg:space-x-0 lg:flex-col justify-center items-center'>
 										<h1 className='text-md'>{totalRecUSD.toFixed(2)}</h1>
 										<h1 className='text-xs'>USD Received</h1>
 									</div>
-									<div className='flex flex-col items-center'>
+									<div className='flex flex-row space-x-1 lg:space-x-0 lg:flex-col justify-center items-center'>
 										<h1 className='text-md'>{totalRecZWL.toFixed(2)}</h1>
 										<h1 className='text-xs'>ZWL Received</h1>
 									</div>
 								</div>
-								<div className='grid grid-cols-2'>
-									<div className='flex flex-col items-center'>
+								<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+									<div className='flex flex-row space-x-1 lg:space-x-0 lg:flex-col justify-center items-center'>
 										<h1 className='text-md'>{totalSpentUSD.toFixed(2)}</h1>
 										<h1 className='text-xs'>USD Spent</h1>
 									</div>
-									<div className='flex flex-col items-center'>
+									<div className='flex flex-row space-x-1 lg:space-x-0 lg:flex-col justify-center items-center'>
 										<h1 className='text-md'>{totalSpentZWL.toFixed(2)}</h1>
 										<h1 className='text-xs'>ZWL Spent</h1>
 									</div>
 								</div>
 							</div>
 							<div className='mt-5'>Stock Overview</div>
-							<div className='grid grid-cols-4 shadow-lg p-8 rounded-[25px]'>
-								<div className='flex flex-col items-center border-r-2'>
+							<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 shadow-lg p-8 rounded-[25px]'>
+								<div className='flex flex-col items-center border-none lg:border-r-2'>
 									<h1 className='text-2xl'>{stockItems.length}</h1>
 									<h1>Stock Items</h1>
 								</div>
-								<div className='flex flex-col items-center border-r-2'>
+								<div className='flex flex-col items-center border-none lg:border-r-2'>
 									<h1 className='text-md'>{getItems('Served')}</h1>
 									<h1>Items Served</h1>
 								</div>
-								<div className='flex flex-col items-center border-r-2'>
+								<div className='flex flex-col items-center border-none lg:border-r-2'>
 									<h1 className='text-md'>{getItems('Kitchen')}</h1>
 									<h1>Items in the Kitchen</h1>
 								</div>
@@ -482,12 +480,12 @@ const Home = () => {
 								</div>
 							</div>
 							<div className='mt-5'>Menu Overview</div>
-							<div className='grid grid-cols-2 shadow-lg p-8 rounded-[25px]'>
-								<div className='flex flex-col items-center border-r-2'>
+							<div className='grid grid-cols-1 md:grid-cols-2 shadow-lg p-8 rounded-[25px]'>
+								<div className='flex flex-col items-center border-none lg:border-r-2'>
 									<h1 className='text-2xl'>{menuItems.length}</h1>
 									<h1>Menu Items</h1>
 								</div>
-								<div className='flex flex-col items-center border-r-2'>
+								<div className='flex flex-col items-center border-none lg:border-r-2'>
 									<h1 className='text-2xl'>{meals.length}</h1>
 									<h1>Meal Items</h1>
 								</div>
@@ -497,7 +495,7 @@ const Home = () => {
 									<div>
 										<div className='mt-5'>Recent Orders</div>
 
-										<div className='w-full overflow-x-auto flex flex-row space-x-4 p-4 '>
+										<div className='w-full grid grid-cols-1 md:grid-cols-2 lg: grid-cols-4 p-4 '>
 											{orders.slice(0, 4).map((v) => {
 												return (
 													<div className='flex flex-col shadow-xl rounded-[25px] p-8 w-[250px] '>
@@ -563,7 +561,7 @@ const Home = () => {
 								{reservations.length > 0 ? (
 									<div>
 										<div className='mt-5'>Recent Reservations</div>
-										<div className='w-full overflow-x-auto flex flex-row space-x-4 p-4 '>
+										<div className='w-full grid grid-cols-1 md:grid-cols-2 lg: grid-cols-4 p-4  '>
 											{reservations.map((v) => (
 												<div>
 													<div className='flex flex-col shadow-xl rounded-[25px] p-8 w-full '>

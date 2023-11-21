@@ -194,13 +194,13 @@ const OrderHistory = () => {
 
 	return (
 		<div>
-			<div className='bg-white rounded-[30px] p-4 '>
+			<div className='bg-white rounded-[30px] p-0 md:p-4 w-full '>
 				{loading ? (
 					<div className='w-full flex flex-col items-center content-center'>
 						<Loader color={''} />
 					</div>
 				) : (
-					<div className='flex flex-col  overflow-y-scroll  w-full p-4'>
+					<div className='flex flex-col w-full p-0 md:p-4 overflow-x-auto '>
 						<div className='mb-6'>
 							<input
 								type='text'
@@ -226,39 +226,45 @@ const OrderHistory = () => {
 								onKeyDown={handleKeyDown}
 							/>
 						</div>
-						<table className='table  border-separate space-y-6 text-sm w-full'>
-							<thead className='bg-[#8b0e06] text-white font-bold0'>
-								<tr>
-									{labels.map((v: any, index) => (
-										<th key={v.label} className={`text-left`}>
-											{v}
-										</th>
-									))}
-								</tr>
-							</thead>
-							<tbody>
-								{orders.slice(start, end).map((value, index) => {
-									return (
-										<tr
-											key={index}
-											className={
-												'odd:bg-white even:bg-slate-50  hover:cursor-pointer hover:bg-[#8b0e06] hover:text-white'
-											}
-										>
-											<td className='text-left'>{value.dateString}</td>
-											<td className='text-left'>{value.orderNo}</td>
-											<td className='text-left'>{value.customerName}</td>
-											<td className='text-left col-span-3'>
-												{value.deliveryMethod}
-											</td>
-											<td className='text-left'>
-												{value.totalCost.toFixed(2)}
-											</td>
-										</tr>
-									);
-								})}
-							</tbody>
-						</table>
+						<div className='w-full overflow-x-auto'>
+							<table className='table  border-separate space-y-6 text-sm w-full '>
+								<thead className='bg-[#8b0e06] text-white font-bold0'>
+									<tr>
+										{labels.map((v: any, index) => (
+											<th
+												key={v.label}
+												className={`text-left whitespace-nowrap`}
+											>
+												{v}
+											</th>
+										))}
+									</tr>
+								</thead>
+								<tbody>
+									{orders.slice(start, end).map((value, index) => {
+										return (
+											<tr
+												key={index}
+												className={
+													'odd:bg-white even:bg-slate-50  hover:cursor-pointer hover:bg-[#8b0e06] hover:text-white'
+												}
+											>
+												<td className='text-left'>{value.dateString}</td>
+												<td className='text-left'>{value.orderNo}</td>
+												<td className='text-left'>{value.customerName}</td>
+												<td className='text-left col-span-3'>
+													{value.deliveryMethod}
+												</td>
+												<td className='text-left'>
+													{value.totalCost.toFixed(2)}
+												</td>
+											</tr>
+										);
+									})}
+								</tbody>
+							</table>
+						</div>
+
 						<div>
 							{orders.length > 0 ? (
 								<div className='flex w-full'>

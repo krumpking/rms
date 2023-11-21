@@ -49,7 +49,7 @@ import {
 } from '../../constants/loyaltyConstants';
 
 const CreateOrder = () => {
-	const [loading, setLoading] = useState(true);
+	const [loading, setLoading] = useState(false);
 	const router = useRouter();
 	const { adminId, userId, access } = useAuthIds();
 	const [categories, setCategories] = useState<string[]>([]);
@@ -556,14 +556,14 @@ const CreateOrder = () => {
 
 	return (
 		<div>
-			<div className='bg-white rounded-[30px] p-4 '>
+			<div className='bg-white rounded-[30px]'>
 				{loading ? (
 					<div className='w-full flex flex-col items-center content-center'>
 						<Loader color={''} />
 					</div>
 				) : (
-					<div className='grid grid-cols-12'>
-						<div className='col-span-6   overflow-y-scroll max-h-[700px] w-full gap-4 p-4'>
+					<div className='grid grid-cols-1 lg:grid-cols-2'>
+						<div className='overflow-y-scroll max-h-[300px] lg:max-h-[700px] w-full gap-4 p-4'>
 							<div className='flex flex-row items-center  overflow-x-scroll space-x-2 m-2'>
 								{returnOnlyUnique(categories).map((v) => (
 									<button
@@ -589,7 +589,7 @@ const CreateOrder = () => {
 										{/* <div>
                                             <ShowImage src={`/${webfrontId}/${MENU_CAT_STORAGE_REF}/${v.pic.thumbnail}`} alt={'Category'} style={'rounded-full h-6'} />
                                         </div> */}
-										<h1 className=''>{v}</h1>
+										<h1 className='whitespace-nowrap'>{v}</h1>
 									</button>
 								))}
 							</div>
@@ -619,12 +619,12 @@ const CreateOrder = () => {
 								/>
 							</div>
 
-							<div className='grid grid-cols-2 lg:grid-cols-2 gap-4'>
+							<div className='grid grid-cols-1 md:grid-cols-2 gap-4 w-full'>
 								{meals.map((v) => {
 									return (
 										<div
 											className={
-												'flex flex-col shadow-xl rounded-[25px] p-8 w-[250px] ' +
+												'flex flex-col shadow-xl rounded-[25px] p-8 w-full md:w-[250px] lg:w-[200px] ' +
 												checkIfItOccurs(v.id)
 											}
 											onClick={() => {
@@ -647,7 +647,7 @@ const CreateOrder = () => {
 									return (
 										<div
 											className={
-												'flex flex-col shadow-xl rounded-[25px] p-8 w-[250px] ' +
+												'flex flex-col shadow-xl rounded-[25px] p-8 w-full md:w-[250px] lg:w-[200px] ' +
 												checkIfItOccurs(v.id)
 											}
 											onClick={() => {
@@ -668,7 +668,7 @@ const CreateOrder = () => {
 								})}
 							</div>
 						</div>
-						<div className='col-span-6 flex flex-col p-4 '>
+						<div className='flex flex-col p-4 '>
 							<div className='shadow-xl rounded-[25px]  px-2 py-8'>
 								<h1 className='my-2'>Order Number: {orderNo}</h1>
 								<div className='mb-4'>

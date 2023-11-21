@@ -62,7 +62,7 @@ const AppAccess: FC<MyProps> = ({ children, access, component }) => {
 	useEffect(() => {
 		if (!access.includes(component)) {
 			alert('You do not have the required access level for this page');
-			window.location.pathname = '/home';
+			window.location.pathname = '/login';
 		}
 		checkPayment();
 	}, []);
@@ -75,7 +75,7 @@ const AppAccess: FC<MyProps> = ({ children, access, component }) => {
 				'It appears your payment is due, please pay up to continue enjoying FoodiesBooth'
 			);
 
-			window.location.pathname = '/payments';
+			window.location.pathname = '/login';
 		} else {
 			let packageTitle = paymentStatus.package;
 			// check payment level

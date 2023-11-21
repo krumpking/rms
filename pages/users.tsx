@@ -96,7 +96,6 @@ const ManageUsers = () => {
 
 	useEffect(() => {
 		document.body.style.backgroundColor = LIGHT_GRAY;
-
 		getUsers();
 	}, []);
 
@@ -284,9 +283,6 @@ const ManageUsers = () => {
 
 	return (
 		<div>
-			<Head>
-				<meta name='viewport' content='width=978'></meta>
-			</Head>
 			<AppAccess access={accessArray} component={'admin'}>
 				<div>
 					<div className='flex flex-col'>
@@ -305,8 +301,8 @@ const ManageUsers = () => {
 										<div className='w-full'>
 											{usersTemp.length > 0 ? (
 												<div>
-													<div className='flex flex-col overflow-y-scroll max-h-[700px] w-full gap-4 p-4'>
-														<div className=''>
+													<div className='flex flex-col overflow-x-auto max-h-[700px] w-full gap-4 p-0 md:p-4'>
+														<div className='w-full'>
 															<input
 																type='text'
 																value={search}
@@ -315,67 +311,74 @@ const ManageUsers = () => {
 																	setSearch(e.target.value);
 																}}
 																className='
-                                                w-full
-                                                rounded-[25px]
-                                                border-2
-                                                border-[#8b0e06]
-                                                py-3
-                                                px-5
-                                                bg-white
-                                                text-base text-body-color
-                                                placeholder-[#ACB6BE]
-                                                outline-none
-                                                focus-visible:shadow-none
-                                                focus:border-primary
-                                            '
+																	w-full
+																	rounded-[25px]
+																	border-2
+																	border-[#8b0e06]
+																	py-3
+																	px-5
+																	bg-white
+																	text-base text-body-color
+																	placeholder-[#ACB6BE]
+																	outline-none
+																	focus-visible:shadow-none
+																	focus:border-primary
+																'
 																onKeyDown={handleKeyDown}
 															/>
 														</div>
-														<table className='table  border-separate space-y-6 text-sm w-full'>
-															<thead className='bg-[#8b0e06] text-white font-bold0'>
-																<tr>
-																	{labels.map((v: any, index) => (
-																		<th key={v.label} className={`text-left`}>
-																			{v}
-																		</th>
-																	))}
-																</tr>
-															</thead>
-															<tbody>
-																{usersTemp
-																	.slice(start, end)
-																	.map((value, index) => {
-																		return (
-																			<tr
-																				key={index}
-																				onClick={() => {
-																					getReadyToUpdate(value);
-																				}}
-																				className={
-																					'odd:bg-white even:bg-slate-50  hover:cursor-pointer hover:bg-[#8b0e06] hover:text-white'
-																				}
+														<div className='w-full overflow-x-auto'>
+															<table className='table  border-separate space-y-6 text-sm w-full'>
+																<thead className='bg-[#8b0e06] text-white font-bold0'>
+																	<tr>
+																		{labels.map((v: any, index) => (
+																			<th
+																				key={v.label}
+																				className={`text-left whitespace-nowrap`}
 																			>
-																				<td className='text-left'>
-																					{value.dateString}
-																				</td>
-																				<td className='text-left'>
-																					{value.name}
-																				</td>
-																				<td className='text-left'>
-																					{value.contact}
-																				</td>
-																				<td className='text-left col-span-3'>
-																					{value.email}
-																				</td>
-																				<td className='text-left col-span-3'>
-																					{value.access.slice(0, 4).toString()}
-																					...
-																				</td>
-																			</tr>
-																		);
-																	})}
-															</tbody>
-														</table>
+																				{v}
+																			</th>
+																		))}
+																	</tr>
+																</thead>
+																<tbody>
+																	{usersTemp
+																		.slice(start, end)
+																		.map((value, index) => {
+																			return (
+																				<tr
+																					key={index}
+																					onClick={() => {
+																						getReadyToUpdate(value);
+																					}}
+																					className={
+																						'odd:bg-white even:bg-slate-50  hover:cursor-pointer hover:bg-[#8b0e06] hover:text-white'
+																					}
+																				>
+																					<td className='text-left'>
+																						{value.dateString}
+																					</td>
+																					<td className='text-left'>
+																						{value.name}
+																					</td>
+																					<td className='text-left'>
+																						{value.contact}
+																					</td>
+																					<td className='text-left col-span-3'>
+																						{value.email}
+																					</td>
+																					<td className='text-left col-span-3'>
+																						{value.access
+																							.slice(0, 4)
+																							.toString()}
+																						...
+																					</td>
+																				</tr>
+																			);
+																		})}
+																</tbody>
+															</table>
+														</div>
 														<div>
 															{usersTemp.length > 0 ? (
 																<div className='flex w-full'>
