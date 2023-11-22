@@ -51,6 +51,8 @@ import {
 	POINTS_COLLECTION,
 	REWARD_PARAMS_COLLECTION,
 } from '../../constants/loyaltyConstants';
+import { logEvent } from 'firebase/analytics';
+import { analytics } from '../../../firebase/clientApp';
 
 const MarketPlace = (props: {
 	info: IWebsiteOneInfo;
@@ -117,6 +119,7 @@ const MarketPlace = (props: {
 		getMeals();
 		getPromos();
 		getMenuItems();
+		logEvent(analytics, 'other_market_place_page_visit');
 	}, []);
 
 	const handleChangeLocation = (lat: any, lng: any) => {
@@ -268,6 +271,7 @@ const MarketPlace = (props: {
 		setMeals([]);
 		setLoading(true);
 		if (search !== '') {
+			logEvent(analytics, 'other_market_place_search');
 			let res: IMenuItem[] = searchStringInArray(menuItemsSto, search);
 			let results: IMeal[] = searchStringInArray(mealsSto, search);
 			if (res.length > 0 || results.length > 0) {
@@ -363,6 +367,7 @@ const MarketPlace = (props: {
 	};
 
 	const addToCart = (v: any) => {
+		logEvent(analytics, 'other_market_place_added_to_cart');
 		setAddItems((categories) => [...categories, v]);
 		let display = displayedItems;
 
@@ -431,6 +436,7 @@ const MarketPlace = (props: {
 					total += el.price;
 				});
 				if (order.deliveryMethod == 'Delivery') {
+					logEvent(analytics, 'other_market_place_delivery_orders');
 					let dis = computeDistanceBetween(
 						new LatLng(location.lat, location.lng),
 						new LatLng(info.mapLocation.lat, info.mapLocation.lng)
@@ -509,6 +515,7 @@ const MarketPlace = (props: {
 						sendOrderEmail(info.email, newOrder).catch(console.error);
 						setLoading(false);
 						toast.success('Order Added successfully');
+						logEvent(analytics, 'other_market_place_orders');
 					})
 					.catch((e) => {
 						setLoading(false);
@@ -588,6 +595,7 @@ const MarketPlace = (props: {
 				toast.info('Delivery date can only be, today or later');
 			}
 		} else {
+			logEvent(analytics, 'other_market_place_order_after_1900');
 			toast.info('Delivery date can only be before 1900');
 		}
 	};
@@ -704,7 +712,9 @@ const MarketPlace = (props: {
 	const addPoints = (points: IPoints) => {
 		// Add points
 		addDocument(POINTS_COLLECTION, points)
-			.then((v) => {})
+			.then((v) => {
+				logEvent(analytics, 'other_market_place_points_added');
+			})
 			.catch((e: any) => {
 				setLoading(false);
 				console.error(e);

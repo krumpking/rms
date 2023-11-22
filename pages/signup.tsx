@@ -6,7 +6,7 @@ import {
 	PRIMARY_COLOR,
 	USER_ID,
 } from '../app/constants/constants';
-import { auth } from '../firebase/clientApp';
+import { analytics, auth } from '../firebase/clientApp';
 import Loader from '../app/components/loader';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -23,6 +23,7 @@ import { IPayments } from '../app/types/paymentTypes';
 import { addUser } from '../app/api/usersApi';
 import { addDocument } from '../app/api/mainApi';
 import { PAYMENTS_COLLECTION } from '../app/constants/paymentConstants';
+import { logEvent } from 'firebase/analytics';
 
 const SignUp = () => {
 	const [phone, setPhone] = useState('+263');
@@ -76,6 +77,7 @@ const SignUp = () => {
 			},
 			auth
 		);
+		logEvent(analytics, 'sign_up_page_visit');
 
 		return () => {};
 	}, []);
@@ -188,6 +190,7 @@ const SignUp = () => {
 							pathname: '/home',
 						});
 						setLoading(false);
+						logEvent(analytics, 'signups');
 					})
 					.catch((e) => {
 						setLoading(false);

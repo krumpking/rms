@@ -29,6 +29,8 @@ import {
 import { print } from '../../utils/console';
 import { Dialog, Transition } from '@headlessui/react';
 import { useAuthIds } from '../authHook';
+import { logEvent } from 'firebase/analytics';
+import { analytics } from '../../../firebase/clientApp';
 
 const Meal = () => {
 	const { adminId, userId, access } = useAuthIds();
@@ -55,6 +57,7 @@ const Meal = () => {
 
 	useEffect(() => {
 		document.body.style.backgroundColor = LIGHT_GRAY;
+		logEvent(analytics, 'meal_page_visit');
 		getMeals();
 	}, []);
 
@@ -160,6 +163,7 @@ const Meal = () => {
 				setFiles([]);
 				getMeals();
 				setOpen(false);
+				logEvent(analytics, 'edited_meal_item');
 			})
 			.catch((e: any) => {
 				setFiles([]);
@@ -179,6 +183,7 @@ const Meal = () => {
 			deleteDocument(MEAL_ITEM_COLLECTION, id)
 				.then(() => {
 					getMeals();
+					logEvent(analytics, 'deleted_meal');
 				})
 				.catch((e: any) => {
 					getMeals();

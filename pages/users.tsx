@@ -22,6 +22,8 @@ import AppAccess from '../app/components/accessLevel';
 import { useAuthIds } from '../app/components/authHook';
 import { createId } from '../app/utils/stringM';
 import Head from 'next/head';
+import { logEvent } from 'firebase/analytics';
+import { analytics } from '../firebase/clientApp';
 
 const ManageUsers = () => {
 	const [loading, setLoading] = useState(true);
@@ -97,6 +99,7 @@ const ManageUsers = () => {
 	useEffect(() => {
 		document.body.style.backgroundColor = LIGHT_GRAY;
 		getUsers();
+		logEvent(analytics, 'users_visit');
 	}, []);
 
 	const getUsers = () => {
@@ -159,6 +162,7 @@ const ManageUsers = () => {
 		setUsers([]);
 		addDocument(USER_COLLECTION, newUser)
 			.then((v) => {
+				logEvent(analytics, 'add_user');
 				getUsers();
 			})
 			.catch((e: any) => {
@@ -186,6 +190,7 @@ const ManageUsers = () => {
 				setFiles([]);
 				getUsers();
 				setOpen(false);
+				logEvent(analytics, 'edit_user');
 			})
 			.catch((e: any) => {
 				setFiles([]);
@@ -272,6 +277,7 @@ const ManageUsers = () => {
 					setUsers([]);
 					getUsers();
 					toast.success('Account successfully deleted');
+					logEvent(analytics, 'delete_users');
 				}
 			})
 			.catch((e) => {

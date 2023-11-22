@@ -34,6 +34,8 @@ import { Disclosure, Switch } from '@headlessui/react';
 import { SocialIcon } from 'react-social-icons';
 import DateMethods from '../app/utils/date';
 import YouTube from 'react-youtube';
+import { logEvent } from 'firebase/analytics';
+import { analytics } from '../firebase/clientApp';
 
 const Home: NextPage = () => {
 	const [trackingId, settrackingId] = useState('AW-11208371394');
@@ -201,9 +203,10 @@ const Home: NextPage = () => {
 			setBusiness(buz);
 			setLoading(false);
 		} else {
+			getMenuItems();
+			logEvent(analytics, 'welcome_page_visit');
 			setLoading(false);
 		}
-		getMenuItems();
 	}, []);
 
 	const getMenuItems = () => {

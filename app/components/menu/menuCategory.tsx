@@ -28,6 +28,8 @@ import {
 } from '../../api/mainApi';
 import { Dialog, Transition } from '@headlessui/react';
 import { useAuthIds } from '../authHook';
+import { logEvent } from 'firebase/analytics';
+import { analytics } from '../../../firebase/clientApp';
 
 const AddMenuCategory = () => {
 	const [loading, setLoading] = useState(true);
@@ -41,6 +43,7 @@ const AddMenuCategory = () => {
 
 	useEffect(() => {
 		document.body.style.backgroundColor = LIGHT_GRAY;
+		logEvent(analytics, 'menu_category_page_visit');
 		getCategories();
 	}, []);
 
@@ -115,6 +118,7 @@ const AddMenuCategory = () => {
 						setLoading(false);
 						setFiles([]);
 						getCategories();
+						logEvent(analytics, 'added_category');
 					})
 					.catch((e: any) => {
 						setFiles([]);
@@ -154,6 +158,7 @@ const AddMenuCategory = () => {
 			deleteDocument(MENU_CAT_COLLECTION, id)
 				.then(() => {
 					getCategories();
+					logEvent(analytics, 'deleted_categories');
 				})
 				.catch((e: any) => {
 					console.error(e);
