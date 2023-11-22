@@ -52,6 +52,8 @@ import {
 	POINTS_COLLECTION,
 	REWARD_PARAMS_COLLECTION,
 } from '../../constants/loyaltyConstants';
+import { logEvent } from 'firebase/analytics';
+import { analytics } from '../../../firebase/clientApp';
 
 const FoodiesBoothMarketPlace = (props: {
 	info: IWebsiteOneInfo[];
@@ -118,6 +120,7 @@ const FoodiesBoothMarketPlace = (props: {
 		getMeals();
 		getPromos();
 		getMenuItems();
+		logEvent(analytics, 'foodies_booth_market_place_page_visit');
 	}, []);
 
 	const handleChangeLocation = (lat: any, lng: any) => {
@@ -274,6 +277,7 @@ const FoodiesBoothMarketPlace = (props: {
 		setMenuItems([]);
 		setMeals([]);
 		setLoading(true);
+		logEvent(analytics, 'foodies_booth_market_place_search');
 		if (search !== '') {
 			let res: IMenuItem[] = searchStringInArray(menuItemsSto, search);
 			let results: IMeal[] = searchStringInArray(mealsSto, search);
@@ -375,7 +379,7 @@ const FoodiesBoothMarketPlace = (props: {
 	const addToCart = (v: any) => {
 		let isDifferentBus = true;
 		for (let i = 0; i < addItems.length; i++) {
-			console.log(addItems[i].adminId !== v.adminId);
+			logEvent(analytics, 'foodies_booth_market_place_items_added_to_cart');
 
 			if (addItems[i].adminId !== v.adminId) {
 				isDifferentBus = false;
@@ -458,6 +462,7 @@ const FoodiesBoothMarketPlace = (props: {
 					total += el.price;
 				});
 				if (order.deliveryMethod == 'Delivery') {
+					logEvent(analytics, 'foodies_booth_market_place_delivery_order');
 					let dis = computeDistanceBetween(
 						new LatLng(location.lat, location.lng),
 						new LatLng(info[index].mapLocation.lat, info[index].mapLocation.lng)
@@ -536,6 +541,7 @@ const FoodiesBoothMarketPlace = (props: {
 						sendOrderEmail(info[index].email, newOrder).catch(console.error);
 						setLoading(false);
 						toast.success('Order Added successfully');
+						logEvent(analytics, 'foodies_booth_market_place_orders');
 					})
 					.catch((e) => {
 						setLoading(false);
@@ -596,6 +602,7 @@ const FoodiesBoothMarketPlace = (props: {
 			}
 		} else {
 			toast.info('Delivery date can only be before 1900');
+			logEvent(analytics, 'foodies_booth_market_place_order_after_1900');
 		}
 	};
 
@@ -715,7 +722,9 @@ const FoodiesBoothMarketPlace = (props: {
 	const addPoints = (points: IPoints) => {
 		// Add points
 		addDocument(POINTS_COLLECTION, points)
-			.then((v) => {})
+			.then((v) => {
+				logEvent(analytics, 'foodies_booth_market_place_added_points');
+			})
 			.catch((e: any) => {
 				setLoading(false);
 				console.error(e);

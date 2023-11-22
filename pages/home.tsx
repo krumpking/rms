@@ -24,6 +24,8 @@ import {
 	MENU_ITEM_COLLECTION,
 } from '../app/constants/menuConstants';
 import Head from 'next/head';
+import { logEvent } from 'firebase/analytics';
+import { analytics } from '../firebase/clientApp';
 
 const Home = () => {
 	const [loading, setLoading] = useState(false);
@@ -145,6 +147,7 @@ const Home = () => {
 		getReservations();
 		getMenuItems();
 		getMeals();
+		logEvent(analytics, 'home_page_visit');
 	}, []);
 
 	const getOrders = () => {

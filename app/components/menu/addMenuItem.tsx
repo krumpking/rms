@@ -32,6 +32,8 @@ import {
 import { print } from '../../utils/console';
 import { Dialog, Transition } from '@headlessui/react';
 import { useAuthIds } from '../authHook';
+import { logEvent } from 'firebase/analytics';
+import { analytics } from '../../../firebase/clientApp';
 
 const AddMenuItem = () => {
 	const [loading, setLoading] = useState(true);
@@ -59,6 +61,7 @@ const AddMenuItem = () => {
 
 		getCategories();
 		getMenuItems();
+		logEvent(analytics, 'add_menu_page_visit');
 	}, []);
 
 	const getCategories = () => {
@@ -167,6 +170,7 @@ const AddMenuItem = () => {
 					setMenuItems([]);
 					addDocument(MENU_ITEM_COLLECTION, menuItem)
 						.then((v) => {
+							logEvent(analytics, 'added_menu_item');
 							setFiles([]);
 							getMenuItems();
 						})
@@ -270,6 +274,7 @@ const AddMenuItem = () => {
 				setFiles([]);
 				getMenuItems();
 				setOpen(false);
+				logEvent(analytics, 'edited_menu_item');
 			})
 			.catch((e: any) => {
 				setEdit(false);
@@ -292,6 +297,7 @@ const AddMenuItem = () => {
 				.then(() => {
 					setMenuItems([]);
 					getMenuItems();
+					logEvent(analytics, 'deleted_menu_item');
 				})
 				.catch((e: any) => {
 					console.error(e);

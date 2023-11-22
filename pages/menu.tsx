@@ -14,6 +14,8 @@ import AppAccess from '../app/components/accessLevel';
 import { useAuthIds } from '../app/components/authHook';
 import Head from 'next/head';
 import AddPromotion from '../app/components/menu/addPromo';
+import { logEvent } from 'firebase/analytics';
+import { analytics } from '../firebase/clientApp';
 
 function classNames(...classes: string[]) {
 	return classes.filter(Boolean).join(' ');
@@ -32,6 +34,7 @@ const Menu = () => {
 
 	useEffect(() => {
 		document.body.style.backgroundColor = LIGHT_GRAY;
+		logEvent(analytics, 'menu_page_visit');
 	}, []);
 
 	return (
