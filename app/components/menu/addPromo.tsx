@@ -39,6 +39,8 @@ import { Dialog, Transition } from '@headlessui/react';
 import { useAuthIds } from '../authHook';
 import { addDays } from 'date-fns';
 import DateMethods from '../../utils/date';
+import { logEvent } from 'firebase/analytics';
+import { analytics } from '../../../firebase/clientApp';
 
 const AddPromotion = () => {
 	const [loading, setLoading] = useState(true);
@@ -79,7 +81,7 @@ const AddPromotion = () => {
 
 	useEffect(() => {
 		document.body.style.backgroundColor = LIGHT_GRAY;
-
+		logEvent(analytics, 'promo_page_visit');
 		getCategories();
 		getMenuItems();
 	}, []);
@@ -201,6 +203,7 @@ const AddPromotion = () => {
 						.then((v) => {
 							setFiles([]);
 							getMenuItems();
+							logEvent(analytics, 'added_promos');
 						})
 						.catch((e: any) => {
 							setFiles([]);
@@ -312,6 +315,7 @@ const AddPromotion = () => {
 				.then(() => {
 					setMenuItems([]);
 					getMenuItems();
+					logEvent(analytics, 'deleted_promos');
 				})
 				.catch((e: any) => {
 					console.error(e);
@@ -356,6 +360,48 @@ const AddPromotion = () => {
 							return (
 								<div className='relative shadow-2xl p-4 w-full md:w-[250px]  rounded-[25px]'>
 									<div className='p-4 flex flex-col'>
+										<div className='flex flex-row-reverse'>
+											<button
+												onClick={() => {
+													deleteItem(v.id, v.pic);
+												}}
+											>
+												<svg
+													xmlns='http://www.w3.org/2000/svg'
+													fill='none'
+													viewBox='0 0 24 24'
+													stroke-width='1.5'
+													stroke='currentColor'
+													className='w-6 h-6 m-1'
+												>
+													<path
+														stroke-linecap='round'
+														stroke-linejoin='round'
+														d='M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+													/>
+												</svg>
+											</button>
+											<button
+												onClick={() => {
+													getReadyToUpdate(v);
+												}}
+											>
+												<svg
+													xmlns='http://www.w3.org/2000/svg'
+													fill='none'
+													viewBox='0 0 24 24'
+													stroke-width='1.5'
+													stroke='currentColor'
+													className='w-6 h-6'
+												>
+													<path
+														stroke-linecap='round'
+														stroke-linejoin='round'
+														d='M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125'
+													/>
+												</svg>
+											</button>
+										</div>
 										<ShowImage
 											src={`/${v.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
 											alt={'Menu Item'}

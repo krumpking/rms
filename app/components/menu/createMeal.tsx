@@ -35,6 +35,8 @@ import {
 } from '../../utils/arrayM';
 import { createId } from '../../utils/stringM';
 import { useAuthIds } from '../authHook';
+import { logEvent } from 'firebase/analytics';
+import { analytics } from '../../../firebase/clientApp';
 
 const CreateMeal = () => {
 	const [loading, setLoading] = useState(true);
@@ -68,6 +70,7 @@ const CreateMeal = () => {
 
 		getCategories();
 		getMenuItems();
+		logEvent(analytics, 'create_meal_page_visit');
 	}, []);
 
 	const getCategories = () => {
@@ -218,6 +221,7 @@ const CreateMeal = () => {
 						.then((v) => {
 							setLoading(false);
 							toast.success('Meal Added Successfully');
+							logEvent(analytics, 'added_meal');
 						})
 						.catch((e: any) => {
 							setLoading(false);

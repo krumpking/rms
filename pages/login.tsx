@@ -9,7 +9,7 @@ import {
 	PRIMARY_COLOR,
 	USER_ID,
 } from '../app/constants/constants';
-import { auth } from '../firebase/clientApp';
+import { analytics, auth } from '../firebase/clientApp';
 import Loader from '../app/components/loader';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -23,6 +23,7 @@ import { ADMIN_COLLECTION } from '../app/constants/userConstants';
 import { getDataFromDBOne } from '../app/api/mainApi';
 import { DELIVERERS_COLLECTION } from '../app/constants/deliveryConstants';
 import { print } from '../app/utils/console';
+import { logEvent } from 'firebase/analytics';
 
 const Login = (props: {
 	changeIndex: (index: number, userId: string) => void;
@@ -55,6 +56,7 @@ const Login = (props: {
 			},
 			auth
 		);
+		logEvent(analytics, 'login_page_visit');
 	}, []);
 
 	const login = () => {
@@ -72,6 +74,7 @@ const Login = (props: {
 								if (v == null) {
 									toast.error('You are not approved to access this page');
 								} else {
+									logEvent(analytics, 'delivery_service_logins');
 									v.data.forEach((doc) => {
 										let d = doc.data();
 										setCookie(USER_ID, encrypt(userId, ADMIN_ID), {
@@ -100,10 +103,12 @@ const Login = (props: {
 							.then(async (v) => {
 								if (v == null) {
 									toast.warn('User not found, please Sign Up');
+									logEvent(analytics, 'user_not_found');
 									router.push({
 										pathname: '/signup',
 									});
 								} else {
+									logEvent(analytics, 'logins');
 									v.data.forEach((doc) => {
 										let d = doc.data();
 										setCookie(USER_ID, encrypt(userId, ADMIN_ID), {
