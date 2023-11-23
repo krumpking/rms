@@ -794,7 +794,7 @@ const MarketPlace = (props: {
 
 								{promos.length > 0 ? (
 									<div className='grid grid-cols-1 lg:grid-cols-4 gap-8 p-4 lg:p-8'>
-										{promos.slice(0, 4).map((v) => (
+										{promos.map((v) => (
 											<div className='relative shadow-2xl p-4 w-[250px] rounded-[25px]'>
 												<div className='p-4 flex flex-col'>
 													<ShowImage

@@ -44,7 +44,7 @@ import { numberWithCommas } from '../../utils/stringM';
 import Loader from '../loader';
 import { print } from '../../utils/console';
 import DateMethods from '../../utils/date';
-import { isAfter, isEqual } from 'date-fns';
+import { differenceInHours, isAfter, isEqual } from 'date-fns';
 import { sendOrderEmail } from '../../api/emailApi';
 import { Disclosure } from '@headlessui/react';
 import { IPoints, IPointsRate } from '../../types/loyaltyTypes';
@@ -64,6 +64,8 @@ const FoodiesBoothMarketPlace = (props: {
 	const router = useRouter();
 	const [isOpen, setIsOpen] = useState(false);
 	const [search, setSearch] = useState('');
+	const [locationSearch, setLocationSearch] = useState('');
+	const [price, setPrice] = useState('');
 	const [promos, setPromos] = useState<IMenuItemPromotions[]>([]);
 	const [categories, setCategories] = useState<string[]>([]);
 	const [meals, setMeals] = useState<IMeal[]>([]);
@@ -115,6 +117,14 @@ const FoodiesBoothMarketPlace = (props: {
 	const [rewards, setRewards] = useState<IPointsRate[]>([]);
 	const [points, setPoints] = useState<IPoints[]>([]);
 	const [usePoints, setUsePoints] = useState(false);
+	const [makePayment, setMakePayment] = useState(false);
+	const [prepTime, setPrepTime] = useState(48);
+	const [paymentMethods, setPaymentMethods] = useState<string[]>([
+		'Ecocash',
+		'Innbucks',
+	]);
+	const [paymentMethod, setPaymentMethod] = useState('');
+	const [confirmationMessage, setConfirmationMessage] = useState('');
 
 	useEffect(() => {
 		getMeals();
@@ -276,11 +286,13 @@ const FoodiesBoothMarketPlace = (props: {
 	const searchFor = () => {
 		setMenuItems([]);
 		setMeals([]);
+		setPromos([]);
 		setLoading(true);
 		logEvent(analytics, 'foodies_booth_market_place_search');
 		if (search !== '') {
 			let res: IMenuItem[] = searchStringInArray(menuItemsSto, search);
 			let results: IMeal[] = searchStringInArray(mealsSto, search);
+
 			if (res.length > 0 || results.length > 0) {
 				setTimeout(() => {
 					setMenuItems(res);
@@ -320,6 +332,14 @@ const FoodiesBoothMarketPlace = (props: {
 		}
 	};
 
+	const handleChangePaymentMethod = (e: any) => {
+		setPaymentMethod(e.target.value);
+	};
+
+	const handleChange = (e: any) => {
+		setPaymentMethod(e.target.value);
+	};
+
 	const removeItem = (v: any) => {
 		let items: any[] = [];
 		displayedItems.forEach((e: any) => {
@@ -337,8 +357,8 @@ const FoodiesBoothMarketPlace = (props: {
 		setAddItems(aItems);
 	};
 
-	const getTotal = () => {
-		let total = 0;
+	const getTotal = (level: number) => {
+		let total: number = 0;
 		if (addItems.length > 0) {
 			let index = returnOccurrencesIndexAdmin(info, addItems[0].adminId);
 			addItems.forEach((el) => {
@@ -370,7 +390,15 @@ const FoodiesBoothMarketPlace = (props: {
 		}
 
 		if (total > 1) {
-			return total.toFixed(2);
+			if (level == 1) {
+				return total.toFixed(2);
+			} else if (level == 2) {
+				return (total * 0.05).toFixed(2);
+			} else {
+				return (
+					parseFloat(total.toFixed(2)) + parseFloat((total * 0.05).toFixed(2))
+				);
+			}
 		} else {
 			return total;
 		}
@@ -557,16 +585,18 @@ const FoodiesBoothMarketPlace = (props: {
 	};
 
 	const addOrder = () => {
-		setLoading(true);
-		let deliveryDate = new Date(order.deliveryDate);
-		let deliveryTime = parseInt(order.deliveryTime.split(':')[0]);
+		var result = confirm(
+			'Kindly send your 50% deposit either on Ecocash USD or Innbucks on this number 0772263139'
+		);
+		if (result) {
+			let deliveryDate = new Date(order.deliveryDate);
+			let deliveryTime = parseInt(order.deliveryTime.split(':')[0]);
 
-		if (deliveryTime < 19) {
-			if (
-				isEqual(deliveryDate, new Date()) ||
-				isAfter(deliveryDate, new Date())
-			) {
-				if (isEqual(deliveryDate, new Date())) {
+			if (deliveryTime < 19) {
+				// check prep time
+				let hrs = differenceInHours(deliveryDate, new Date());
+				let index = returnOccurrencesIndexAdmin(info, addItems[0].adminId);
+				if (info[index].prepTime <= hrs) {
 					if (new Date().getHours() + 2 < deliveryTime) {
 						setLoading(true);
 						if (
@@ -574,7 +604,7 @@ const FoodiesBoothMarketPlace = (props: {
 							order.customerName !== '' &&
 							order.customerPhone !== ''
 						) {
-							submitOrder();
+							setMakePayment(true);
 						} else {
 							setLoading(false);
 							toast.error('Ensure you enter all details');
@@ -585,24 +615,14 @@ const FoodiesBoothMarketPlace = (props: {
 						);
 					}
 				} else {
-					setLoading(true);
-					if (
-						order.customerEmail !== '' &&
-						order.customerName !== '' &&
-						order.customerPhone !== ''
-					) {
-						submitOrder();
-					} else {
-						setLoading(false);
-						toast.error('Ensure you enter all details');
-					}
+					toast.info(
+						`Delivery date can only be after ${info[index].prepTime} of Food preparation time`
+					);
 				}
 			} else {
-				toast.info('Delivery date can only be, today or later');
+				toast.info('Delivery date can only be before 1900');
+				logEvent(analytics, 'foodies_booth_market_place_order_after_1900');
 			}
-		} else {
-			toast.info('Delivery date can only be before 1900');
-			logEvent(analytics, 'foodies_booth_market_place_order_after_1900');
 		}
 	};
 
@@ -744,6 +764,10 @@ const FoodiesBoothMarketPlace = (props: {
 		}
 	};
 
+	const paymentConfirmed = () => {
+		submitOrder();
+	};
+
 	return (
 		<div>
 			{loading ? (
@@ -751,98 +775,9 @@ const FoodiesBoothMarketPlace = (props: {
 					<Loader color={''} />
 				</div>
 			) : (
-				<div className='bg-white rounded-[30px] p-0 sm:p-4 '>
+				<div className='bg-white rounded-[30px] p-0 sm:p-4 text-black'>
 					<div className='relative'>
 						<div className='w-full h-full'>
-							<div className='flex flex-col mb-6 p-8'>
-								<div>
-									{promos.length > 0 ? (
-										<div className='flex justify-center content-center items-center mb-6'>
-											<h1 className='text-2xl' style={{ color: PRIMARY_COLOR }}>
-												PROMOS
-											</h1>
-										</div>
-									) : (
-										<p></p>
-									)}
-								</div>
-
-								{promos.length > 0 ? (
-									<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
-										{promos.map((v) => (
-											<div className='relative shadow-2xl rounded-[25px]'>
-												<div className='p-4 flex flex-col space-y-1'>
-													<ShowImage
-														src={`/${v.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
-														alt={'Menu Item'}
-														style={'rounded-[25px] h-40 w-full '}
-													/>
-
-													<p className='text-xl'>{v.title}</p>
-													<Disclosure>
-														<Disclosure.Button
-															className={' underline text-xs text-left'}
-														>
-															See Details
-														</Disclosure.Button>
-														<Disclosure.Panel>
-															<p className='text-xs w-full'>{v.description}</p>
-														</Disclosure.Panel>
-													</Disclosure>
-													<div className='flex flex-row space-x-4 justify-between content-center items-center my-1'>
-														<p className='text-md line-through'>
-															{v.oldPrice}USD
-														</p>
-														<p className='text-md'>{v.newPrice}USD</p>
-													</div>
-													<button
-														onClick={() => {
-															let item: IMenuItem = {
-																id: v.id,
-																adminId: v.adminId,
-																userId: v.userId,
-																category: v.category,
-																title: v.title,
-																description: v.description,
-																discount: v.oldPrice - v.newPrice,
-																pic: v.pic,
-																date: v.date,
-																dateString: v.dateString,
-																price: 1,
-															};
-															addToCart(item);
-														}}
-														className='py-2 px-5 text-white rounded-md w-full'
-														style={{
-															backgroundColor: `${PRIMARY_COLOR}`,
-														}}
-													>
-														Add
-													</button>
-													<div className='rounded-[25px] font-bold w-full h-fit font-bold text-xs text-center flex flex-row justify-center my-1'>
-														<p className='text-gray-400'>
-															{DateMethods.diffDatesDays(
-																new Date().toDateString(),
-																v.endDate
-															)}{' '}
-															days left
-														</p>
-													</div>
-												</div>
-
-												<div
-													className='absolute -top-2 -right-2  z-10 rounded-full text-white font-bold w-12 h-12 font-bold text-xs text-center flex items-center'
-													style={{ backgroundColor: PRIMARY_COLOR }}
-												>
-													{100 - (v.newPrice / v.oldPrice) * 100} % OFF
-												</div>
-											</div>
-										))}
-									</div>
-								) : (
-									<p></p>
-								)}
-							</div>
 							<div className='p-2 sm:p-8'>
 								<div className='flex justify-center content-center items-center mb-6'>
 									<div className='flex flex-row space-x-4 w-full overflow-x-auto'>
@@ -883,37 +818,207 @@ const FoodiesBoothMarketPlace = (props: {
                                         '
 									onKeyDown={handleKeyDown}
 								/>
-								<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6'>
+								<div className='grid grid-cols-2 gap-4'>
+									<input
+										type='text'
+										value={locationSearch}
+										placeholder={'Search by location'}
+										onChange={(e) => {
+											setLocationSearch(e.target.value);
+										}}
+										style={{ borderColor: PRIMARY_COLOR }}
+										className='
+                                        w-full
+                                        rounded-[25px]
+                                        border-2
+                                        py-3
+                                        px-5
+                                        bg-white
+                                        text-base text-body-color
+                                        placeholder-[#ACB6BE]
+                                        outline-none
+                                        focus-visible:shadow-none
+                                        focus:border-primary
+                                        mb-6
+                                        '
+										onKeyDown={handleKeyDown}
+									/>
+									<input
+										type='text'
+										value={price}
+										placeholder={'Search by price '}
+										onChange={(e) => {
+											setPrice(e.target.value);
+										}}
+										style={{ borderColor: PRIMARY_COLOR }}
+										className='
+                                        w-full
+                                        rounded-[25px]
+                                        border-2
+                                        py-3
+                                        px-5
+                                        bg-white
+                                        text-base text-body-color
+                                        placeholder-[#ACB6BE]
+                                        outline-none
+                                        focus-visible:shadow-none
+                                        focus:border-primary
+                                        mb-6
+                                        '
+										onKeyDown={handleKeyDown}
+									/>
+								</div>
+								<div className='flex flex-col mb-6 p-2 md:p-8 mb-6 border-b-2'>
+									<div>
+										{promos.length > 0 ? (
+											<div className='flex justify-center content-center items-center mb-6'>
+												<h1
+													className='text-2xl'
+													style={{ color: PRIMARY_COLOR }}
+												>
+													PROMOS
+												</h1>
+											</div>
+										) : (
+											<p></p>
+										)}
+									</div>
+
+									{promos.length > 0 ? (
+										<div className='carousel carousel-center bg-white bg-white'>
+											{promos.map((v) => (
+												<div className='carousel-item p-4'>
+													<div className='relative shadow-2xl rounded-[25px] w-[200px]'>
+														<div className='p-2 md:p-4 flex flex-col space-y-1'>
+															<ShowImage
+																src={`/${v.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
+																alt={'Menu Item'}
+																style={'rounded-[25px] h-20 lg:h-40 w-full '}
+															/>
+
+															<p className='text-xs md:text-xl'>{v.title}</p>
+															<Disclosure>
+																<Disclosure.Button
+																	className={' underline text-xs text-left'}
+																>
+																	See Details
+																</Disclosure.Button>
+																<Disclosure.Panel>
+																	<p className='text-xs w-full'>
+																		{v.description}
+																	</p>
+																</Disclosure.Panel>
+															</Disclosure>
+															<div className='flex flex-row space-x-4 justify-between content-center items-center my-1'>
+																<p className='text-xs md:text-md line-through'>
+																	{v.oldPrice}USD
+																</p>
+																<p className='text-xs md:text-md'>
+																	{v.newPrice}USD
+																</p>
+															</div>
+															<button
+																onClick={() => {
+																	let item: IMenuItem = {
+																		id: v.id,
+																		adminId: v.adminId,
+																		userId: v.userId,
+																		category: v.category,
+																		title: v.title,
+																		description: v.description,
+																		discount: v.oldPrice - v.newPrice,
+																		pic: v.pic,
+																		date: v.date,
+																		dateString: v.dateString,
+																		price: 1,
+																	};
+																	addToCart(item);
+																}}
+																className='py-2 px-5 text-white rounded-[25px] w-full'
+																style={{
+																	backgroundColor: `${PRIMARY_COLOR}`,
+																}}
+															>
+																Add
+															</button>
+															<div className='rounded-[25px] font-bold w-full h-fit font-bold text-xs text-center flex flex-row justify-center my-1'>
+																<p className='text-gray-400'>
+																	{DateMethods.diffDatesDays(
+																		new Date().toDateString(),
+																		v.endDate
+																	)}{' '}
+																	days left
+																</p>
+															</div>
+														</div>
+
+														<div
+															className='absolute -top-2 -right-2  z-10 rounded-full text-white font-bold w-12 h-12 font-bold text-xs text-center flex items-center'
+															style={{ backgroundColor: PRIMARY_COLOR }}
+														>
+															{100 - (v.newPrice / v.oldPrice) * 100} % OFF
+														</div>
+													</div>
+												</div>
+											))}
+										</div>
+									) : (
+										<p></p>
+									)}
+								</div>
+								<div className='grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6'>
 									{menuItems.map((v) => (
 										<div className='flex flex-col shadow-2xl rounded-[25px]'>
 											<ShowImage
 												src={`/${v.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
 												alt={'Menu Item'}
-												style={'rounded-[25px] h-64 w-full'}
+												style={'rounded-[25px] h-32 md:h-64 w-full'}
 											/>
-											<h1 className='font-bold text-xl px-4'>{v.title}</h1>
+											<h1 className='font-bold text-xs md:text-xl px-2 md:px-4'>
+												{v.title}
+											</h1>
 											<Disclosure>
 												<Disclosure.Button
-													className={' underline text-xs text-left px-4'}
+													className={
+														' underline text-xs text-left px-2 md:px-4'
+													}
 												>
 													See Details
 												</Disclosure.Button>
 												<Disclosure.Panel>
-													<p className='text-xs px-4 w-full'>{v.description}</p>
+													<p className='text-xs px-2 md:px-4 w-full'>
+														{v.description}
+													</p>
 												</Disclosure.Panel>
 											</Disclosure>
 
 											<div className='flex flex-row justify-between p-4 items-center'>
-												<h1 className='font-bold text-xl'>{v.price}USD</h1>
+												<h1 className='font-bold text-sm md:text-xl'>
+													{v.price}USD
+												</h1>
 
 												<button
 													onClick={() => {
 														addToCart(v);
 													}}
-													className='py-2 px-5 text-white rounded-[25px] w-1/2'
+													className='py-2 px-5 text-white rounded-[25px] w-fit '
 													style={{ backgroundColor: PRIMARY_COLOR }}
 												>
-													Add
+													<p className='hidden lg:flex'>Add</p>
+													<svg
+														xmlns='http://www.w3.org/2000/svg'
+														fill='none'
+														viewBox='0 0 24 24'
+														stroke-width='1.5'
+														stroke='currentColor'
+														className='w-6 h-6 flex lg:hidden'
+													>
+														<path
+															stroke-linecap='round'
+															stroke-linejoin='round'
+															d='M12 4.5v15m7.5-7.5h-15'
+														/>
+													</svg>
 												</button>
 											</div>
 										</div>
@@ -923,20 +1028,53 @@ const FoodiesBoothMarketPlace = (props: {
 											<ShowImage
 												src={`/${v.adminId}/${MEAL_STORAGE_REF}/${v.pic.thumbnail}`}
 												alt={'Menu Item'}
-												style={'rounded-[25px] h-64 w-full'}
+												style={'rounded-[25px] h-32 md:h-64 w-full'}
 											/>
-											<h1 className='font-bold text-xl px-4'>{v.title}</h1>
+											<h1 className='font-bold text-xs md:text-xl px-2 md:px-4'>
+												{v.title}
+											</h1>
+											<Disclosure>
+												<Disclosure.Button
+													className={
+														' underline text-xs text-left px-2 md:px-4'
+													}
+												>
+													See Details
+												</Disclosure.Button>
+												<Disclosure.Panel>
+													<p className='text-xs px-2 md:px-4 w-full'>
+														{v.description}
+													</p>
+												</Disclosure.Panel>
+											</Disclosure>
+
 											<div className='flex flex-row justify-between p-4 items-center'>
-												<h1 className='font-bold text-xl'>{v.price}USD</h1>
-												<p className='text-xs w-full'>{v.description}</p>
+												<h1 className='font-bold text-sm md:text-xl'>
+													{v.price}USD
+												</h1>
+
 												<button
 													onClick={() => {
 														addToCart(v);
 													}}
-													className='py-2 px-5 text-white rounded-[25px] w-1/2'
+													className='py-2 px-5 text-white rounded-[25px] w-fit'
 													style={{ backgroundColor: PRIMARY_COLOR }}
 												>
-													Add
+													<p className='hidden lg:flex'>Add</p>
+													<svg
+														xmlns='http://www.w3.org/2000/svg'
+														fill='none'
+														viewBox='0 0 24 24'
+														stroke-width='1.5'
+														stroke='currentColor'
+														className='w-6 h-6 flex lg:hidden'
+													>
+														<path
+															stroke-linecap='round'
+															stroke-linejoin='round'
+															d='M12 4.5v15m7.5-7.5h-15'
+														/>
+													</svg>
 												</button>
 											</div>
 										</div>
@@ -953,20 +1091,37 @@ const FoodiesBoothMarketPlace = (props: {
 										borderColor: PRIMARY_COLOR,
 									}}
 									className='
-                                py-4 
-                                px-4 
-                                relative 
-                                border-2 
-                                border-transparent 
-                                text-gray-800 
-                                rounded-full
-                                 hover:text-gray-400 
-                                 focus:outline-none 
-                                 ocus:text-gray-500 
-                                 transition duration-150 
-                                 ease-in-out'
+										py-4 
+										px-4 
+										relative 
+										border-2 
+										border-transparent 
+										text-gray-800 
+										rounded-full
+										hover:text-gray-400 
+										focus:outline-none 
+										ocus:text-gray-500 
+										transition duration-150 
+										ease-in-out'
 									aria-label='Cart'
 									onClick={() => {
+										let index = returnOccurrencesIndexAdmin(
+											info,
+											addItems[0].adminId
+										);
+
+										if (typeof info[index].freeDeliveryAreas !== 'undefined') {
+											if (info[index].freeDeliveryAreas.length > 0) {
+												info[index].freeDeliveryAreas.forEach((el) => {
+													setDeliveryMethods((prevDel) => [
+														...prevDel,
+														`Free Delivery in ${el}`,
+													]);
+												});
+												setPrepTime(info[index].prepTime);
+											}
+										}
+
 										setIsOpen(true);
 									}}
 								>
@@ -1001,332 +1156,79 @@ const FoodiesBoothMarketPlace = (props: {
 						bg={'#fff'}
 						color={PRIMARY_COLOR}
 					>
-						<div
-							style={{ borderColor: PRIMARY_COLOR }}
-							className='border rounded-[25px] h-fit w-full flex flex-col items-center m-4 p-4'
-						>
-							<div className={'mb-2 w-full'}>
-								<input
-									type='string'
-									value={order.customerName}
-									name='customerName'
-									placeholder={'Full Name'}
-									onChange={handleChangeOrder}
-									style={{ borderColor: PRIMARY_COLOR }}
-									className='
-                                                w-full
-                                                rounded-[25px]
-                                                border-2                                               
-                                                py-3
-                                                px-5
-                                                bg-white
-                                                text-base text-body-color
-                                                placeholder-[#ACB6BE]
-                                                outline-none
-                                                focus-visible:shadow-none
-                                                focus:border-primary
-                                        '
-								/>
-							</div>
-							<div className={'mb-2 w-full'}>
-								<input
-									type='string'
-									value={order.customerPhone}
-									placeholder={'Phone Number'}
-									name='customerPhone'
-									onChange={handleChangeOrder}
-									style={{ borderColor: PRIMARY_COLOR }}
-									className='
-                                                w-full
-                                                rounded-[25px]
-                                                border-2
-                                                py-3
-                                                px-5
-                                                bg-white
-                                                text-base text-body-color
-                                                placeholder-[#ACB6BE]
-                                                outline-none
-                                                focus-visible:shadow-none
-                                                focus:border-primary
-                                        '
-								/>
-							</div>
-							<div className={'mb-2 w-full'}>
-								<input
-									type='string'
-									value={order.customerEmail}
-									placeholder={'Email'}
-									name='customerEmail'
-									onChange={handleChangeOrder}
-									style={{ borderColor: PRIMARY_COLOR }}
-									className='
-                                                w-full
-                                                rounded-[25px]
-                                                border-2
-                                                py-3
-                                                px-5
-                                                bg-white
-                                                text-base text-body-color
-                                                placeholder-[#ACB6BE]
-                                                outline-none
-                                                focus-visible:shadow-none
-                                                focus:border-primary
-                                        '
-								/>
-							</div>
-							<button
-								className='font-bold rounded-[25px] border-2 bg-white px-4 py-3 w-full mb-2'
+						{makePayment ? (
+							<div
 								style={{ borderColor: PRIMARY_COLOR }}
-								onClick={(e) => e.preventDefault()}
+								className='border rounded-[25px] h-fit w-full flex flex-col items-center m-2 md:m-4 p-2 md:p-4'
 							>
-								<select
-									// value={order.deliveryMethod}
-									onChange={handleChangeOrder}
-									name='deliveryMethod'
-									className='bg-white w-full'
-									data-required='1'
-									required
-								>
-									<option value='Delivery' hidden>
-										Select Delivery Method
-									</option>
-									{deliveryMethods.map((v) => (
-										<option value={v}>{v}</option>
-									))}
-								</select>
-							</button>
-							<div className={'mb-2 w-full'}>
-								<p className='text-center text-xs'>
-									Date of {order.deliveryMethod}
-								</p>
-								<input
-									type='date'
-									// value={order.deliveryDate}
-									placeholder={`Date of ${order.deliveryMethod}`}
-									name='deliveryDate'
-									onChange={handleChangeOrder}
-									style={{ borderColor: PRIMARY_COLOR }}
-									className='
-                                                w-full
-                                                rounded-[25px]
-                                                border-2
-                                                py-3
-                                                px-5
-                                                bg-white
-                                                text-base text-body-color
-                                                placeholder-[#ACB6BE]
-                                                outline-none
-                                                focus-visible:shadow-none
-                                                focus:border-primary
-                                        '
-								/>
-							</div>
-							<div className={'mb-2 w-full'}>
-								<p className='text-center text-xs'>
-									Time of {order.deliveryMethod}
-								</p>
-								<input
-									type='time'
-									// value={order.deliveryDate}
-									placeholder={`Date of ${order.deliveryMethod}`}
-									name='deliveryTime'
-									onChange={handleChangeOrder}
-									style={{ borderColor: PRIMARY_COLOR }}
-									className='
-                                                w-full
-                                                rounded-[25px]
-                                                border-2
-                                                py-3
-                                                px-5
-                                                bg-white
-                                                text-base text-body-color
-                                                placeholder-[#ACB6BE]
-                                                outline-none
-                                                focus-visible:shadow-none
-                                                focus:border-primary
-                                        '
-								/>
-							</div>
-							<div className='mb-4 w-full'>
 								<button
-									className='font-bold rounded-[25px] border-2 border-[#8b0e06] bg-white py-3 px-4 w-full'
+									className='font-bold rounded-[25px] border-2 bg-white px-4 py-3 w-full mb-2'
+									style={{ borderColor: PRIMARY_COLOR }}
 									onClick={(e) => e.preventDefault()}
 								>
 									<select
-										// value={category}
-										onChange={(e) => {
-											if (e.target.value == 'Regular') {
-												checkforPoints();
-											}
-										}}
+										// value={order.deliveryMethod}
+										onChange={handleChangeOrder}
+										name='deliveryMethod'
 										className='bg-white w-full'
 										data-required='1'
 										required
 									>
-										<option value='Regular' hidden>
-											Regular Customer / First Time
+										<option value='Delivery' hidden>
+											Select Payment Method
 										</option>
-										{category.map((v) => (
+										{paymentMethods.map((v) => (
 											<option value={v}>{v}</option>
 										))}
 									</select>
 								</button>
-							</div>
-							<div className='w-full'>
-								{currentNoOfPoints > 0 ? (
-									<div className='flex flex-col'>
-										<div className='mb-4  px-4'>
-											<h1>
-												Points:
-												{currentNoOfPoints}
-											</h1>
-										</div>
-										<div className='mb-4'>
-											<button
-												className='font-bold rounded-[25px] border-2 border-[#8b0e06] bg-white px-4 py-3 w-full'
-												onClick={(e) => e.preventDefault()}
-											>
-												<select
-													// value={category}
-													onChange={(e) => {
-														if (e.target.value == 'Use Points') {
-															setUsePoints(true);
-														} else {
-															setUsePoints(false);
-														}
-													}}
-													className='bg-white w-full'
-													data-required='1'
-													required
-												>
-													<option value='Regular' hidden>
-														Use points / Do not use points
-													</option>
-													{choosePoints.map((v) => (
-														<option value={v}>{v}</option>
-													))}
-												</select>
-											</button>
-										</div>
-									</div>
-								) : (
-									<p></p>
-								)}
-							</div>
-							<div className='mb-2 overflow-y-auto max-h-54 w-full'>
-								<div>
-									<div className='flex flex-row justify-between shadow-md m-4 p-4 rounded-[25px]'>
-										<p className='text-xs'> Item</p>
-										<div className='flex justify-between space-x-2'>
-											<p className='text-xs'>No of Items</p>
-											<p className='text-xs'>Price</p>
-											<p className='text-xs'>Total</p>
-											<p className='text-xs w-4'></p>
-										</div>
-									</div>
-									{displayedItems.map((v: any) => (
-										<div className='flex flex-row justify-between shadow-md m-4 p-4 rounded-[25px]'>
-											<h1>{v.itemName}</h1>
-											<div className='flex justify-between space-x-4'>
-												<h1>{getCount(v.id)}</h1>
-												<h1>{v.price}</h1>
-												<h1>{getPriceOfItem(v)}</h1>
-												<button
-													onClick={() => {
-														removeItem(v);
-													}}
-												>
-													<svg
-														xmlns='http://www.w3.org/2000/svg'
-														fill='none'
-														viewBox='0 0 24 24'
-														stroke-width='1.5'
-														stroke='currentColor'
-														className='w-6 h-6'
-													>
-														<path
-															stroke-linecap='round'
-															stroke-linejoin='round'
-															d='M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
-														/>
-													</svg>
-												</button>
-											</div>
-										</div>
-									))}
-								</div>
-							</div>
-							{order.deliveryMethod == 'Delivery' ? (
-								<div className='w-full'>
-									<div className={'mb-2 w-full'}>
-										<input
-											type='string'
-											value={order.customerAddress}
-											placeholder={'Delivery Address'}
-											name='customerAddress'
-											onChange={handleChangeOrder}
-											style={{ borderColor: PRIMARY_COLOR }}
+
+								<div className='flex flex-col'>
+									<h1>
+										Send payment of {numberWithCommas(getTotal(3).toString())}{' '}
+										USD{' '}
+										{parseFloat(getTotal(3).toString()) > 40
+											? `or ${parseFloat(getTotal(3).toString()) * 0.6}`
+											: ''}
+									</h1>
+									<h1>
+										Submit the confirmation message into the inbox below(Remove
+										your current balance)
+									</h1>
+									<div className='mb-6 w-full'>
+										<p className='text-center text-xs text-gray-300 mb-4 font-bold  w-full'>
+											Enter header text
+										</p>
+										<textarea
+											value={confirmationMessage}
+											name='headerText'
+											placeholder={'Payment Confirmation message'}
+											onChange={handleChange}
 											className='
-                                                    w-full
-                                                    rounded-[25px]
-                                                    border-2
-                                                    py-3
-                                                    px-5
-                                                    bg-white
-                                                    text-base text-body-color
-                                                    placeholder-[#ACB6BE]
-                                                    outline-none
-                                                    focus-visible:shadow-none
-                                                        focus:border-primary
-                                                '
-										/>
-									</div>
-									<p>Tap your location</p>
-									<div>
-										<MapPicker
-											defaultLocation={DEFAULT_LOCATION}
-											zoom={DEFAULT_ZOOM}
-											// mapTypeId={createId()}
-											style={{ height: '200px', width: '100%' }}
-											onChangeLocation={handleChangeLocation}
-											apiKey={MAP_API}
+													w-full
+													rounded-[25px]
+													border-2
+													border-[#8b0e06]
+													py-3
+													px-5
+													h-64
+													bg-white
+													text-base text-body-color
+													placeholder-[#ACB6BE]
+													outline-none
+													focus-visible:shadow-none
+													focus:border-primary
+												'
+											required
 										/>
 									</div>
 								</div>
-							) : (
-								<p></p>
-							)}
-							{order.deliveryMethod == 'Delivery' ? (
-								<div className='flex flex-row items-center text-center px-8 py-4 my-2 shadow-xl rounded-[25px] w-full'>
-									{loadDist ? (
-										<p>Loading Distance...</p>
-									) : (
-										<h1 className='text-md'>
-											Delivery Cost {getDeliveryCost()}
-										</h1>
-									)}
-								</div>
-							) : (
-								<p></p>
-							)}
-							<div className='flex flex-row items-center text-left px-8 py-4 my-2 shadow-xl rounded-[25px] w-full'>
-								<h1 className='text-xl' style={{ color: `${PRIMARY_COLOR}` }}>
-									Total Cost: {numberWithCommas(getTotal().toString())} USD
-								</h1>
-							</div>
-							<p
-								className='text-xs bg-gray-300'
-								onClick={() => {
-									alert(DISCLAIMER);
-								}}
-							>
-								Disclaimer
-							</p>
-							<button
-								onClick={() => {
-									addOrder();
-								}}
-								className='
+
+								<button
+									onClick={() => {
+										paymentConfirmed();
+									}}
+									className='
                                         font-bold
                                         w-full
                                         rounded-[25px]
@@ -1340,14 +1242,381 @@ const FoodiesBoothMarketPlace = (props: {
                                         hover:bg-opacity-90
                                         transition
                                     '
-								style={{
-									borderColor: PRIMARY_COLOR,
-									backgroundColor: PRIMARY_COLOR,
-								}}
+									style={{
+										borderColor: PRIMARY_COLOR,
+										backgroundColor: PRIMARY_COLOR,
+									}}
+								>
+									Confirm order
+								</button>
+							</div>
+						) : (
+							<div
+								style={{ borderColor: PRIMARY_COLOR }}
+								className='border rounded-[25px] h-fit w-full flex flex-col items-center m-2 md:m-4 p-2 md:p-4'
 							>
-								Submit Order
-							</button>
-						</div>
+								<div className={'mb-2 w-full'}>
+									<input
+										type='string'
+										value={order.customerName}
+										name='customerName'
+										placeholder={'Full Name'}
+										onChange={handleChangeOrder}
+										style={{ borderColor: PRIMARY_COLOR }}
+										className='
+                                                w-full
+                                                rounded-[25px]
+                                                border-2                                               
+                                                py-3
+                                                px-5
+                                                bg-white
+                                                text-base text-body-color
+                                                placeholder-[#ACB6BE]
+                                                outline-none
+                                                focus-visible:shadow-none
+                                                focus:border-primary
+                                        '
+									/>
+								</div>
+								<div className={'mb-2 w-full'}>
+									<input
+										type='string'
+										value={order.customerPhone}
+										placeholder={'Phone Number'}
+										name='customerPhone'
+										onChange={handleChangeOrder}
+										style={{ borderColor: PRIMARY_COLOR }}
+										className='
+                                                w-full
+                                                rounded-[25px]
+                                                border-2
+                                                py-3
+                                                px-5
+                                                bg-white
+                                                outline-none
+                                                focus-visible:shadow-none
+                                                focus:border-primary
+                                        '
+									/>
+								</div>
+								<div className={'mb-2 w-full'}>
+									<input
+										type='string'
+										value={order.customerEmail}
+										placeholder={'Email'}
+										name='customerEmail'
+										onChange={handleChangeOrder}
+										style={{ borderColor: PRIMARY_COLOR }}
+										className='
+                                                w-full
+                                                rounded-[25px]
+                                                border-2
+                                                py-3
+                                                px-5
+                                                bg-white
+                                                outline-none
+                                                focus-visible:shadow-none
+                                                focus:border-primary
+                                        '
+									/>
+								</div>
+								<button
+									className='font-bold rounded-[25px] border-2 bg-white px-4 py-3 w-full mb-2'
+									style={{ borderColor: PRIMARY_COLOR }}
+									onClick={(e) => e.preventDefault()}
+								>
+									<select
+										// value={order.deliveryMethod}
+										onChange={handleChangeOrder}
+										name='deliveryMethod'
+										className='bg-white w-full'
+										data-required='1'
+										required
+									>
+										<option value='Delivery' hidden>
+											Select Delivery Method
+										</option>
+										{deliveryMethods.map((v) => (
+											<option value={v}>{v}</option>
+										))}
+									</select>
+								</button>
+								<div className={'mb-2 w-full'}>
+									<p className='text-center text-xs'>
+										Date of {order.deliveryMethod} NB {prepTime} hours is needed
+										for Food preparation
+									</p>
+									<input
+										type='date'
+										// value={order.deliveryDate}
+										placeholder={`Date of ${order.deliveryMethod}`}
+										name='deliveryDate'
+										onChange={handleChangeOrder}
+										style={{ borderColor: PRIMARY_COLOR }}
+										className='
+                                                w-full
+                                                rounded-[25px]
+                                                border-2
+                                                py-3
+                                                px-5
+                                                bg-white
+                                                text-base text-body-color
+                                                placeholder-[#ACB6BE]
+                                                outline-none
+                                                focus-visible:shadow-none
+                                                focus:border-primary
+                                        '
+									/>
+								</div>
+								<div className={'mb-2 w-full'}>
+									<p className='text-center text-xs'>
+										Time of {order.deliveryMethod}
+									</p>
+									<input
+										type='time'
+										// value={order.deliveryDate}
+										placeholder={`Date of ${order.deliveryMethod}`}
+										name='deliveryTime'
+										onChange={handleChangeOrder}
+										style={{ borderColor: PRIMARY_COLOR }}
+										className='
+                                                w-full
+                                                rounded-[25px]
+                                                border-2
+                                                py-3
+                                                px-5
+                                                bg-white
+                                                text-base text-body-color
+                                                placeholder-[#ACB6BE]
+                                                outline-none
+                                                focus-visible:shadow-none
+                                                focus:border-primary
+                                        '
+									/>
+								</div>
+								<div className='mb-4 w-full'>
+									<button
+										className='font-bold rounded-[25px] border-2 border-[#8b0e06] bg-white py-3 px-4 w-full'
+										onClick={(e) => e.preventDefault()}
+									>
+										<select
+											// value={category}
+											onChange={(e) => {
+												if (e.target.value == 'Regular') {
+													checkforPoints();
+												}
+											}}
+											className='bg-white w-full'
+											data-required='1'
+											required
+										>
+											<option value='Regular' hidden>
+												Regular Customer / First Time
+											</option>
+											{category.map((v) => (
+												<option value={v}>{v}</option>
+											))}
+										</select>
+									</button>
+								</div>
+								<div className='w-full'>
+									{currentNoOfPoints > 0 ? (
+										<div className='flex flex-col'>
+											<div className='mb-4  px-4'>
+												<h1>
+													Points:
+													{currentNoOfPoints}
+												</h1>
+											</div>
+											<div className='mb-4'>
+												<button
+													className='font-bold rounded-[25px] border-2 border-[#8b0e06] bg-white px-4 py-3 w-full'
+													onClick={(e) => e.preventDefault()}
+												>
+													<select
+														// value={category}
+														onChange={(e) => {
+															if (e.target.value == 'Use Points') {
+																setUsePoints(true);
+															} else {
+																setUsePoints(false);
+															}
+														}}
+														className='bg-white w-full'
+														data-required='1'
+														required
+													>
+														<option value='Regular' hidden>
+															Use points / Do not use points
+														</option>
+														{choosePoints.map((v) => (
+															<option value={v}>{v}</option>
+														))}
+													</select>
+												</button>
+											</div>
+										</div>
+									) : (
+										<p></p>
+									)}
+								</div>
+								<div className='mb-2 overflow-y-auto max-h-54 w-full'>
+									<div>
+										<div className='flex flex-row justify-between shadow-md m-4 p-4 rounded-[25px]'>
+											<p className='text-xs'> Item</p>
+											<div className='flex justify-between space-x-2'>
+												<p className='text-xs'>No of Items</p>
+												<p className='text-xs'>Price</p>
+												<p className='text-xs'>Total</p>
+												<p className='text-xs w-4'></p>
+											</div>
+										</div>
+										{displayedItems.map((v: any) => (
+											<div className='flex flex-row justify-between shadow-md m-4 p-4 rounded-[25px]'>
+												<h1>{v.itemName}</h1>
+												<div className='flex justify-between space-x-4'>
+													<h1>{getCount(v.id)}</h1>
+													<h1>{v.price}</h1>
+													<h1>{getPriceOfItem(v)}</h1>
+													<button
+														onClick={() => {
+															removeItem(v);
+														}}
+													>
+														<svg
+															xmlns='http://www.w3.org/2000/svg'
+															fill='none'
+															viewBox='0 0 24 24'
+															stroke-width='1.5'
+															stroke='currentColor'
+															className='w-6 h-6'
+														>
+															<path
+																stroke-linecap='round'
+																stroke-linejoin='round'
+																d='M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+															/>
+														</svg>
+													</button>
+												</div>
+											</div>
+										))}
+									</div>
+								</div>
+								{order.deliveryMethod == 'Delivery' ? (
+									<div className='w-full'>
+										<div className={'mb-2 w-full'}>
+											<input
+												type='string'
+												value={order.customerAddress}
+												placeholder={'Delivery Address'}
+												name='customerAddress'
+												onChange={handleChangeOrder}
+												style={{ borderColor: PRIMARY_COLOR }}
+												className='
+                                                    w-full
+                                                    rounded-[25px]
+                                                    border-2
+                                                    py-3
+                                                    px-5
+                                                    bg-white
+                                                    text-base text-body-color
+                                                    placeholder-[#ACB6BE]
+                                                    outline-none
+                                                    focus-visible:shadow-none
+                                                        focus:border-primary
+                                                '
+											/>
+										</div>
+										<p>Tap your location</p>
+										<div>
+											<MapPicker
+												defaultLocation={DEFAULT_LOCATION}
+												zoom={DEFAULT_ZOOM}
+												// mapTypeId={createId()}
+												style={{ height: '200px', width: '100%' }}
+												onChangeLocation={handleChangeLocation}
+												apiKey={MAP_API}
+											/>
+										</div>
+									</div>
+								) : (
+									<p></p>
+								)}
+								{order.deliveryMethod == 'Delivery' ? (
+									<div className='flex flex-row items-center text-center px-8 py-4 my-2 shadow-xl rounded-[25px] w-full'>
+										{loadDist ? (
+											<p>Loading Distance...</p>
+										) : (
+											<h1 className='text-md'>
+												Delivery Cost {getDeliveryCost()}
+											</h1>
+										)}
+									</div>
+								) : (
+									<p></p>
+								)}
+								<div className='flex flex-col items-center text-left px-8 py-4 my-2 shadow-xl rounded-[25px] w-full'>
+									<div
+										className='flex flex-row justify-between w-full'
+										style={{ color: `${PRIMARY_COLOR}` }}
+									>
+										<p>Price:</p>
+										<p>{numberWithCommas(getTotal(1).toString())} USD</p>
+									</div>
+									<div
+										className='flex flex-row justify-between w-full'
+										style={{ color: `${PRIMARY_COLOR}` }}
+									>
+										<p>Processing fee:</p>
+										<p>{numberWithCommas(getTotal(2).toString())} USD</p>
+									</div>
+									<div
+										className='flex flex-row justify-between w-full text-xl'
+										style={{ color: `${PRIMARY_COLOR}` }}
+									>
+										<h1>Total Cost:</h1>
+										<h1>{numberWithCommas(getTotal(3).toString())} USD</h1>
+									</div>
+									<p className='my-2 text-xs'>
+										On orders above 40USD deposit is 60%
+									</p>
+								</div>
+								<p
+									className='text-xs bg-gray-300'
+									onClick={() => {
+										alert(DISCLAIMER);
+									}}
+								>
+									Disclaimer
+								</p>
+								<button
+									onClick={() => {
+										addOrder();
+									}}
+									className='
+                                        font-bold
+                                        w-full
+                                        rounded-[25px]
+                                        border-2
+                                        border-primary
+                                        py-3
+                                        px-10
+                                        text-base 
+                                        text-white
+                                        cursor-pointer
+                                        hover:bg-opacity-90
+                                        transition
+                                    '
+									style={{
+										borderColor: PRIMARY_COLOR,
+										backgroundColor: PRIMARY_COLOR,
+									}}
+								>
+									Make Payment
+								</button>
+							</div>
+						)}
 					</Drawer>
 				</div>
 			)}

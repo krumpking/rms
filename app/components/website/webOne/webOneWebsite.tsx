@@ -1016,7 +1016,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 										<ShowImage
 											src={`${info.websiteName}/header/${info.headerImage.thumbnail}`}
 											alt={''}
-											style={''}
+											style={'h-96 rounded-md w-full lg:w-96'}
 										/>
 									) : (
 										<img
@@ -1634,7 +1634,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 									</svg>
 								</button>
 							</div>
-							<div className='flex flex-col mb-6 p-8'>
+							<div className='flex flex-col mb-6 p-2 md:p-8'>
 								<div>
 									{promos.length > 0 ? (
 										<div className='flex justify-center content-center items-center mb-6'>
@@ -1651,16 +1651,16 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 								</div>
 
 								{promos.length > 0 ? (
-									<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 '>
+									<div className='grid grid-cols-2 lg:grid-cols-4 gap-4'>
 										{promos.map((v) => (
-											<div className='relative shadow-2xl p-4 w-full rounded-[25px]'>
-												<div className='p-4 flex flex-col'>
+											<div className='relative shadow-2xl p-4 w-full rounded-md'>
+												<div className='p-0 md:p-4 flex flex-col'>
 													<ShowImage
 														src={`/${v.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
 														alt={'Menu Item'}
-														style={'rounded-[25px] h-40 w-full '}
+														style={'rounded-[25px] h-20 lg:h-40 w-full '}
 													/>
-													<p className='text-xl'>{v.title}</p>
+													<p className='text-xs md:text-xl'>{v.title}</p>
 													<Disclosure>
 														<Disclosure.Button
 															className={' underline text-xs text-left'}
@@ -1672,10 +1672,12 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 														</Disclosure.Panel>
 													</Disclosure>
 													<div className='flex flex-row space-x-4 justify-between content-center items-center my-1'>
-														<p className='text-md line-through'>
+														<p className='text-xs md:text-md line-through'>
 															{v.oldPrice}USD
 														</p>
-														<p className='text-md'>{v.newPrice}USD</p>
+														<p className='text-xs md:text-md'>
+															{v.newPrice}USD
+														</p>
 													</div>
 													<button
 														onClick={() => {
@@ -1725,7 +1727,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 									<p></p>
 								)}
 							</div>
-							<div className='p-8'>
+							<div className='p-2 md:p-8'>
 								<div className='flex justify-between content-center items-center mb-6'>
 									<h1 className='hidden md:block md:text-2xl'>Order Now</h1>
 									<div className='flex flex-row space-x-4 max-w-[800px] overflow-x-auto'>
@@ -1766,36 +1768,58 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
                                         '
 									onKeyDown={handleKeyDown}
 								/>
-								<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6'>
+								<div className='grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6'>
 									{menuItems.map((v) => (
 										<div className='flex flex-col shadow-2xl rounded-md'>
 											<ShowImage
 												src={`/${info.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
 												alt={'Menu Item'}
-												style={'rounded-md h-64 w-full'}
+												style={'rounded-md h-32 md:h-64 w-full'}
 											/>
-											<h1 className='font-bold text-xl px-4'>{v.title}</h1>
+											<h1 className='font-bold text-xs md:text-xl px-2 md:px-4'>
+												{v.title}
+											</h1>
 											<Disclosure>
 												<Disclosure.Button
-													className={' underline text-xs text-left px-4'}
+													className={
+														' underline text-xs text-left px-2 md:px-4'
+													}
 												>
 													See Details
 												</Disclosure.Button>
 												<Disclosure.Panel>
-													<p className='text-xs px-4 w-full'>{v.description}</p>
+													<p className='text-xs px-2 md:px-4 w-full'>
+														{v.description}
+													</p>
 												</Disclosure.Panel>
 											</Disclosure>
-											<div className='flex flex-row justify-between p-4 items-center'>
-												<h1 className='font-bold text-xl'>{v.price}USD</h1>
+											<div className='flex flex-row justify-between p-2 md:p-4 items-center'>
+												<h1 className='font-bold text-md md:text-xl'>
+													{v.price}USD
+												</h1>
 
 												<button
 													onClick={() => {
 														addToCart(v);
 													}}
-													className='py-2 px-5 text-white rounded-md w-1/2'
+													className='py-2 px-5 text-white rounded-md w-fit'
 													style={{ backgroundColor: `${info.themeMainColor}` }}
 												>
-													Add
+													<p className='hidden lg:flex'>Add</p>
+													<svg
+														xmlns='http://www.w3.org/2000/svg'
+														fill='none'
+														viewBox='0 0 24 24'
+														stroke-width='1.5'
+														stroke='currentColor'
+														className='w-6 h-6 flex lg:hidden'
+													>
+														<path
+															stroke-linecap='round'
+															stroke-linejoin='round'
+															d='M12 4.5v15m7.5-7.5h-15'
+														/>
+													</svg>
 												</button>
 											</div>
 										</div>
@@ -2332,19 +2356,19 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 											onChange={handleChange}
 											style={{ borderColor: `${info.themeMainColor}` }}
 											className='
-                                            w-full
-                                            rounded-md
-                                            border-2
-                                            py-3
-                                            px-5
-                                            bg-white
-                                            text-base text-body-color
-                                            placeholder-[#ACB6BE]
-                                            outline-none
-                                            focus-visible:shadow-none
-                                            focus:border-primary
-                                            mb-6
-                                        '
+												w-full
+												rounded-md
+												border-2
+												py-3
+												px-5
+												bg-white
+												text-base text-body-color
+												placeholder-[#ACB6BE]
+												outline-none
+												focus-visible:shadow-none
+												focus:border-primary
+												mb-6
+											'
 										/>
 										<input
 											type='time'
@@ -2354,19 +2378,19 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 											onChange={handleChange}
 											style={{ borderColor: `${info.themeMainColor}` }}
 											className='
-                                            w-full
-                                            rounded-md
-                                            border-2
-                                            py-3
-                                            px-5
-                                            bg-white
-                                            text-base text-body-color
-                                            placeholder-[#ACB6BE]
-                                            outline-none
-                                            focus-visible:shadow-none
-                                            focus:border-primary
-                                            mb-6
-                                        '
+												w-full
+												rounded-md
+												border-2
+												py-3
+												px-5
+												bg-white
+												text-base text-body-color
+												placeholder-[#ACB6BE]
+												outline-none
+												focus-visible:shadow-none
+												focus:border-primary
+												mb-6
+											'
 										/>
 										<input
 											type='text'
@@ -2613,18 +2637,18 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 										borderColor: info.themeMainColor,
 									}}
 									className='
-                                py-4 
-                                px-4 
-                                relative 
-                                border-2 
-                                border-transparent 
-                                text-gray-800 
-                                rounded-full
-                                 hover:text-gray-400 
-                                 focus:outline-none 
-                                 ocus:text-gray-500 
-                                 transition duration-150 
-                                 ease-in-out'
+										py-4 
+										px-4 
+										relative 
+										border-2 
+										border-transparent 
+										text-gray-800 
+										rounded-full
+										hover:text-gray-400 
+										focus:outline-none 
+										ocus:text-gray-500 
+										transition duration-150 
+										ease-in-out'
 									aria-label='Cart'
 									onClick={() => {
 										setIsOpen(true);
@@ -2671,7 +2695,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 						<Loader color={info.themeMainColor} />
 					</div>
 				) : (
-					<div className='bg-white rounded-[30px] p-4 '>
+					<div className='bg-white rounded-[30px] p-1 md:p-4 '>
 						{getView()}
 						<Drawer
 							isOpen={isOpen}

@@ -250,8 +250,8 @@ const Home: NextPage = () => {
 
 						let ifOpen = DateMethods.checkIfOpen(new Date(), d.daysOfWork);
 						if (ifOpen) {
-							setBooths((meals) => [
-								...meals,
+							setBooths((booths) => [
+								...booths,
 								{
 									id: d.id,
 									websiteName: d.websiteName,
@@ -274,9 +274,13 @@ const Home: NextPage = () => {
 									phone: d.phone,
 									date: d.date,
 									dateString: d.dateString,
-									deliveryCost: d.deliveryCost,
+									deliveryCost: d.deliverycost,
 									mapLocation: d.mapLocation,
 									daysOfWork: d.daysOfWork,
+									radius: d.radius,
+									prepTime: d.prepTime,
+									socialMedialinks: d.socialMedialinks,
+									freeDeliveryAreas: d.freeDeliveryarea,
 								},
 							]);
 						}
