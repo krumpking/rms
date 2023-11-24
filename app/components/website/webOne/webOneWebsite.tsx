@@ -837,12 +837,12 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 										<ShowImage
 											src={`${info.websiteName}/logo/${info.logo.thumbnail}`}
 											alt={''}
-											style={'h-8 w-8 rounded-[25px]'}
+											style={'h-8 w-8 rounded-md'}
 										/>
 									) : (
 										<img
 											src='images/logo.png'
-											className='h-8 w-8 rounded-[25px] w-8 self-center'
+											className='h-8 w-8 rounded-md w-8 self-center'
 										/>
 									)}
 
@@ -1014,7 +1014,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 									) : (
 										<img
 											src='images/webOneDefaultPicture.jpg'
-											className='h-96 rounded-[25px] w-96'
+											className='h-96 rounded-md w-96'
 										/>
 									)}
 								</div>
@@ -1050,12 +1050,12 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 								{promos.length > 0 ? (
 									<div className='grid grid-cols-1 lg:grid-cols-4 gap-8 p-4 lg:p-8'>
 										{promos.slice(0, 4).map((v) => (
-											<div className='relative shadow-2xl p-4 w-[250px] rounded-[25px]'>
+											<div className='relative shadow-2xl p-4 w-[250px] rounded-md'>
 												<div className='p-4 flex flex-col'>
 													<ShowImage
 														src={`/${v.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
 														alt={'Menu Item'}
-														style={'rounded-[25px] h-20 w-full '}
+														style={'rounded-md h-20 w-full '}
 													/>
 													<p className='text-xl'>{v.title}</p>
 													<div className='flex flex-row space-x-4 justify-end content-center items-center'>
@@ -1064,7 +1064,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 														</p>
 														<p className='text-md'>{v.newPrice}USD</p>
 													</div>
-													<div className='rounded-[25px] font-bold w-full h-fit font-bold text-xs text-center flex flex-row justify-end'>
+													<div className='rounded-md font-bold w-full h-fit font-bold text-xs text-center flex flex-row justify-end'>
 														<p className=''>
 															{DateMethods.diffDatesDays(
 																new Date().toDateString(),
@@ -1142,7 +1142,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 									) : (
 										<img
 											src='images/webOneDefaultPicture.jpg'
-											className='h-96 rounded-[25px] w-96'
+											className='h-96 rounded-md w-96'
 										/>
 									)}
 								</div>
@@ -1397,12 +1397,12 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 										<ShowImage
 											src={`${info.websiteName}/contact/${info.contactUsImage.thumbnail}`}
 											alt={'contact image'}
-											style={'h-96 rounded-[25px] w-96'}
+											style={'h-96 rounded-md w-96'}
 										/>
 									) : (
 										<img
 											src='images/webOneDefaultPicture.jpg'
-											className='h-96 rounded-[25px] w-96'
+											className='h-96 rounded-md w-96'
 										/>
 									)}
 								</div>
@@ -1527,13 +1527,10 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 									<ShowImage
 										src={`${info.websiteName}/logo/${info.logo.thumbnail}`}
 										alt={'logo image'}
-										style={'h-8 rounded-[25px] w-8'}
+										style={'h-8 rounded-md w-8'}
 									/>
 								) : (
-									<img
-										src='images/logo.png'
-										className='h-8 rounded-[25px] w-8'
-									/>
+									<img src='images/logo.png' className='h-8 rounded-md w-8' />
 								)}
 								<h1 className='mb-6'>{info.serviceProviderName}</h1>
 								<h1 className='mb-6'>{info.email}</h1>
@@ -1651,7 +1648,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 													<ShowImage
 														src={`/${v.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
 														alt={'Menu Item'}
-														style={'rounded-[25px] h-20 lg:h-40 w-full '}
+														style={'rounded-md h-20 lg:h-40 w-full '}
 													/>
 													<p className='text-xs md:text-xl'>{v.title}</p>
 													<Disclosure>
@@ -1696,7 +1693,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 													>
 														Add
 													</button>
-													<div className='rounded-[25px] font-bold w-full h-fit font-bold text-xs text-center flex flex-row justify-center my-1'>
+													<div className='rounded-md font-bold w-full h-fit font-bold text-xs text-center flex flex-row justify-center my-1'>
 														<p className='text-gray-400'>
 															{DateMethods.diffDatesDays(
 																new Date().toDateString(),
@@ -1763,7 +1760,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 								/>
 								<div className='grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6'>
 									{menuItems.map((v) => (
-										<div className='flex flex-col justify-between shadow-2xl rounded-[25px]'>
+										<div className='flex flex-col justify-between shadow-2xl rounded-md'>
 											<div className='flex flex-col'>
 												<ShowImage
 													src={`/${info.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
@@ -1820,7 +1817,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 										</div>
 									))}
 									{meals.map((v) => (
-										<div className='flex flex-col justify-between shadow-2xl rounded-[25px]'>
+										<div className='flex flex-col justify-between shadow-2xl rounded-md'>
 											<div className='flex flex-col'>
 												<ShowImage
 													src={`/${info.adminId}/${MEAL_STORAGE_REF}/${v.pic.thumbnail}`}
@@ -1921,12 +1918,12 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 										<ShowImage
 											src={`${info.websiteName}/logo/${info.logo.thumbnail}`}
 											alt={''}
-											style={'h-8 w-8 rounded-[25px]'}
+											style={'h-8 w-8 rounded-md'}
 										/>
 									) : (
 										<img
 											src='images/logo.png'
-											className='h-8 w-8 rounded-[25px] w-8 self-center'
+											className='h-8 w-8 rounded-md w-8 self-center'
 										/>
 									)}
 
@@ -2098,7 +2095,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 									) : (
 										<img
 											src='images/webOneDefaultPicture.jpg'
-											className='h-96 rounded-[25px] w-96'
+											className='h-96 rounded-md w-96'
 										/>
 									)}
 								</div>
@@ -2134,12 +2131,12 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 								{promos.length > 0 ? (
 									<div className='grid grid-cols-1 lg:grid-cols-4 gap-8 p-4 lg:p-8'>
 										{promos.slice(0, 4).map((v) => (
-											<div className='relative shadow-2xl p-4 w-[250px] rounded-[25px]'>
+											<div className='relative shadow-2xl p-4 w-[250px] rounded-md'>
 												<div className='p-4 flex flex-col'>
 													<ShowImage
 														src={`/${v.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
 														alt={'Menu Item'}
-														style={'rounded-[25px] h-20 w-full '}
+														style={'rounded-md h-20 w-full '}
 													/>
 													<p className='text-xl'>{v.title}</p>
 													<div className='flex flex-row space-x-4 justify-end content-center items-center'>
@@ -2148,7 +2145,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 														</p>
 														<p className='text-md'>{v.newPrice}USD</p>
 													</div>
-													<div className='rounded-[25px] font-bold w-full h-fit font-bold text-xs text-center flex flex-row justify-end'>
+													<div className='rounded-md font-bold w-full h-fit font-bold text-xs text-center flex flex-row justify-end'>
 														<p className=''>
 															{DateMethods.diffDatesDays(
 																new Date().toDateString(),
@@ -2226,7 +2223,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 									) : (
 										<img
 											src='images/webOneDefaultPicture.jpg'
-											className='h-96 rounded-[25px] w-96'
+											className='h-96 rounded-md w-96'
 										/>
 									)}
 								</div>
@@ -2481,12 +2478,12 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 										<ShowImage
 											src={`${info.websiteName}/contact/${info.contactUsImage.thumbnail}`}
 											alt={'contact image'}
-											style={'h-96 rounded-[25px] w-96'}
+											style={'h-96 rounded-md w-96'}
 										/>
 									) : (
 										<img
 											src='images/webOneDefaultPicture.jpg'
-											className='h-96 rounded-[25px] w-96'
+											className='h-96 rounded-md w-96'
 										/>
 									)}
 								</div>
@@ -2611,13 +2608,10 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 									<ShowImage
 										src={`${info.websiteName}/logo/${info.logo.thumbnail}`}
 										alt={'logo image'}
-										style={'h-8 rounded-[25px] w-8'}
+										style={'h-8 rounded-md w-8'}
 									/>
 								) : (
-									<img
-										src='images/logo.png'
-										className='h-8 rounded-[25px] w-8'
-									/>
+									<img src='images/logo.png' className='h-8 rounded-md w-8' />
 								)}
 								<h1 className='mb-6'>{info.serviceProviderName}</h1>
 								<h1 className='mb-6'>{info.email}</h1>

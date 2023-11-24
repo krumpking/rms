@@ -67,7 +67,7 @@ const WebOneWebsiteInfo = () => {
 		},
 		email: '',
 		address: '',
-		phone: '+263',
+		phone: '',
 		date: new Date(),
 		dateString: new Date().toDateString(),
 		deliveryCost: 0,
