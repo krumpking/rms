@@ -87,6 +87,7 @@ const Market = () => {
 		deliveryTime: '',
 		deliveredSignature: null,
 		deliverer: '',
+		confirmed: false,
 	});
 	const [addItems, setAddItems] = useState<any[]>([]);
 	const [websiteName, setWebsiteName] = useState('websitename');

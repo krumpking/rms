@@ -101,6 +101,7 @@ const MarketPlace = (props: {
 		deliveryTime: '',
 		deliverer: '',
 		deliveredSignature: null,
+		confirmed: false,
 	});
 	const [addItems, setAddItems] = useState<any[]>([]);
 	const [loadDist, setLoadDist] = useState(false);
@@ -489,6 +490,7 @@ const MarketPlace = (props: {
 					dateString: new Date().toDateString(),
 					adminId: info.adminId,
 					userId: info.userId,
+					confirmed: false,
 				};
 
 				if (!usePoints) {

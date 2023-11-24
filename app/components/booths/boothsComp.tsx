@@ -70,6 +70,10 @@ const BoothsComp = (props: {
 								deliveryCost: d.deliveryCost,
 								mapLocation: d.mapLocation,
 								daysOfWork: d.daysOfWork,
+								radius: d.radius,
+								freeDeliveryAreas: d.freeDeliveryAreas,
+								prepTime: d.prepTime,
+								socialMedialinks: d.socialMedialinks,
 							},
 						]);
 						setBoothsSto((booths) => [
@@ -99,6 +103,10 @@ const BoothsComp = (props: {
 								deliveryCost: d.deliveryCost,
 								mapLocation: d.mapLocation,
 								daysOfWork: d.daysOfWork,
+								radius: d.radius,
+								freeDeliveryAreas: d.freeDeliveryAreas,
+								prepTime: d.prepTime,
+								socialMedialinks: d.socialMedialinks,
 							},
 						]);
 					});

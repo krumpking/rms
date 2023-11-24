@@ -16,6 +16,7 @@ import {
 	deleteDocument,
 	deleteFile,
 	getDataFromDBOne,
+	getDataFromDBThree,
 	getDataFromDBTwo,
 	updateDocument,
 	uploadFile,
@@ -67,12 +68,14 @@ const OrderStatus = (props: { level: number }) => {
 			fieldTwo = ORDER_SHIPPED;
 		}
 
-		getDataFromDBTwo(
+		getDataFromDBThree(
 			ORDER_COLLECTION,
 			AMDIN_FIELD,
 			adminId,
 			'statusCode',
-			fieldTwo
+			fieldTwo,
+			'confirmed',
+			true
 		)
 			.then((v) => {
 				if (v !== null) {
@@ -105,6 +108,7 @@ const OrderStatus = (props: { level: number }) => {
 								deliveryDate: d.deliveryDate,
 								deliveryDateString: d.deliveryDateString,
 								deliveryTime: d.deliveryTime,
+								confirmed: true,
 							},
 						]);
 					});

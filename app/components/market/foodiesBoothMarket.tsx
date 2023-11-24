@@ -104,6 +104,7 @@ const FoodiesBoothMarketPlace = (props: {
 		deliveryTime: '',
 		deliverer: '',
 		deliveredSignature: null,
+		confirmed: false,
 	});
 	const [addItems, setAddItems] = useState<IMenuItem[]>([]);
 	const [loadDist, setLoadDist] = useState(false);
@@ -362,7 +363,7 @@ const FoodiesBoothMarketPlace = (props: {
 		if (addItems.length > 0) {
 			let index = returnOccurrencesIndexAdmin(info, addItems[0].adminId);
 			addItems.forEach((el) => {
-				total += el.price;
+				total += parseFloat(el.price.toString());
 			});
 
 			if (order.deliveryMethod == 'Delivery') {
@@ -543,6 +544,7 @@ const FoodiesBoothMarketPlace = (props: {
 					dateString: new Date().toDateString(),
 					adminId: order.adminId,
 					userId: order.adminId,
+					confirmed: false,
 				};
 
 				if (!usePoints) {
@@ -580,49 +582,36 @@ const FoodiesBoothMarketPlace = (props: {
 			})
 			.catch((e) => {
 				console.error(e);
-				setLoading(true);
+				setLoading(false);
 			});
 	};
 
 	const addOrder = () => {
-		var result = confirm(
-			'Kindly send your 50% deposit either on Ecocash USD or Innbucks on this number 0772263139'
-		);
-		if (result) {
-			let deliveryDate = new Date(order.deliveryDate);
-			let deliveryTime = parseInt(order.deliveryTime.split(':')[0]);
+		let deliveryDate = new Date(order.deliveryDate);
+		let deliveryTime = parseInt(order.deliveryTime.split(':')[0]);
 
-			if (deliveryTime < 19) {
-				// check prep time
-				let hrs = differenceInHours(deliveryDate, new Date());
-				let index = returnOccurrencesIndexAdmin(info, addItems[0].adminId);
-				if (info[index].prepTime <= hrs) {
-					if (new Date().getHours() + 2 < deliveryTime) {
-						setLoading(true);
-						if (
-							order.customerEmail !== '' &&
-							order.customerName !== '' &&
-							order.customerPhone !== ''
-						) {
-							setMakePayment(true);
-						} else {
-							setLoading(false);
-							toast.error('Ensure you enter all details');
-						}
-					} else {
-						toast.info(
-							'Order can not be done in less than 2 hours, kindly change the date'
-						);
-					}
+		if (deliveryTime < 19) {
+			// check prep time
+			let hrs = differenceInHours(deliveryDate, new Date());
+			let index = returnOccurrencesIndexAdmin(info, addItems[0].adminId);
+			if (hrs >= info[index].prepTime) {
+				if (
+					order.customerEmail !== '' &&
+					order.customerName !== '' &&
+					order.customerPhone !== ''
+				) {
+					setMakePayment(true);
 				} else {
-					toast.info(
-						`Delivery date can only be after ${info[index].prepTime} of Food preparation time`
-					);
+					toast.error('Ensure you enter all details');
 				}
 			} else {
-				toast.info('Delivery date can only be before 1900');
-				logEvent(analytics, 'foodies_booth_market_place_order_after_1900');
+				toast.info(
+					`Delivery date can only be after ${info[index].prepTime} hours of Food preparation time`
+				);
 			}
+		} else {
+			toast.info('Delivery date can only be before 1900');
+			logEvent(analytics, 'foodies_booth_market_place_order_after_1900');
 		}
 	};
 
@@ -765,7 +754,103 @@ const FoodiesBoothMarketPlace = (props: {
 	};
 
 	const paymentConfirmed = () => {
-		submitOrder();
+		setLoading(true);
+		let res = confirmationMessage.substring(
+			confirmationMessage.indexOf('Approval Code:') + 17,
+			confirmationMessage.indexOf('Approval Code:') + 23
+		);
+		let today = new Date();
+		let str =
+			today.getFullYear().toString().substring(2, 4) +
+			'' +
+			(today.getMonth() + 1) +
+			'' +
+			today.getDate();
+
+		if (paymentMethod == 'Ecocash') {
+			if (
+				confirmationMessage.substring(
+					confirmationMessage.indexOf('Approval Code:') + 24,
+					confirmationMessage.indexOf('Approval Code:') + 28
+				).length == 4 &&
+				confirmationMessage.substring(
+					confirmationMessage.indexOf('Approval Code:') + 29,
+					confirmationMessage.indexOf('Approval Code:') + 35
+				).length == 6 &&
+				res == str
+			) {
+				let amnt = parseFloat(
+					confirmationMessage.substring(
+						confirmationMessage.indexOf('USD') + 3,
+						confirmationMessage.indexOf('sent')
+					)
+				);
+				let total = parseFloat(getTotal(3).toString());
+				if (amnt > 40) {
+					if (amnt >= total || amnt >= total * 0.6) {
+						setMakePayment(false);
+						submitOrder();
+					} else {
+						toast.error(
+							'Looks like you sent in less money than your order, please whatsapp 0713020524 for further assistance'
+						);
+					}
+				} else {
+					if (amnt >= total) {
+						setMakePayment(false);
+						submitOrder();
+					} else {
+						toast.error(
+							'Looks like you sent in less money than your order, please whatsapp 0713020524 for further assistance'
+						);
+					}
+				}
+			} else {
+				toast.error(
+					'Please check your confirmation message again and re-submit'
+				);
+				setLoading(false);
+			}
+		} else {
+			if (
+				confirmationMessage.substring(
+					confirmationMessage.indexOf('Reference:') + 11,
+					confirmationMessage.length
+				).length == 9 &&
+				confirmationMessage.includes('InnBucks sent')
+			) {
+				let paidAmnt = confirmationMessage.substring(
+					0,
+					confirmationMessage.indexOf('InnBucks')
+				);
+				let amnt = parseFloat(paidAmnt.substring(1));
+				let total = parseFloat(getTotal(3).toString());
+				if (amnt > 40) {
+					if (amnt >= total || amnt >= total * 0.6) {
+						setMakePayment(false);
+						submitOrder();
+					} else {
+						toast.error(
+							'Looks like you sent in less money than your order, please whatsapp 0713020524 for further assistance'
+						);
+					}
+				} else {
+					if (amnt >= total) {
+						setMakePayment(false);
+						submitOrder();
+					} else {
+						toast.error(
+							'Looks like you sent in less money than your order, please whatsapp 0713020524 for further assistance'
+						);
+					}
+				}
+			} else {
+				toast.error(
+					'Please check your confirmation message again and re-submit'
+				);
+				setLoading(false);
+			}
+		}
 	};
 
 	return (
@@ -818,7 +903,7 @@ const FoodiesBoothMarketPlace = (props: {
                                         '
 									onKeyDown={handleKeyDown}
 								/>
-								<div className='grid grid-cols-2 gap-4'>
+								{/* <div className='grid grid-cols-2 gap-4'>
 									<input
 										type='text'
 										value={locationSearch}
@@ -867,7 +952,7 @@ const FoodiesBoothMarketPlace = (props: {
                                         '
 										onKeyDown={handleKeyDown}
 									/>
-								</div>
+								</div> */}
 								<div className='flex flex-col mb-6 p-2 md:p-8 mb-6 border-b-2'>
 									<div>
 										{promos.length > 0 ? (
@@ -930,7 +1015,7 @@ const FoodiesBoothMarketPlace = (props: {
 																		pic: v.pic,
 																		date: v.date,
 																		dateString: v.dateString,
-																		price: 1,
+																		price: v.newPrice,
 																	};
 																	addToCart(item);
 																}}
@@ -968,29 +1053,31 @@ const FoodiesBoothMarketPlace = (props: {
 								</div>
 								<div className='grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6'>
 									{menuItems.map((v) => (
-										<div className='flex flex-col shadow-2xl rounded-[25px]'>
-											<ShowImage
-												src={`/${v.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
-												alt={'Menu Item'}
-												style={'rounded-[25px] h-32 md:h-64 w-full'}
-											/>
-											<h1 className='font-bold text-xs md:text-xl px-2 md:px-4'>
-												{v.title}
-											</h1>
-											<Disclosure>
-												<Disclosure.Button
-													className={
-														' underline text-xs text-left px-2 md:px-4'
-													}
-												>
-													See Details
-												</Disclosure.Button>
-												<Disclosure.Panel>
-													<p className='text-xs px-2 md:px-4 w-full'>
-														{v.description}
-													</p>
-												</Disclosure.Panel>
-											</Disclosure>
+										<div className='flex flex-col justify-between shadow-2xl rounded-[25px]'>
+											<div className='flex flex-col'>
+												<ShowImage
+													src={`/${v.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
+													alt={'Menu Item'}
+													style={'rounded-[25px] h-32 md:h-64 w-full'}
+												/>
+												<h1 className='font-bold text-xs md:text-xl px-2 md:px-4'>
+													{v.title}
+												</h1>
+												<Disclosure>
+													<Disclosure.Button
+														className={
+															' underline text-xs text-left px-2 md:px-4'
+														}
+													>
+														See Details
+													</Disclosure.Button>
+													<Disclosure.Panel>
+														<p className='text-xs px-2 md:px-4 w-full'>
+															{v.description}
+														</p>
+													</Disclosure.Panel>
+												</Disclosure>
+											</div>
 
 											<div className='flex flex-row justify-between p-4 items-center'>
 												<h1 className='font-bold text-sm md:text-xl'>
@@ -1024,29 +1111,31 @@ const FoodiesBoothMarketPlace = (props: {
 										</div>
 									))}
 									{meals.map((v) => (
-										<div className='flex flex-col shadow-2xl rounded-[25px]'>
-											<ShowImage
-												src={`/${v.adminId}/${MEAL_STORAGE_REF}/${v.pic.thumbnail}`}
-												alt={'Menu Item'}
-												style={'rounded-[25px] h-32 md:h-64 w-full'}
-											/>
-											<h1 className='font-bold text-xs md:text-xl px-2 md:px-4'>
-												{v.title}
-											</h1>
-											<Disclosure>
-												<Disclosure.Button
-													className={
-														' underline text-xs text-left px-2 md:px-4'
-													}
-												>
-													See Details
-												</Disclosure.Button>
-												<Disclosure.Panel>
-													<p className='text-xs px-2 md:px-4 w-full'>
-														{v.description}
-													</p>
-												</Disclosure.Panel>
-											</Disclosure>
+										<div className='flex flex-col justify-between shadow-2xl rounded-[25px]'>
+											<div className='flex flex-col'>
+												<ShowImage
+													src={`/${v.adminId}/${MEAL_STORAGE_REF}/${v.pic.thumbnail}`}
+													alt={'Menu Item'}
+													style={'rounded-[25px] h-32 md:h-64 w-full'}
+												/>
+												<h1 className='font-bold text-xs md:text-xl px-2 md:px-4'>
+													{v.title}
+												</h1>
+												<Disclosure>
+													<Disclosure.Button
+														className={
+															' underline text-xs text-left px-2 md:px-4'
+														}
+													>
+														See Details
+													</Disclosure.Button>
+													<Disclosure.Panel>
+														<p className='text-xs px-2 md:px-4 w-full'>
+															{v.description}
+														</p>
+													</Disclosure.Panel>
+												</Disclosure>
+											</div>
 
 											<div className='flex flex-row justify-between p-4 items-center'>
 												<h1 className='font-bold text-sm md:text-xl'>
@@ -1168,7 +1257,7 @@ const FoodiesBoothMarketPlace = (props: {
 								>
 									<select
 										// value={order.deliveryMethod}
-										onChange={handleChangeOrder}
+										onChange={handleChangePaymentMethod}
 										name='deliveryMethod'
 										className='bg-white w-full'
 										data-required='1'
@@ -1183,27 +1272,28 @@ const FoodiesBoothMarketPlace = (props: {
 									</select>
 								</button>
 
-								<div className='flex flex-col'>
+								<div className='flex flex-col space-y-2'>
 									<h1>
 										Send payment of {numberWithCommas(getTotal(3).toString())}{' '}
 										USD{' '}
 										{parseFloat(getTotal(3).toString()) > 40
 											? `or ${parseFloat(getTotal(3).toString()) * 0.6}`
-											: ''}
+											: ''}{' '}
+										to 0772263139
 									</h1>
+									<h1>Name shown is Anele Siwawa</h1>
 									<h1>
 										Submit the confirmation message into the inbox below(Remove
 										your current balance)
 									</h1>
 									<div className='mb-6 w-full'>
-										<p className='text-center text-xs text-gray-300 mb-4 font-bold  w-full'>
-											Enter header text
-										</p>
 										<textarea
 											value={confirmationMessage}
 											name='headerText'
 											placeholder={'Payment Confirmation message'}
-											onChange={handleChange}
+											onChange={(e) => {
+												setConfirmationMessage(e.target.value);
+											}}
 											className='
 													w-full
 													rounded-[25px]

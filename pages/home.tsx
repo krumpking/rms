@@ -190,6 +190,7 @@ const Home = () => {
 								deliveryDate: d.deliveryDate,
 								deliveryDateString: d.deliveryDateString,
 								deliveryTime: d.deliveryTime,
+								confirmed: d.confirmed,
 							},
 						]);
 					});

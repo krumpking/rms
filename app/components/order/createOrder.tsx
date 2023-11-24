@@ -210,7 +210,7 @@ const CreateOrder = () => {
 	};
 
 	const getOrders = () => {
-		getDataFromDBOne(ORDER_COLLECTION, AMDIN_FIELD, adminId)
+		getDataFromDBTwo(ORDER_COLLECTION, AMDIN_FIELD, adminId, 'confirmed', true)
 			.then((v) => {
 				let oN = 1;
 				if (v !== null) {
@@ -401,6 +401,7 @@ const CreateOrder = () => {
 			deliveryTime: '',
 			deliverer: '',
 			deliveredSignature: null,
+			confirmed: true,
 		};
 
 		if (!usePoints) {

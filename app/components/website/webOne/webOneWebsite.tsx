@@ -130,6 +130,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 		deliveryTime: '',
 		deliveredSignature: null,
 		deliverer: '',
+		confirmed: false,
 	});
 	const [displayedItems, setDisplayedItems] = useState<any>([]);
 	const [deliveryMethods, setDeliveryMethods] = useState([
@@ -579,6 +580,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 					dateString: new Date().toDateString(),
 					adminId: info.adminId,
 					userId: info.userId,
+					confirmed: true,
 				};
 
 				if (!usePoints) {
@@ -1770,29 +1772,31 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 								/>
 								<div className='grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6'>
 									{menuItems.map((v) => (
-										<div className='flex flex-col shadow-2xl rounded-md'>
-											<ShowImage
-												src={`/${info.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
-												alt={'Menu Item'}
-												style={'rounded-md h-32 md:h-64 w-full'}
-											/>
-											<h1 className='font-bold text-xs md:text-xl px-2 md:px-4'>
-												{v.title}
-											</h1>
-											<Disclosure>
-												<Disclosure.Button
-													className={
-														' underline text-xs text-left px-2 md:px-4'
-													}
-												>
-													See Details
-												</Disclosure.Button>
-												<Disclosure.Panel>
-													<p className='text-xs px-2 md:px-4 w-full'>
-														{v.description}
-													</p>
-												</Disclosure.Panel>
-											</Disclosure>
+										<div className='flex flex-col justify-between shadow-2xl rounded-[25px]'>
+											<div className='flex flex-col'>
+												<ShowImage
+													src={`/${info.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
+													alt={'Menu Item'}
+													style={'rounded-md h-32 md:h-64 w-full'}
+												/>
+												<h1 className='font-bold text-xs md:text-xl px-2 md:px-4'>
+													{v.title}
+												</h1>
+												<Disclosure>
+													<Disclosure.Button
+														className={
+															' underline text-xs text-left px-2 md:px-4'
+														}
+													>
+														See Details
+													</Disclosure.Button>
+													<Disclosure.Panel>
+														<p className='text-xs px-2 md:px-4 w-full'>
+															{v.description}
+														</p>
+													</Disclosure.Panel>
+												</Disclosure>
+											</div>
 											<div className='flex flex-row justify-between p-2 md:p-4 items-center'>
 												<h1 className='font-bold text-md md:text-xl'>
 													{v.price}USD
@@ -1825,28 +1829,30 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 										</div>
 									))}
 									{meals.map((v) => (
-										<div className='flex flex-col shadow-2xl rounded-md'>
-											<ShowImage
-												src={`/${info.adminId}/${MEAL_STORAGE_REF}/${v.pic.thumbnail}`}
-												alt={'Menu Item'}
-												style={'rounded-md h-64 w-full'}
-											/>
-											<h1 className='font-bold text-xl px-4'>{v.title}</h1>
-											<p className='text-xs px-4 w-full'>{v.description}</p>
-											<div className='flex flex-row justify-between p-4 items-center'>
-												<h1 className='font-bold text-xl'>{v.price}USD</h1>
-												<Disclosure>
-													<Disclosure.Button
-														className={' underline text-xs text-left px-4'}
-													>
-														See Details
-													</Disclosure.Button>
-													<Disclosure.Panel>
-														<p className='text-xs px-4 w-full'>
-															{v.description}
-														</p>
-													</Disclosure.Panel>
-												</Disclosure>
+										<div className='flex flex-col justify-between shadow-2xl rounded-[25px]'>
+											<div className='flex flex-col'>
+												<ShowImage
+													src={`/${info.adminId}/${MEAL_STORAGE_REF}/${v.pic.thumbnail}`}
+													alt={'Menu Item'}
+													style={'rounded-md h-64 w-full'}
+												/>
+												<h1 className='font-bold text-xl px-4'>{v.title}</h1>
+												<p className='text-xs px-4 w-full'>{v.description}</p>
+												<div className='flex flex-row justify-between p-4 items-center'>
+													<h1 className='font-bold text-xl'>{v.price}USD</h1>
+													<Disclosure>
+														<Disclosure.Button
+															className={' underline text-xs text-left px-4'}
+														>
+															See Details
+														</Disclosure.Button>
+														<Disclosure.Panel>
+															<p className='text-xs px-4 w-full'>
+																{v.description}
+															</p>
+														</Disclosure.Panel>
+													</Disclosure>
+												</div>
 												<button
 													onClick={() => {
 														addToCart(v);
