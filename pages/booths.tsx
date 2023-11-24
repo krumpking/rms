@@ -84,6 +84,7 @@ const Booths = () => {
 		deliveryTime: '',
 		deliveredSignature: null,
 		deliverer: '',
+		confirmed: false,
 	});
 	const [addItems, setAddItems] = useState<any[]>([]);
 	const [websiteName, setWebsiteName] = useState('websitename');
@@ -129,6 +130,10 @@ const Booths = () => {
 		deliveryCost: 0,
 		mapLocation: DEFAULT_LOCATION,
 		daysOfWork: DAYS_OF_THE_WEEK_ARRAY,
+		radius: 50,
+		freeDeliveryAreas: [],
+		prepTime: 48,
+		socialMedialinks: [],
 	});
 
 	useEffect(() => {
@@ -173,6 +178,10 @@ const Booths = () => {
 									deliveryCost: d.deliveryCost,
 									mapLocation: d.mapLocation,
 									daysOfWork: d.daysOfWork,
+									radius: d.radius,
+									freeDeliveryAreas: d.freeDeliveryAreas,
+									prepTime: d.prepTime,
+									socialMedialinks: d.socialMedialinks,
 								},
 							]);
 						}

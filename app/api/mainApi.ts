@@ -10,9 +10,12 @@ import {
 	query,
 	updateDoc,
 	where,
+	startAt,
+	endAt,
 } from 'firebase/firestore';
 import { firestore, storage } from '../../firebase/clientApp';
 import { UploadResult, deleteObject, ref, uploadBytes } from 'firebase/storage';
+import geofire from 'geofire-common';
 
 // Add Only 1 kind
 export const addOnlyOneDoc = async (collectionName: string, document: any) => {
@@ -146,6 +149,46 @@ export const getOneDocument = async (collectionName: any, id: any) => {
 	} else {
 		return null;
 	}
+};
+
+export const getNearest = async (
+	collectionName: any,
+	radiusInM: number,
+	center: any
+) => {
+	const bounds = geofire.geohashQueryBounds(center, radiusInM);
+	const promises = [];
+	for (const b of bounds) {
+		const q = query(
+			collection(firestore, collectionName),
+			orderBy('geohash'),
+			startAt(b[0]),
+			endAt(b[1])
+		);
+
+		promises.push(getDocs(q));
+	}
+
+	// Collect all the query results together into a single list
+	const snapshots = await Promise.all(promises);
+
+	const matchingDocs = [];
+	for (const snap of snapshots) {
+		for (const doc of snap.docs) {
+			const lat = doc.get('lat');
+			const lng = doc.get('lng');
+
+			// We have to filter out a few false positives due to GeoHash
+			// accuracy, but most will match
+			const distanceInKm = geofire.distanceBetween([lat, lng], center);
+			const distanceInM = distanceInKm * 1000;
+			if (distanceInM <= radiusInM) {
+				matchingDocs.push(doc);
+			}
+		}
+	}
+
+	return matchingDocs;
 };
 
 // Update

@@ -78,6 +78,7 @@ const DeliveryComponent = (props: {
 		deliveryDateString: new Date().toDateString(),
 		deliverer: 'd.deliverer',
 		deliveredSignature: null,
+		confirmed: true,
 	});
 	const [signatureDone, setSignatureDone] = useState(false);
 	const sigCanvas = useRef<any>({});
@@ -129,6 +130,7 @@ const DeliveryComponent = (props: {
 									deliveryDateString: d.deliveryDateString,
 									deliverer: d.deliverer,
 									deliveredSignature: d.deliveredSignature,
+									confirmed: d.confirmed,
 								},
 							]);
 
@@ -158,6 +160,7 @@ const DeliveryComponent = (props: {
 									deliveryDateString: d.deliveryDateString,
 									deliverer: d.deliverer,
 									deliveredSignature: d.deliveredSignature,
+									confirmed: d.confirmed,
 								},
 							]);
 						});
@@ -215,6 +218,7 @@ const DeliveryComponent = (props: {
 									deliveryDateString: d.deliveryDateString,
 									deliverer: d.deliverer,
 									deliveredSignature: d.deliveredSignature,
+									confirmed: d.confirmed,
 								},
 							]);
 
@@ -244,6 +248,7 @@ const DeliveryComponent = (props: {
 									deliveryDateString: d.deliveryDateString,
 									deliverer: d.deliverer,
 									deliveredSignature: d.deliveredSignature,
+									confirmed: d.confirmed,
 								},
 							]);
 						});
@@ -301,6 +306,7 @@ const DeliveryComponent = (props: {
 									deliveryDateString: d.deliveryDateString,
 									deliverer: d.deliverer,
 									deliveredSignature: d.deliveredSignature,
+									confirmed: d.confirmed,
 								},
 							]);
 
@@ -330,6 +336,7 @@ const DeliveryComponent = (props: {
 									deliveryDateString: d.deliveryDateString,
 									deliverer: d.deliverer,
 									deliveredSignature: d.deliveredSignature,
+									confirmed: d.confirmed,
 								},
 							]);
 						});
@@ -387,6 +394,7 @@ const DeliveryComponent = (props: {
 									deliveryDateString: d.deliveryDateString,
 									deliverer: d.deliverer,
 									deliveredSignature: d.deliveredSignature,
+									confirmed: d.confirmed,
 								},
 							]);
 
@@ -416,6 +424,7 @@ const DeliveryComponent = (props: {
 									deliveryDateString: d.deliveryDateString,
 									deliverer: d.deliverer,
 									deliveredSignature: d.deliveredSignature,
+									confirmed: d.confirmed,
 								},
 							]);
 						});
