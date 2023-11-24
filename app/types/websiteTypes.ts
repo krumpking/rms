@@ -35,6 +35,10 @@ export type IWebsiteOneInfo = {
 	deliveryCost: number;
 	mapLocation: any;
 	daysOfWork: string[];
+	radius: number;
+	freeDeliveryAreas: string[];
+	prepTime: number;
+	socialMedialinks: string[];
 };
 
 export type IContact = {

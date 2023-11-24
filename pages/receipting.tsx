@@ -62,6 +62,7 @@ const Accounting = () => {
 		deliveryDate: new Date(),
 		deliveryDateString: new Date().toDateString(),
 		deliveryTime: '',
+		confirmed: true,
 	});
 	const [open, setOpen] = useState(false);
 
@@ -123,6 +124,7 @@ const Accounting = () => {
 								deliveryDate: d.deliveryDate,
 								deliveryDateString: d.deliveryDateString,
 								deliveryTime: d.deliveryTime,
+								confirmed: d.confirmed,
 							},
 						]);
 					});
@@ -218,6 +220,7 @@ const Accounting = () => {
 				deliveryDate: d.deliveryDate,
 				deliveryDateString: d.deliveryDateString,
 				deliveryTime: d.deliveryTime,
+				confirmed: d.confirmed,
 			};
 			setSelectedOrder(sOrder);
 		} else {

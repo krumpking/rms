@@ -118,9 +118,6 @@ const WebFront = () => {
 
 	return (
 		<div>
-			<Head>
-				<meta name='viewport' content='width=978'></meta>
-			</Head>
 			<AppAccess access={access} component={'website'}>
 				<div>
 					<div className='flex flex-col'>
@@ -136,7 +133,7 @@ const WebFront = () => {
 							<div className='bg-white col-span-8 my-8 rounded-[30px] flex flex-col p-8'>
 								{/* <h1 className='font-bold'>Choose your website</h1> */}
 								<h1>Edit your website</h1>
-								<div className='grid grid-cols-3 gap-4'>
+								<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
 									{webs.map((v) => (
 										<div
 											className='shadow-2xl h-72 rounded-[25px] flex flex-col p-4    '
@@ -175,7 +172,7 @@ const WebFront = () => {
 							className='fixed inset-0 z-10 overflow-y-auto w-full'
 							onClose={() => setOpen(false)}
 						>
-							<div className='min-h-screen px-4 text-center backdrop-blur-sm '>
+							<div className='min-h-screen px-1 md:px-4 text-center backdrop-blur-sm '>
 								<Transition.Child
 									as={Fragment}
 									enter='ease-out duration-300'
@@ -203,7 +200,7 @@ const WebFront = () => {
 									leaveFrom='opacity-100 scale-100'
 									leaveTo='opacity-0 scale-95'
 								>
-									<div className='bg-white my-8 inline-block w-full transform overflow-hidden rounded-2xl p-6 text-left align-middle shadow-xl transition-all'>
+									<div className='bg-white my-8 inline-block w-full transform overflow-hidden rounded-2xl p-1 md:p-6 text-left align-middle shadow-xl transition-all'>
 										<Dialog.Title
 											as='h3'
 											className='text-sm font-medium leading-6 text-gray-900 m-4 flex justify-between'

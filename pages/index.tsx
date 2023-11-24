@@ -3,7 +3,10 @@ import React, { useState, useEffect } from 'react';
 import {
 	ENTERPRISE_PACKAGE,
 	ENTERPRISE_PACKAGE_PRICE,
+	FOODIES_BOOTH_URL,
 	FOURTH_COLOR,
+	FREE_PACKAGE,
+	FREE_PACKAGE_PRICE,
 	PRIMARY_COLOR,
 	SECONDARY_COLOR,
 	SOLO_PACKAGE,
@@ -91,19 +94,26 @@ const Home: NextPage = () => {
 	]);
 	const [pricing, setPricing] = useState<any[]>([
 		{
+			title: FREE_PACKAGE,
+			pricing: FREE_PACKAGE_PRICE,
+			desc: 'For those who just want more visibility for their brand',
+			feats: ['Website', 'Hosting'],
+		},
+		{
 			title: SOLO_PACKAGE,
 			pricing: SOLO_PACKAGE_PRICE,
 			desc: 'For those who are just starting',
 			feats: [
 				'Editable Website',
+				'Hosting',
 				'Order Management',
+				'Customer Reward Program',
 				'Menu Management',
 				'Stock Management',
 				'Cash Management',
 				'Market Place Listing',
 				'Delivery Management',
 				'1 User',
-				'',
 			],
 		},
 		{
@@ -112,7 +122,9 @@ const Home: NextPage = () => {
 			desc: 'For those who are growing and have a have a team',
 			feats: [
 				'Editable Website',
+				'Hosting',
 				'Order Management',
+				'Customer Reward Program',
 				'Menu Management',
 				'Stock Management',
 				'Cash Management',
@@ -128,7 +140,9 @@ const Home: NextPage = () => {
 			desc: 'For businesses that have an entire team',
 			feats: [
 				'Editable Website',
+				'Hosting',
 				'Order Management',
+				'Customer Reward Program',
 				'Menu Management',
 				'Stock Management',
 				'Cash Management',
@@ -250,8 +264,8 @@ const Home: NextPage = () => {
 
 						let ifOpen = DateMethods.checkIfOpen(new Date(), d.daysOfWork);
 						if (ifOpen) {
-							setBooths((meals) => [
-								...meals,
+							setBooths((booths) => [
+								...booths,
 								{
 									id: d.id,
 									websiteName: d.websiteName,
@@ -274,9 +288,13 @@ const Home: NextPage = () => {
 									phone: d.phone,
 									date: d.date,
 									dateString: d.dateString,
-									deliveryCost: d.deliveryCost,
+									deliveryCost: d.deliverycost,
 									mapLocation: d.mapLocation,
 									daysOfWork: d.daysOfWork,
+									radius: d.radius,
+									prepTime: d.prepTime,
+									socialMedialinks: d.socialMedialinks,
+									freeDeliveryAreas: d.freeDeliveryarea,
 								},
 							]);
 						}
@@ -321,13 +339,16 @@ const Home: NextPage = () => {
 								</div>
 								<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6'>
 									{meals.slice(0, 8).map((v) => (
-										<div className='flex flex-col shadow-2xl rounded-[25px]'>
-											<ShowImage
-												src={`/${v.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
-												alt={'Meal Item'}
-												style={'rounded-[25px] h-64 w-full'}
-											/>
-											<h1 className='font-bold text-xl px-4'>{v.title}</h1>
+										<div className='flex flex-col justify-between shadow-2xl rounded-[25px]'>
+											<div className='flex flex-col'>
+												<ShowImage
+													src={`/${v.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
+													alt={'Meal Item'}
+													style={'rounded-[25px] h-64 w-full'}
+												/>
+												<h1 className='font-bold text-xl px-4'>{v.title}</h1>
+											</div>
+
 											<div className='flex flex-row justify-between p-4 items-center'>
 												<h1 className='font-bold text-xl'>{v.price}USD</h1>
 												<button
@@ -350,37 +371,65 @@ const Home: NextPage = () => {
 								</h1>
 								<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8 p-8'>
 									{booths.slice(0, 3).map((v) => (
-										<div className='relative shadow-2xl rounded-[25px] p-4 w-3/4'>
+										<div className='relative shadow-2xl rounded-[25px] p-4 w-full'>
 											<div className='p-4'>
 												<p className='text-xl'>{v.serviceProviderName}</p>
-												<div className='flex justify-between'>
+												<div className='flex flex-col'>
 													<div className='w-full'>
 														<p className='text-md'>
 															{v.aboutUsInfo.slice(0, 52)}...
 														</p>
 													</div>
-													<button
-														onClick={() => {
-															router.push('/booths');
-														}}
-														className='relative rounded-full p-2'
-														style={{ backgroundColor: PRIMARY_COLOR }}
-													>
-														<svg
-															xmlns='http://www.w3.org/2000/svg'
-															fill='none'
-															viewBox='0 0 24 24'
-															stroke-width='1.5'
-															stroke='currentColor'
-															className='w-6 h-6 text-white'
+													<div className='flex flex-row space-x-2'>
+														<button
+															onClick={() => {
+																router.push(
+																	`${v.websiteName}.${FOODIES_BOOTH_URL}`
+																);
+															}}
+															className='relative rounded-full p-2'
+															style={{ backgroundColor: PRIMARY_COLOR }}
 														>
-															<path
-																stroke-linecap='round'
-																stroke-linejoin='round'
-																d='M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25'
-															/>
-														</svg>
-													</button>
+															<svg
+																xmlns='http://www.w3.org/2000/svg'
+																fill='none'
+																viewBox='0 0 24 24'
+																stroke-width='1.5'
+																stroke='currentColor'
+																className='w-6 h-6 text-white'
+															>
+																<path
+																	stroke-linecap='round'
+																	stroke-linejoin='round'
+																	d='M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z'
+																/>
+															</svg>
+														</button>
+														<button
+															onClick={() => {
+																router.push(
+																	`${v.websiteName}.${FOODIES_BOOTH_URL}`
+																);
+															}}
+															className='relative rounded-full p-2'
+															style={{ backgroundColor: PRIMARY_COLOR }}
+														>
+															<svg
+																xmlns='http://www.w3.org/2000/svg'
+																fill='none'
+																viewBox='0 0 24 24'
+																stroke-width='1.5'
+																stroke='currentColor'
+																className='w-6 h-6 text-white'
+															>
+																<path
+																	stroke-linecap='round'
+																	stroke-linejoin='round'
+																	d='M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25'
+																/>
+															</svg>
+														</button>
+													</div>
 												</div>
 											</div>
 											<div className='absolute -top-10 -left-10 right-10 z-10 '>
@@ -482,22 +531,24 @@ const Home: NextPage = () => {
 										/>
 									</Switch>
 								</div>
-								<div className='grid grid-cols-1 lg:grid-cols-3 gap-4'>
+								<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
 									{pricing.map((v) => (
-										<div className='shadow-xl w-full flex flex-col p-4 rounded-[25px]'>
-											<h1 className='text-4xl'>{v.title}</h1>
-											<p>{v.desc}</p>
-											<h1 className='text-2xl'>
-												{enabled ? v.pricing * 11 : v.pricing}USD
-											</h1>
-											<p>/{enabled ? 'year' : 'month'}</p>
-											<h1 className='text-xl'>Features You will love</h1>
-											<div className='p-4'>
-												<ul className='list-disc'>
-													{v.feats.map((v: string) => {
-														return <li className='text-sm'>{v}</li>;
-													})}
-												</ul>
+										<div className='shadow-xl w-full flex flex-col justify-between p-4 rounded-[25px]'>
+											<div className='flex flex-col'>
+												<h1 className='text-4xl'>{v.title}</h1>
+												<p>{v.desc}</p>
+												<h1 className='text-2xl'>
+													{enabled ? v.pricing * 11 : v.pricing}USD
+												</h1>
+												<p>/{enabled ? 'year' : 'month'}</p>
+												<h1 className='text-xl'>Features You will love</h1>
+												<div className='p-4'>
+													<ul className='list-disc'>
+														{v.feats.map((v: string) => {
+															return <li className='text-sm'>{v}</li>;
+														})}
+													</ul>
+												</div>
 											</div>
 
 											<div className='m-4'>

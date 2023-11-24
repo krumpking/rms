@@ -20,6 +20,7 @@ import {
 	addDocument,
 	getDataFromAll,
 	getDataFromDBOne,
+	getNearest,
 } from '../app/api/mainApi';
 import {
 	MEAL_ITEM_COLLECTION,
@@ -44,6 +45,7 @@ import BoothsComp from '../app/components/booths/boothsComp';
 import DateMethods from '../app/utils/date';
 import Head from 'next/head';
 import FoodiesBoothMarketPlace from '../app/components/market/foodiesBoothMarket';
+import { print } from '../app/utils/console';
 
 const Market = () => {
 	const [loading, setLoading] = useState(true);
@@ -85,6 +87,7 @@ const Market = () => {
 		deliveryTime: '',
 		deliveredSignature: null,
 		deliverer: '',
+		confirmed: false,
 	});
 	const [addItems, setAddItems] = useState<any[]>([]);
 	const [websiteName, setWebsiteName] = useState('websitename');
@@ -130,6 +133,10 @@ const Market = () => {
 		deliveryCost: 0,
 		mapLocation: DEFAULT_LOCATION,
 		daysOfWork: DAYS_OF_THE_WEEK_ARRAY,
+		radius: 50,
+		prepTime: 48,
+		socialMedialinks: [],
+		freeDeliveryAreas: [],
 	});
 	const [menuItemsLoading, setMenuItemsLoading] = useState(true);
 
@@ -140,18 +147,150 @@ const Market = () => {
 	}, []);
 
 	const getWebsites = () => {
-		getDataFromAll(WEBSITE_INFO_COLLECTION)
-			.then((v) => {
-				if (v !== null) {
-					let b: IWebsiteOneInfo[] = [];
-					v.data.forEach((element) => {
-						let d = element.data();
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(function (position) {
+				// const latitude = position.coords.latitude;
+				// const longitude = position.coords.longitude;
+				getDataFromAll(WEBSITE_INFO_COLLECTION)
+					.then((v) => {
+						if (v !== null) {
+							let b: IWebsiteOneInfo[] = [];
+							v.data.forEach((element) => {
+								let d = element.data();
 
-						let ifOpen = DateMethods.checkIfOpen(new Date(), d.daysOfWork);
-						if (ifOpen) {
-							setBooths((meals) => [
-								...meals,
-								{
+								let ifOpen = DateMethods.checkIfOpen(new Date(), d.daysOfWork);
+								if (ifOpen) {
+									let dis = computeDistanceBetween(
+										new LatLng(location.lat, location.lng),
+										new LatLng(d.mapLocation.lat, d.mapLocation.lng)
+									);
+									let finalD = dis / 1000;
+
+									if (finalD < 51) {
+										setBooths((meals) => [
+											...meals,
+											{
+												id: d.id,
+												websiteName: d.websiteName,
+												adminId: d.adminId,
+												userId: d.userId,
+												logo: d.logo,
+												serviceProviderName: d.serviceProviderName,
+												headerTitle: d.headerTitle,
+												headerText: d.headerText,
+												headerImage: d.headerImage,
+												aboutUsImage: d.aboutUsImage,
+												aboutUsTitle: d.aboutUsTitle,
+												aboutUsInfo: d.aboutUsInfo,
+												themeMainColor: d.themeMainColor,
+												themeSecondaryColor: d.themeSecondayColor,
+												reservation: d.reservation,
+												contactUsImage: d.contactUsImage,
+												email: d.email,
+												address: d.address,
+												phone: d.phone,
+												date: d.date,
+												dateString: d.dateString,
+												deliveryCost: d.deliveryCost,
+												mapLocation: d.mapLocation,
+												daysOfWork: d.daysOfWork,
+												radius: d.radius,
+												prepTime: d.prepTime,
+												socialMedialinks: d.socialMedialinks,
+												freeDeliveryAreas: d.freeDeliveryAreas,
+											},
+										]);
+
+										b.push({
+											id: d.id,
+											websiteName: d.websiteName,
+											adminId: d.adminId,
+											userId: d.userId,
+											logo: d.logo,
+											serviceProviderName: d.serviceProviderName,
+											headerTitle: d.headerTitle,
+											headerText: d.headerText,
+											headerImage: d.headerImage,
+											aboutUsImage: d.aboutUsImage,
+											aboutUsTitle: d.aboutUsTitle,
+											aboutUsInfo: d.aboutUsInfo,
+											themeMainColor: d.themeMainColor,
+											themeSecondaryColor: d.themeSecondayColor,
+											reservation: d.reservation,
+											contactUsImage: d.contactUsImage,
+											email: d.email,
+											address: d.address,
+											phone: d.phone,
+											date: d.date,
+											dateString: d.dateString,
+											deliveryCost: d.deliveryCost,
+											mapLocation: d.mapLocation,
+											daysOfWork: d.daysOfWork,
+											radius: d.radius,
+											prepTime: d.prepTime,
+											socialMedialinks: d.socialMedialinks,
+											freeDeliveryAreas: d.freeDeliveryAreas,
+										});
+									}
+								}
+							});
+							getMenuItems(b);
+						}
+						setLoading(false);
+					})
+					.catch((e) => {
+						console.error(e);
+						setLoading(true);
+					});
+			});
+		} else {
+			console.log('Geolocation is not supported by this browser.');
+			getDataFromAll(WEBSITE_INFO_COLLECTION)
+				.then((v) => {
+					if (v !== null) {
+						let b: IWebsiteOneInfo[] = [];
+						v.data.forEach((element) => {
+							let d = element.data();
+
+							let ifOpen = DateMethods.checkIfOpen(new Date(), d.daysOfWork);
+							if (ifOpen) {
+								setBooths((meals) => [
+									...meals,
+									{
+										id: d.id,
+										websiteName: d.websiteName,
+										adminId: d.adminId,
+										userId: d.userId,
+										logo: d.logo,
+										serviceProviderName: d.serviceProviderName,
+										headerTitle: d.headerTitle,
+										headerText: d.headerText,
+										headerImage: d.headerImage,
+										aboutUsImage: d.aboutUsImage,
+										aboutUsTitle: d.aboutUsTitle,
+										aboutUsInfo: d.aboutUsInfo,
+										themeMainColor: d.themeMainColor,
+										themeSecondaryColor: d.themeSecondayColor,
+										reservation: d.reservation,
+										contactUsImage: d.contactUsImage,
+										email: d.email,
+										address: d.address,
+										phone: d.phone,
+										date: d.date,
+										dateString: d.dateString,
+										deliveryCost: d.deliveryCost,
+										mapLocation: d.lat,
+										lng: d.lng,
+										daysOfWork: d.daysOfWork,
+										radius: d.radius,
+										geohash: d.geohash,
+										prepTime: d.prepTime,
+										socialMedialinks: d.socialMedialinks,
+										freeDeliveryAreas: d.freeDeliveryarea,
+									},
+								]);
+
+								b.push({
 									id: d.id,
 									websiteName: d.websiteName,
 									adminId: d.adminId,
@@ -176,45 +315,22 @@ const Market = () => {
 									deliveryCost: d.deliveryCost,
 									mapLocation: d.mapLocation,
 									daysOfWork: d.daysOfWork,
-								},
-							]);
-
-							b.push({
-								id: d.id,
-								websiteName: d.websiteName,
-								adminId: d.adminId,
-								userId: d.userId,
-								logo: d.logo,
-								serviceProviderName: d.serviceProviderName,
-								headerTitle: d.headerTitle,
-								headerText: d.headerText,
-								headerImage: d.headerImage,
-								aboutUsImage: d.aboutUsImage,
-								aboutUsTitle: d.aboutUsTitle,
-								aboutUsInfo: d.aboutUsInfo,
-								themeMainColor: d.themeMainColor,
-								themeSecondaryColor: d.themeSecondayColor,
-								reservation: d.reservation,
-								contactUsImage: d.contactUsImage,
-								email: d.email,
-								address: d.address,
-								phone: d.phone,
-								date: d.date,
-								dateString: d.dateString,
-								deliveryCost: d.deliveryCost,
-								mapLocation: d.mapLocation,
-								daysOfWork: d.daysOfWork,
-							});
-						}
-					});
-					getMenuItems(b);
-				}
-				setLoading(false);
-			})
-			.catch((e) => {
-				console.error(e);
-				setLoading(true);
-			});
+									radius: d.radius,
+									prepTime: d.prepTime,
+									socialMedialinks: d.socialMedialinks,
+									freeDeliveryAreas: d.freeDeliveryarea,
+								});
+							}
+						});
+						getMenuItems(b);
+					}
+					setLoading(false);
+				})
+				.catch((e) => {
+					console.error(e);
+					setLoading(true);
+				});
+		}
 	};
 
 	const getMenuItems = (b: IWebsiteOneInfo[]) => {
@@ -385,7 +501,7 @@ const Market = () => {
 					<Loader color={''} />
 				</div>
 			) : (
-				<div className='bg-white rounded-[30px] p-4 '>{getView()}</div>
+				<div className='bg-white rounded-[30px] p-1 md:p-4 '>{getView()}</div>
 			)}
 			<ToastContainer position='top-right' autoClose={5000} />
 		</div>

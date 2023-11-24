@@ -101,6 +101,7 @@ const OrderHistory = () => {
 								deliveryDateString: d.deliveryDateString,
 								deliverer: d.deliverer,
 								deliveredSignature: d.deliveredSignature,
+								confirmed: d.confirmed,
 							},
 						]);
 						setOrdersSto((orders) => [
@@ -129,6 +130,7 @@ const OrderHistory = () => {
 								deliveryDateString: d.deliveryDateString,
 								deliverer: d.deliverer,
 								deliveredSignature: d.deliveredSignature,
+								confirmed: d.confirmed,
 							},
 						]);
 					});
