@@ -318,19 +318,10 @@ const FoodiesBoothMarketPlace = (props: {
 	};
 
 	const handleChangeOrder = (e: any) => {
-		if (e.target.name === 'customerPhone') {
-			if (e.target.value.includes('+263')) {
-				setOrder({
-					...order,
-					[e.target.name]: e.target.value,
-				});
-			}
-		} else {
-			setOrder({
-				...order,
-				[e.target.name]: e.target.value,
-			});
-		}
+		setOrder({
+			...order,
+			[e.target.name]: e.target.value,
+		});
 	};
 
 	const handleChangePaymentMethod = (e: any) => {

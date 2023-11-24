@@ -30,7 +30,7 @@ const Login = (props: {
 	isDeliveryService: boolean;
 }) => {
 	const { changeIndex, isDeliveryService } = props;
-	const [phone, setPhone] = useState('+263');
+	const [phone, setPhone] = useState('');
 	const [accessCode, setAccessCode] = useState('');
 	const [sent, setSent] = useState(false);
 	const [loading, setLoading] = useState(false);
@@ -185,32 +185,12 @@ const Login = (props: {
 		}
 	};
 
-	const shownSlides = [
-		{
-			image: '/images/bg-swurl.png',
-		},
-		{
-			image: '/images/bg-swurl.png',
-		},
-		{
-			image: '/images/bg-swurl.png',
-		},
-	];
-
-	const slide = (image: string) => {
-		return (
-			<div className='w-full h-96 rounded-lg'>
-				<img src={image} className='w-full h-full' />
-			</div>
-		);
-	};
-
 	return (
 		<div
-			className=' w-full h-screen p-4 md:p-8 2xl:p-16 '
+			className=' w-full min-h-screen h-full p-4 md:p-8 2xl:p-16 '
 			style={{ backgroundColor: PRIMARY_COLOR }}
 		>
-			<div className='bg-white h-full rounded-[25px] p-8'>
+			<div className='bg-white  h-full rounded-[25px] p-8'>
 				{loading ? (
 					<div className='w-full flex flex-col items-center content-center'>
 						<Loader color={''} />
@@ -267,9 +247,7 @@ const Login = (props: {
 												if (sent) {
 													setAccessCode(e.target.value);
 												} else {
-													if (e.target.value.includes('+263')) {
-														setPhone(e.target.value);
-													}
+													setPhone(e.target.value);
 												}
 											}}
 											className='
