@@ -499,7 +499,7 @@ const Home = () => {
 									<div>
 										<div className='mt-5'>Recent Orders</div>
 
-										<div className='w-full grid grid-cols-1 md:grid-cols-2 lg: grid-cols-4 p-4 '>
+										<div className='w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 p-4 '>
 											{orders.slice(0, 4).map((v) => {
 												return (
 													<div className='flex flex-col shadow-xl rounded-[25px] p-8 w-[250px] '>
@@ -565,7 +565,7 @@ const Home = () => {
 								{reservations.length > 0 ? (
 									<div>
 										<div className='mt-5'>Recent Reservations</div>
-										<div className='w-full grid grid-cols-1 md:grid-cols-2 lg: grid-cols-4 p-4  '>
+										<div className='w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 p-4  '>
 											{reservations.map((v) => (
 												<div>
 													<div className='flex flex-col shadow-xl rounded-[25px] p-8 w-full '>

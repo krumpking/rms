@@ -26,7 +26,7 @@ import { PAYMENTS_COLLECTION } from '../app/constants/paymentConstants';
 import { logEvent } from 'firebase/analytics';
 
 const SignUp = () => {
-	const [phone, setPhone] = useState('+263');
+	const [phone, setPhone] = useState('');
 	const [accessCode, setAccessCode] = useState('');
 	const [sent, setSent] = useState(false);
 	const [loading, setLoading] = useState(false);
@@ -212,7 +212,7 @@ const SignUp = () => {
 	return (
 		<div>
 			<div
-				className='w-full h-full p-4 md:p-8 lg:p-16 '
+				className='w-full min-h-screen h-full p-4 md:p-8 lg:p-16 '
 				style={{ backgroundColor: PRIMARY_COLOR }}
 			>
 				<div className='bg-white h-full rounded-[25px]  flex flex-col p-8 '>
@@ -350,9 +350,7 @@ const SignUp = () => {
 													value={phone}
 													placeholder={'Phone (include country your code )'}
 													onChange={(e) => {
-														if (e.target.value.includes('+263')) {
-															setPhone(e.target.value);
-														}
+														setPhone(e.target.value);
 													}}
 													className='
                                                 w-full

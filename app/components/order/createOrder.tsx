@@ -70,7 +70,7 @@ const CreateOrder = () => {
 	const [customerName, setCustomerName] = useState('');
 	const [tableNo, setTableNo] = useState('');
 	const [orderNo, setOrderNo] = useState(1);
-	const [phone, setPhone] = useState('+263');
+	const [phone, setPhone] = useState('');
 	const [email, setEmail] = useState('');
 	const [category, setCategory] = useState<string[]>(['First Time', 'Regular']);
 	const [choosePoints, setChoosePoints] = useState<string[]>([
