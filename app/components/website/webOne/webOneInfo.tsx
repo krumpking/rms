@@ -67,7 +67,7 @@ const WebOneWebsiteInfo = () => {
 		},
 		email: '',
 		address: '',
-		phone: '+263',
+		phone: '',
 		date: new Date(),
 		dateString: new Date().toDateString(),
 		deliveryCost: 0,
@@ -165,12 +165,15 @@ const WebOneWebsiteInfo = () => {
 
 	const handleChange = (e: any) => {
 		if (e.target.name === 'customerPhone') {
-			if (e.target.value.includes('+263')) {
-				setInfo({
-					...info,
-					[e.target.name]: e.target.value,
-				});
-			}
+			setInfo({
+				...info,
+				[e.target.name]: e.target.value,
+			});
+		} else if (e.target.name === 'websiteName') {
+			setInfo({
+				...info,
+				[e.target.name]: e.target.value.replace(/\s/g, '').toLowerCase(),
+			});
 		} else {
 			setInfo({
 				...info,
@@ -425,7 +428,7 @@ const WebOneWebsiteInfo = () => {
 							)}
 							<h1 className='mb-6 w-full'>
 								Website URL:{' '}
-								<a href={`${info.websiteName}.foodiesbooth.com`}>
+								<a href={`https://${info.websiteName}.foodiesbooth.com`}>
 									{info.websiteName}.foodiesbooth.com
 								</a>
 							</h1>

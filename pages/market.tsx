@@ -501,7 +501,9 @@ const Market = () => {
 					<Loader color={''} />
 				</div>
 			) : (
-				<div className='bg-white rounded-[30px] p-1 md:p-4 '>{getView()}</div>
+				<div className='bg-white rounded-[30px] p-1 md:p-4 min-h-screen h-full'>
+					{getView()}
+				</div>
 			)}
 			<ToastContainer position='top-right' autoClose={5000} />
 		</div>

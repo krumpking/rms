@@ -90,7 +90,7 @@ const MarketPlace = (props: {
 		clientId: '',
 		customerName: '',
 		customerEmail: '',
-		customerPhone: '+263',
+		customerPhone: '',
 		customerAddress: '',
 		deliveryLocation: null,
 		tableNo: '',
@@ -299,19 +299,10 @@ const MarketPlace = (props: {
 	};
 
 	const handleChangeOrder = (e: any) => {
-		if (e.target.name === 'customerPhone') {
-			if (e.target.value.includes('+263')) {
-				setOrder({
-					...order,
-					[e.target.name]: e.target.value,
-				});
-			}
-		} else {
-			setOrder({
-				...order,
-				[e.target.name]: e.target.value,
-			});
-		}
+		setOrder({
+			...order,
+			[e.target.name]: e.target.value,
+		});
 	};
 
 	const removeItem = (v: any) => {
