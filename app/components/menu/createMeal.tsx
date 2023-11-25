@@ -20,6 +20,7 @@ import {
 	uploadFile,
 } from '../../api/mainApi';
 import {
+	CATEGORIES,
 	MEAL_ITEM_COLLECTION,
 	MEAL_STORAGE_REF,
 	MENU_CAT_COLLECTION,
@@ -514,19 +515,19 @@ const CreateMeal = () => {
 														setTitle(e.target.value);
 													}}
 													className='
-                                        w-full
-                                        rounded-[25px]
-                                        border-2
-                                        border-[#8b0e06]
-                                        py-3
-                                        px-5
-                                        bg-white
-                                        text-base text-body-color
-                                        placeholder-[#ACB6BE]
-                                        outline-none
-                                        focus-visible:shadow-none
-                                        focus:border-primary
-                                        '
+														w-full
+														rounded-[25px]
+														border-2
+														border-[#8b0e06]
+														py-3
+														px-5
+														bg-white
+														text-base text-body-color
+														placeholder-[#ACB6BE]
+														outline-none
+														focus-visible:shadow-none
+														focus:border-primary
+													'
 													required
 												/>
 											</div>
@@ -540,19 +541,19 @@ const CreateMeal = () => {
 														setDescription(e.target.value);
 													}}
 													className='
-                                        w-full
-                                        rounded-[25px]
-                                        border-2
-                                        border-[#8b0e06]
-                                        py-3
-                                        px-5
-                                        bg-white
-                                        text-base text-body-color
-                                        placeholder-[#ACB6BE]
-                                        outline-none
-                                        focus-visible:shadow-none
-                                        focus:border-primary
-                                        '
+															w-full
+															rounded-[25px]
+															border-2
+															border-[#8b0e06]
+															py-3
+															px-5
+															bg-white
+															text-base text-body-color
+															placeholder-[#ACB6BE]
+															outline-none
+															focus-visible:shadow-none
+															focus:border-primary
+														'
 													required
 												/>
 											</div>
@@ -574,8 +575,8 @@ const CreateMeal = () => {
 													<option value='Chapter' hidden>
 														Select Meal Category
 													</option>
-													{categories.map((v) => (
-														<option value={v.category}>{v.category}</option>
+													{CATEGORIES.map((v) => (
+														<option value={v}>{v}</option>
 													))}
 												</select>
 											</button>
@@ -593,19 +594,19 @@ const CreateMeal = () => {
 														setDiscount(parseInt(e.target.value));
 													}}
 													className='
-                                        w-full
-                                        rounded-[25px]
-                                        border-2
-                                        border-[#8b0e06]
-                                        py-3
-                                        px-5
-                                        bg-white
-                                        text-base text-body-color
-                                        placeholder-[#ACB6BE]
-                                        outline-none
-                                        focus-visible:shadow-none
-                                        focus:border-primary
-                                        '
+														w-full
+														rounded-[25px]
+														border-2
+														border-[#8b0e06]
+														py-3
+														px-5
+														bg-white
+														text-base text-body-color
+														placeholder-[#ACB6BE]
+														outline-none
+														focus-visible:shadow-none
+														focus:border-primary
+													'
 													required
 												/>
 											</div>
@@ -627,19 +628,19 @@ const CreateMeal = () => {
 														setPrice(parseFloat(e.target.value));
 													}}
 													className='
-                                    w-full
-                                    rounded-[25px]
-                                    border-2
-                                    border-[#8b0e06]
-                                    py-3
-                                    px-5
-                                    bg-white
-                                    text-base text-body-color
-                                    placeholder-[#ACB6BE]
-                                    outline-none
-                                    focus-visible:shadow-none
-                                    focus:border-primary
-                                    '
+														w-full
+														rounded-[25px]
+														border-2
+														border-[#8b0e06]
+														py-3
+														px-5
+														bg-white
+														text-base text-body-color
+														placeholder-[#ACB6BE]
+														outline-none
+														focus-visible:shadow-none
+														focus:border-primary
+													'
 													required
 												/>
 											</div>
@@ -649,21 +650,21 @@ const CreateMeal = () => {
 												addMeal();
 											}}
 											className='
-                                        font-bold
-                                        w-full
-                                        rounded-[25px]
-                                        border-2
-                                        border-[#8b0e06]
-                                        border-primary
-                                        py-3
-                                        px-10
-                                        bg-[#8b0e06]
-                                        text-base 
-                                        text-white
-                                        cursor-pointer
-                                        hover:bg-opacity-90
-                                        transition
-                                    '
+												font-bold
+												w-full
+												rounded-[25px]
+												border-2
+												border-[#8b0e06]
+												border-primary
+												py-3
+												px-10
+												bg-[#8b0e06]
+												text-base 
+												text-white
+												cursor-pointer
+												hover:bg-opacity-90
+												transition
+											'
 										>
 											Add Meal
 										</button>

@@ -29,6 +29,7 @@ import {
 	uploadFile,
 } from '../../api/mainApi';
 import {
+	CATEGORIES,
 	MENU_CAT_COLLECTION,
 	MENU_ITEM_COLLECTION,
 	MENU_PROMO_ITEM_COLLECTION,
@@ -82,37 +83,8 @@ const AddPromotion = () => {
 	useEffect(() => {
 		document.body.style.backgroundColor = LIGHT_GRAY;
 		logEvent(analytics, 'promo_page_visit');
-		getCategories();
 		getMenuItems();
 	}, []);
-
-	const getCategories = () => {
-		getDataFromDBOne(MENU_CAT_COLLECTION, AMDIN_FIELD, adminId)
-			.then((v) => {
-				if (v !== null) {
-					v.data.forEach((element) => {
-						let d = element.data();
-
-						setCategories((categories) => [
-							...categories,
-							{
-								id: element.id,
-								adminId: d.adminId,
-								userId: d.userId,
-								pic: d.pic,
-								category: d.category,
-								date: d.date,
-								dateString: d.dateString,
-							},
-						]);
-					});
-				}
-			})
-			.catch((e) => {
-				console.error(e);
-				setLoading(true);
-			});
-	};
 
 	const getMenuItems = () => {
 		getDataFromDBOne(MENU_PROMO_ITEM_COLLECTION, AMDIN_FIELD, adminId)
@@ -590,8 +562,8 @@ const AddPromotion = () => {
 												<option value='Chapter' hidden>
 													Select Menu Category
 												</option>
-												{categories.map((v) => (
-													<option value={v.category}>{v.category}</option>
+												{CATEGORIES.map((v) => (
+													<option value={v}>{v}</option>
 												))}
 											</select>
 										</button>

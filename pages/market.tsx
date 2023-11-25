@@ -40,11 +40,10 @@ import Drawer from '../app/components/drawer';
 import { numberWithCommas } from '../app/utils/stringM';
 import MapPicker from 'react-google-map-picker';
 import { IWebsiteOneInfo } from '../app/types/websiteTypes';
-import MarketPlace from '../app/components/market/market';
+import MarketPlace from '../app/components/market/marketPlace';
 import BoothsComp from '../app/components/booths/boothsComp';
 import DateMethods from '../app/utils/date';
 import Head from 'next/head';
-import FoodiesBoothMarketPlace from '../app/components/market/foodiesBoothMarket';
 import { print } from '../app/utils/console';
 
 const Market = () => {
@@ -142,8 +141,6 @@ const Market = () => {
 
 	useEffect(() => {
 		getWebsites();
-		// getMeals();
-		// getMenuItems();
 	}, []);
 
 	const getWebsites = () => {
@@ -483,11 +480,12 @@ const Market = () => {
 				{menuItemsLoading ? (
 					<Loader color={''} />
 				) : (
-					<FoodiesBoothMarketPlace
+					<MarketPlace
 						info={booths}
 						changeIndex={(index: number) => {
 							setIndex(index);
 						}}
+						borderRadius={'rounded-[25px]'}
 					/>
 				)}
 			</div>

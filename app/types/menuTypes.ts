@@ -23,6 +23,23 @@ export type IMenuItemPromotions = {
 	endDate: string;
 };
 
+export type ICateringPlate = {
+	id: string;
+	adminId: string;
+	userId: string;
+	category: string;
+	title: string;
+	description: string;
+	minimumOrder: number;
+	priceAfterFifty: number;
+	priceAfterHundred: number;
+	preparationTime: number;
+	pic: any;
+	date: Date;
+	dateString: string;
+	price: number;
+};
+
 export type IMenuItem = {
 	id: string;
 	adminId: string;
