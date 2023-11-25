@@ -64,6 +64,8 @@ import {
 	REWARD_PARAMS_COLLECTION,
 } from '../../../constants/loyaltyConstants';
 import { IPoints, IPointsRate } from '../../../types/loyaltyTypes';
+import MarketPlace from '../../market/marketPlace';
+import { number } from 'prop-types';
 
 interface MyProps {
 	info: IWebsiteOneInfo;
@@ -1592,319 +1594,42 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 				);
 			case 1:
 				return (
-					<div className='relative'>
+					<div
+						className='border rounded-md w-full h-full flex flex-col'
+						style={{ borderColor: info.themeMainColor }}
+					>
 						<div
-							className='border rounded-md w-full h-fit'
-							style={{ borderColor: info.themeMainColor }}
+							style={{ backgroundColor: info.themeMainColor }}
+							className='h-fit p-2 rounded-t-md flex flex-col space md:space-y-0 md:flex-row md:justify-between'
 						>
-							<div
-								style={{ backgroundColor: info.themeMainColor }}
-								className='h-12 p-2'
+							<button
+								onClick={() => {
+									setIndex(0);
+								}}
 							>
-								<button
-									onClick={() => {
-										setIndex(0);
-										setMenuItems(menuItemsSto);
-										setMeals(mealsSto);
-									}}
+								<svg
+									xmlns='http://www.w3.org/2000/svg'
+									fill='none'
+									viewBox='0 0 24 24'
+									stroke-width='1.5'
+									stroke='currentColor'
+									className='w-6 h-6 text-white'
 								>
-									<svg
-										xmlns='http://www.w3.org/2000/svg'
-										fill='none'
-										viewBox='0 0 24 24'
-										stroke-width='1.5'
-										stroke='currentColor'
-										className='w-6 h-6 text-white'
-									>
-										<path
-											stroke-linecap='round'
-											stroke-linejoin='round'
-											d='M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75'
-										/>
-									</svg>
-								</button>
-							</div>
-							<div className='flex flex-col mb-6 p-2 md:p-8'>
-								<div>
-									{promos.length > 0 ? (
-										<div className='flex justify-center content-center items-center mb-6'>
-											<h1
-												className='text-2xl'
-												style={{ color: info.themeMainColor }}
-											>
-												PROMO ALERT
-											</h1>
-										</div>
-									) : (
-										<p></p>
-									)}
-								</div>
-
-								{promos.length > 0 ? (
-									<div className='grid grid-cols-2 lg:grid-cols-4 gap-4'>
-										{promos.map((v) => (
-											<div className='relative shadow-2xl p-4 w-full rounded-md'>
-												<div className='p-0 md:p-4 flex flex-col'>
-													<ShowImage
-														src={`/${v.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
-														alt={'Menu Item'}
-														style={'rounded-md h-20 lg:h-40 w-full '}
-													/>
-													<p className='text-xs md:text-xl'>{v.title}</p>
-													<Disclosure>
-														<Disclosure.Button
-															className={' underline text-xs text-left'}
-														>
-															See Details
-														</Disclosure.Button>
-														<Disclosure.Panel>
-															<p className='text-xs w-full'>{v.description}</p>
-														</Disclosure.Panel>
-													</Disclosure>
-													<div className='flex flex-row space-x-4 justify-between content-center items-center my-1'>
-														<p className='text-xs md:text-md line-through'>
-															{v.oldPrice}USD
-														</p>
-														<p className='text-xs md:text-md'>
-															{v.newPrice}USD
-														</p>
-													</div>
-													<button
-														onClick={() => {
-															let item: IMenuItem = {
-																id: v.id,
-																adminId: v.adminId,
-																userId: v.userId,
-																category: v.category,
-																title: v.title,
-																description: v.description,
-																discount: v.oldPrice - v.newPrice,
-																pic: v.pic,
-																date: v.date,
-																dateString: v.dateString,
-																price: 1,
-															};
-															addToCart(item);
-														}}
-														className='py-2 px-5 text-white rounded-md w-full'
-														style={{
-															backgroundColor: `${info.themeMainColor}`,
-														}}
-													>
-														Add
-													</button>
-													<div className='rounded-md font-bold w-full h-fit font-bold text-xs text-center flex flex-row justify-center my-1'>
-														<p className='text-gray-400'>
-															{DateMethods.diffDatesDays(
-																new Date().toDateString(),
-																v.endDate
-															)}{' '}
-															days left
-														</p>
-													</div>
-												</div>
-
-												<div
-													className='absolute -top-2 -right-2  z-10 rounded-full text-white font-bold w-12 h-12 font-bold text-xs text-center flex items-center'
-													style={{ backgroundColor: info.themeMainColor }}
-												>
-													{100 - (v.newPrice / v.oldPrice) * 100} % OFF
-												</div>
-											</div>
-										))}
-									</div>
-								) : (
-									<p></p>
-								)}
-							</div>
-							<div className='p-2 md:p-8'>
-								<div className='flex justify-between content-center items-center mb-6'>
-									<h1 className='hidden md:block md:text-2xl'>Order Now</h1>
-									<div className='flex flex-row space-x-4 max-w-[800px] overflow-x-auto'>
-										{returnOnlyUnique(categories).map((v) => (
-											<h1
-												className='hover:cursor-pointer whitespace-nowrap'
-												onClick={() => {
-													setSearch(v);
-													searchFor();
-												}}
-											>
-												{v}
-											</h1>
-										))}
-									</div>
-								</div>
-								<input
-									type='text'
-									value={search}
-									placeholder={'Search'}
-									onChange={(e) => {
-										setSearch(e.target.value);
-									}}
-									style={{ borderColor: `${info.themeMainColor}` }}
-									className='
-                                        w-full
-                                        rounded-md
-                                        border-2
-                                        py-3
-                                        px-5
-                                        bg-white
-                                        text-base text-body-color
-                                        placeholder-[#ACB6BE]
-                                        outline-none
-                                        focus-visible:shadow-none
-                                        focus:border-primary
-                                        mb-6
-                                        '
-									onKeyDown={handleKeyDown}
-								/>
-								<div className='grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6'>
-									{menuItems.map((v) => (
-										<div className='flex flex-col justify-between shadow-2xl rounded-md'>
-											<div className='flex flex-col'>
-												<ShowImage
-													src={`/${info.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
-													alt={'Menu Item'}
-													style={'rounded-md h-32 md:h-64 w-full'}
-												/>
-												<h1 className='font-bold text-xs md:text-xl px-2 md:px-4'>
-													{v.title}
-												</h1>
-												<Disclosure>
-													<Disclosure.Button
-														className={
-															' underline text-xs text-left px-2 md:px-4'
-														}
-													>
-														See Details
-													</Disclosure.Button>
-													<Disclosure.Panel>
-														<p className='text-xs px-2 md:px-4 w-full'>
-															{v.description}
-														</p>
-													</Disclosure.Panel>
-												</Disclosure>
-											</div>
-											<div className='flex flex-row justify-between p-2 md:p-4 items-center'>
-												<h1 className='font-bold text-md md:text-xl'>
-													{v.price}USD
-												</h1>
-
-												<button
-													onClick={() => {
-														addToCart(v);
-													}}
-													className='py-2 px-5 text-white rounded-md w-fit'
-													style={{ backgroundColor: `${info.themeMainColor}` }}
-												>
-													<p className='hidden lg:flex'>Add</p>
-													<svg
-														xmlns='http://www.w3.org/2000/svg'
-														fill='none'
-														viewBox='0 0 24 24'
-														stroke-width='1.5'
-														stroke='currentColor'
-														className='w-6 h-6 flex lg:hidden'
-													>
-														<path
-															stroke-linecap='round'
-															stroke-linejoin='round'
-															d='M12 4.5v15m7.5-7.5h-15'
-														/>
-													</svg>
-												</button>
-											</div>
-										</div>
-									))}
-									{meals.map((v) => (
-										<div className='flex flex-col justify-between shadow-2xl rounded-md'>
-											<div className='flex flex-col'>
-												<ShowImage
-													src={`/${info.adminId}/${MEAL_STORAGE_REF}/${v.pic.thumbnail}`}
-													alt={'Menu Item'}
-													style={'rounded-md h-64 w-full'}
-												/>
-												<h1 className='font-bold text-xl px-4'>{v.title}</h1>
-												<p className='text-xs px-4 w-full'>{v.description}</p>
-												<div className='flex flex-row justify-between p-4 items-center'>
-													<h1 className='font-bold text-xl'>{v.price}USD</h1>
-													<Disclosure>
-														<Disclosure.Button
-															className={' underline text-xs text-left px-4'}
-														>
-															See Details
-														</Disclosure.Button>
-														<Disclosure.Panel>
-															<p className='text-xs px-4 w-full'>
-																{v.description}
-															</p>
-														</Disclosure.Panel>
-													</Disclosure>
-												</div>
-												<button
-													onClick={() => {
-														addToCart(v);
-													}}
-													className='py-2 px-5 text-white rounded-md w-1/2'
-													style={{ backgroundColor: `${info.themeMainColor}` }}
-												>
-													Add
-												</button>
-											</div>
-										</div>
-									))}
-								</div>
-							</div>
-						</div>
-						<div className='fixed bottom-10 left-0 right-10 z-10'>
-							<div className='flex flex-row-reverse space-x-4'>
-								<button
-									style={{
-										backgroundColor: info.themeMainColor,
-										borderColor: info.themeMainColor,
-									}}
-									className='
-										py-4 
-										px-4 
-										relative 
-										border-2 
-										border-transparent 
-										text-gray-800 
-										rounded-full
-										hover:text-gray-400 
-										focus:outline-none 
-										ocus:text-gray-500 
-										transition duration-150 
-										ease-in-out'
-									aria-label='Cart'
-									onClick={() => {
-										setIsOpen(true);
-									}}
-								>
-									<svg
-										className='h-6 w-6 text-white'
-										fill='none'
+									<path
 										stroke-linecap='round'
 										stroke-linejoin='round'
-										stroke-width='2'
-										viewBox='0 0 24 24'
-										stroke='currentColor'
-									>
-										<path d='M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z'></path>
-									</svg>
-									<span className='absolute inset-0 object-right-top -mr-12'>
-										<div
-											className={
-												'inline-flex items-center px-1.5 py-0.5 border-2 border-white rounded-full text-xs font-semibold leading-4 text-white'
-											}
-											style={{ backgroundColor: `${info.themeMainColor}` }}
-										>
-											{addItems.length}
-										</div>
-									</span>
-								</button>
-							</div>
+										d='M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75'
+									/>
+								</svg>
+							</button>
 						</div>
+						<MarketPlace
+							info={[info]}
+							changeIndex={function (i: number): void {
+								setIndex(i);
+							}}
+							borderRadius={'rounded-md'}
+						/>
 					</div>
 				);
 

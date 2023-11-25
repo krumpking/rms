@@ -39,7 +39,7 @@ import Drawer from '../app/components/drawer';
 import { numberWithCommas } from '../app/utils/stringM';
 import MapPicker from 'react-google-map-picker';
 import { IWebsiteOneInfo } from '../app/types/websiteTypes';
-import MarketPlace from '../app/components/market/market';
+import MarketPlace from '../app/components/market/marketPlace';
 import BoothsComp from '../app/components/booths/boothsComp';
 import DateMethods from '../app/utils/date';
 import Head from 'next/head';
@@ -245,10 +245,11 @@ const Booths = () => {
 			case 1:
 				return (
 					<MarketPlace
-						info={info}
+						info={[info]}
 						changeIndex={(index: number) => {
 							setIndex(index);
 						}}
+						borderRadius={'radius-[25px]'}
 					/>
 				);
 
@@ -259,11 +260,8 @@ const Booths = () => {
 
 	return (
 		<div>
-			<Head>
-				<meta name='viewport' content='width=978'></meta>
-			</Head>
 			{loading ? (
-				<div className='flex flex-col items-center content-center'>
+				<div className='flex flex-col items-center content-center min-h-screen h-full'>
 					<Loader color={''} />
 				</div>
 			) : (

@@ -6,7 +6,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router';
 import ClientNav from '../app/components/clientNav';
 import { Tab } from '@headlessui/react';
-import AddMenuCategory from '../app/components/menu/menuCategory';
 import AddMenuItem from '../app/components/menu/addMenuItem';
 import CreateMeal from '../app/components/menu/createMeal';
 import Meal from '../app/components/menu/meal';
@@ -16,6 +15,7 @@ import Head from 'next/head';
 import AddPromotion from '../app/components/menu/addPromo';
 import { logEvent } from 'firebase/analytics';
 import { analytics } from '../firebase/clientApp';
+import AddCateringMenu from '../app/components/menu/addCateringMenu';
 
 function classNames(...classes: string[]) {
 	return classes.filter(Boolean).join(' ');
@@ -27,8 +27,8 @@ const Menu = () => {
 		'Meals',
 		'Create Combo Meal',
 		'Add Promotion',
+		'Add Catering Plate',
 		'Add Menu Item',
-		'Create Category',
 	]);
 	const { adminId, userId, access } = useAuthIds();
 
@@ -103,7 +103,7 @@ const Menu = () => {
 													'ring-white  ring-offset-2 focus:outline-none focus:ring-2'
 												)}
 											>
-												<AddMenuItem />
+												<AddCateringMenu />
 											</Tab.Panel>
 											<Tab.Panel
 												className={classNames(
@@ -111,7 +111,7 @@ const Menu = () => {
 													'ring-white  ring-offset-2 focus:outline-none focus:ring-2'
 												)}
 											>
-												<AddMenuCategory />
+												<AddMenuItem />
 											</Tab.Panel>
 										</Tab.Panels>
 									</Tab.Group>
