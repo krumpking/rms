@@ -12,7 +12,12 @@ import {
 } from '../../constants/constants';
 import Loader from '../loader';
 import { decrypt } from '../../utils/crypto';
-import { ICategory, IMenuItem } from '../../types/menuTypes';
+import {
+	ICategory,
+	ICateringPlate,
+	IMenuItem,
+	IMenuItemPromotions,
+} from '../../types/menuTypes';
 import ShowImage from '../showImage';
 import { useDropzone } from 'react-dropzone';
 import imageCompression from 'browser-image-compression';
@@ -26,64 +31,89 @@ import {
 } from '../../api/mainApi';
 import {
 	CATEGORIES,
+	CATERING_PLATE_COLLECTION,
 	MENU_CAT_COLLECTION,
 	MENU_ITEM_COLLECTION,
+	MENU_PROMO_ITEM_COLLECTION,
 	MENU_STORAGE_REF,
 } from '../../constants/menuConstants';
 import { print } from '../../utils/console';
 import { Dialog, Transition } from '@headlessui/react';
 import { useAuthIds } from '../authHook';
+import { addDays } from 'date-fns';
+import DateMethods from '../../utils/date';
 import { logEvent } from 'firebase/analytics';
 import { analytics } from '../../../firebase/clientApp';
 
-const AddMenuItem = () => {
+const AddCateringMenu = () => {
 	const [loading, setLoading] = useState(true);
 	const router = useRouter();
 	const { adminId, userId, access } = useAuthIds();
-	const [categories, setCategories] = useState<ICategory[]>([]);
 	const [title, setTitle] = useState('');
 	const [files, setFiles] = useState<any[]>([]);
 	const [docId, setDocId] = useState('');
 	const [description, setDescription] = useState('');
-	const [price, setPrice] = useState(0);
+	const [cateringPlate, setPlate] = useState<ICateringPlate>({
+		id: '',
+		adminId: '',
+		userId: '',
+		category: '',
+		title: '',
+		description: '',
+		date: new Date(),
+		dateString: new Date().toDateString(),
+		minimumOrder: 10,
+		preparationTime: 48,
+		pic: '',
+		price: 0,
+		priceAfterFifty: 0,
+		priceAfterHundred: 0,
+	});
+	const [oldPrice, setOldPrice] = useState(0);
 	const [category, setCategory] = useState('');
-	const [menuItems, setMenuItems] = useState<IMenuItem[]>([]);
+	const [duration, setDuration] = useState(0);
+	const [cateringPlates, setCateringPlates] = useState<ICateringPlate[]>([]);
 	const [edit, setEdit] = useState(false);
 	const [editItem, setEditItem] = useState<any>({
 		category: '',
 		title: '',
 		description: '',
 		price: 0,
+		duration: 0,
 	});
 	const [open, setOpen] = useState(false);
 
 	useEffect(() => {
 		document.body.style.backgroundColor = LIGHT_GRAY;
+		logEvent(analytics, 'promo_page_visit');
 
-		getMenuItems();
-		logEvent(analytics, 'add_menu_page_visit');
+		getCateringPlates();
 	}, []);
 
-	const getMenuItems = () => {
-		getDataFromDBOne(MENU_ITEM_COLLECTION, AMDIN_FIELD, adminId)
+	const getCateringPlates = () => {
+		getDataFromDBOne(CATERING_PLATE_COLLECTION, AMDIN_FIELD, adminId)
 			.then((v) => {
 				if (v !== null) {
 					v.data.forEach((element) => {
 						let d = element.data();
-						setMenuItems((menuItems) => [
-							...menuItems,
+
+						setCateringPlates((plate) => [
+							...plate,
 							{
 								id: element.id,
 								adminId: d.adminId,
 								userId: d.userId,
 								pic: d.pic,
 								title: d.title,
-								discount: d.discount,
 								description: d.description,
 								category: d.category,
 								date: d.date,
 								dateString: d.dateString,
+								minimumOrder: d.minimumOrder,
+								preparationTime: d.preperationTime,
 								price: d.price,
+								priceAfterFifty: d.priceAfterFifty,
+								priceAfterHundred: d.priceAfterHundred,
 							},
 						]);
 					});
@@ -96,10 +126,16 @@ const AddMenuItem = () => {
 			});
 	};
 
-	const addMenuItem = async () => {
-		setOpen(false);
+	const handleChange = (e: any) => {
+		setPlate({
+			...cateringPlate,
+			[e.target.name]: e.target.value,
+		});
+	};
 
+	const addCateringPlate = async () => {
 		if (files.length > 0) {
+			setOpen(false);
 			setLoading(true);
 			const name = files[0].name;
 			try {
@@ -121,33 +157,29 @@ const AddMenuItem = () => {
 						compressedFile
 					);
 
-					let menuItem: IMenuItem = {
-						id: 'id',
+					let catPlate: ICateringPlate = {
+						...cateringPlate,
+						id: userId,
 						adminId: adminId,
-						title: title,
-						description: description,
-						category: category,
 						pic: {
 							original: name,
 							thumbnail: `thumbnail_${name}`,
 						},
-						discount: 0,
 						date: new Date(),
 						dateString: new Date().toDateString(),
 						userId: userId,
-						price: price,
 					};
 
-					setMenuItems([]);
-					addDocument(MENU_ITEM_COLLECTION, menuItem)
+					setCateringPlates([]);
+					addDocument(CATERING_PLATE_COLLECTION, catPlate)
 						.then((v) => {
-							logEvent(analytics, 'added_menu_item');
 							setFiles([]);
-							getMenuItems();
+							getCateringPlates();
+							logEvent(analytics, 'added_catering_plate');
 						})
 						.catch((e: any) => {
 							setFiles([]);
-							getMenuItems();
+							getCateringPlates();
 
 							console.error(e);
 							toast.error('There was an error please try again');
@@ -160,6 +192,7 @@ const AddMenuItem = () => {
 			}
 		} else {
 			toast.error("Hmmm looks like you did not add the menu item's image.");
+			setLoading(false);
 		}
 	};
 
@@ -176,17 +209,14 @@ const AddMenuItem = () => {
 
 	const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
-	const getReadyToUpdate = (v: IMenuItem) => {
+	const getReadyToUpdate = (v: ICateringPlate) => {
 		setOpen(true);
 		setEditItem(v);
 		setEdit(true);
-		setTitle(v.title);
-		setDescription(v.description);
-		setPrice(v.price);
-		setCategory(v.category);
+		setPlate(v);
 	};
 
-	const editMenuItem = async () => {
+	const editCateringPlate = async () => {
 		setOpen(false);
 
 		setLoading(true);
@@ -218,39 +248,28 @@ const AddMenuItem = () => {
 			}
 
 			menuItem = {
-				title: title,
-				description: description,
-				category: category,
-				discount: 0,
-				price: price,
+				...cateringPlate,
 				pic: {
 					thumbnail: `thumbnail_${name}`,
 					original: name,
 				},
 			};
 		} else {
-			menuItem = {
-				title: title,
-				description: description,
-				category: category,
-				price: price,
-				discount: 0,
-			};
+			menuItem = cateringPlate;
 		}
 
-		setMenuItems([]);
-		updateDocument(MENU_ITEM_COLLECTION, editItem.id, menuItem)
+		setCateringPlates([]);
+		updateDocument(CATERING_PLATE_COLLECTION, editItem.id, menuItem)
 			.then((v) => {
 				setEdit(false);
 				setFiles([]);
-				getMenuItems();
+				getCateringPlates();
 				setOpen(false);
-				logEvent(analytics, 'edited_menu_item');
 			})
 			.catch((e: any) => {
 				setEdit(false);
 				setFiles([]);
-				getMenuItems();
+				getCateringPlates();
 				setOpen(false);
 				console.error(e);
 				toast.error('There was an error please try again');
@@ -264,11 +283,11 @@ const AddMenuItem = () => {
 			setLoading(true);
 			deleteFile(`${adminId}/${MENU_STORAGE_REF}/${pic.original}`);
 			deleteFile(`${adminId}/${MENU_STORAGE_REF}/${pic.thumbnail}`);
-			deleteDocument(MENU_ITEM_COLLECTION, id)
+			deleteDocument(CATERING_PLATE_COLLECTION, id)
 				.then(() => {
-					setMenuItems([]);
-					getMenuItems();
-					logEvent(analytics, 'deleted_menu_item');
+					setCateringPlates([]);
+					getCateringPlates();
+					logEvent(analytics, 'deleted_promos');
 				})
 				.catch((e: any) => {
 					console.error(e);
@@ -306,10 +325,10 @@ const AddMenuItem = () => {
 										d='M12 4.5v15m7.5-7.5h-15'
 									/>
 								</svg>
-								Add Menu Item
+								Add Catering Plate
 							</div>
 						</div>
-						{menuItems.map((v) => {
+						{cateringPlates.map((v) => {
 							return (
 								<div className='flex flex-col shadow-xl rounded-[25px] p-8 w-full md:w-[250px] '>
 									<div className='flex flex-row-reverse'>
@@ -411,7 +430,7 @@ const AddMenuItem = () => {
 								>
 									{files.length > 0 ? (
 										<div className='grid grid-cols-2 gap-4'>
-											<p>Adding Menu Item</p>
+											<p>Adding Catering Menu Item</p>
 											<p>
 												{files.length} Picture{files.length > 1 ? 's' : ''}{' '}
 												Added
@@ -463,50 +482,48 @@ const AddMenuItem = () => {
 									<div className='mb-6 w-full'>
 										<input
 											type='text'
-											value={title}
+											name='title'
+											value={cateringPlate.title}
 											placeholder={'Title'}
-											onChange={(e) => {
-												setTitle(e.target.value);
-											}}
+											onChange={handleChange}
 											className='
-												w-full
-												rounded-[25px]
-												border-2
-												border-[#8b0e06]
-												py-3
-												px-5
-												bg-white
-												text-base text-body-color
-												placeholder-[#ACB6BE]
-												outline-none
-												focus-visible:shadow-none
-												focus:border-primary
-											'
+                                                w-full
+                                                rounded-[25px]
+                                                border-2
+                                                border-[#8b0e06]
+                                                py-3
+                                                px-5
+                                                bg-white
+                                                text-base text-body-color
+                                                placeholder-[#ACB6BE]
+                                                outline-none
+                                                focus-visible:shadow-none
+                                                focus:border-primary
+                                                '
 											required
 										/>
 									</div>
 									<div className='mb-6 w-full'>
 										<textarea
-											value={description}
-											placeholder={'Menu Item Description'}
-											onChange={(e) => {
-												setDescription(e.target.value);
-											}}
+											value={cateringPlate.description}
+											name='description'
+											placeholder={'Catering Plate Description'}
+											onChange={handleChange}
 											className='
-												h-25
-												w-full
-												rounded-[25px]
-												border-2
-												border-[#8b0e06]
-												py-3
-												px-5
-												bg-white
-												text-base text-body-color
-												placeholder-[#ACB6BE]
-												outline-none
-												focus-visible:shadow-none
-												focus:border-primary
-											'
+                                                h-25
+                                                w-full
+                                                rounded-[25px]
+                                                border-2
+                                                border-[#8b0e06]
+                                                py-3
+                                                px-5
+                                                bg-white
+                                                text-base text-body-color
+                                                placeholder-[#ACB6BE]
+                                                outline-none
+                                                focus-visible:shadow-none
+                                                focus:border-primary
+                                            '
 											required
 										/>
 									</div>
@@ -516,10 +533,9 @@ const AddMenuItem = () => {
 											onClick={(e) => e.preventDefault()}
 										>
 											<select
-												value={category}
-												onChange={(e) => {
-													setCategory(e.target.value);
-												}}
+												value={cateringPlate.category}
+												name='category'
+												onChange={handleChange}
 												className='bg-white w-full'
 												data-required='1'
 												required
@@ -535,56 +551,143 @@ const AddMenuItem = () => {
 									</div>
 									<div className='mb-6 w-full'>
 										<p className='text-xs text-gray-400 text-center'>
-											Price in USD
+											Minimum Plates per order
 										</p>
 										<input
 											type='number'
 											min={0}
-											step={0.01}
-											value={price}
-											placeholder={'Price in USD'}
-											onChange={(e) => {
-												setPrice(parseFloat(e.target.value));
-											}}
+											step={0}
+											name='minimumOrder'
+											value={cateringPlate.minimumOrder}
+											placeholder={'Minimum Order'}
+											onChange={handleChange}
 											className='
-                         w-full
-                         rounded-[25px]
-                         border-2
-                         border-[#8b0e06]
-                         py-3
-                         px-5
-                         bg-white
-                         text-base text-body-color
-                         placeholder-[#ACB6BE]
-                         outline-none
-                         focus-visible:shadow-none
-                         focus:border-primary
-                         '
+                                                w-full
+                                                rounded-[25px]
+                                                border-2
+                                                border-[#8b0e06]
+                                                py-3
+                                                px-5
+                                                bg-white
+                                                text-base text-body-color
+                                                placeholder-[#ACB6BE]
+                                                outline-none
+                                                focus-visible:shadow-none
+                                                focus:border-primary
+                                            '
+											required
+										/>
+									</div>
+
+									<div className='mb-6 w-full'>
+										<p className='text-xs text-gray-400 text-center'>
+											Price per plate 1 to 50 people
+										</p>
+										<input
+											type='number'
+											min={0}
+											step={0}
+											value={cateringPlate.price}
+											placeholder={'Price per plate'}
+											name='price'
+											onChange={handleChange}
+											className='
+                                                    w-full
+                                                    rounded-[25px]
+                                                    border-2
+                                                    border-[#8b0e06]
+                                                    py-3
+                                                    px-5
+                                                    bg-white
+                                                    text-base text-body-color
+                                                    placeholder-[#ACB6BE]
+                                                    outline-none
+                                                    focus-visible:shadow-none
+                                                    focus:border-primary
+                                                    '
+											required
+										/>
+									</div>
+									<div className='mb-6 w-full'>
+										<p className='text-xs text-gray-400 text-center'>
+											Price per plate for 51 to 100 people
+										</p>
+										<input
+											type='number'
+											min={0}
+											step={0}
+											value={cateringPlate.priceAfterFifty}
+											placeholder={'Price per plate for 51 to 100 people'}
+											name='priceAfterFifty'
+											onChange={handleChange}
+											className='
+                                                    w-full
+                                                    rounded-[25px]
+                                                    border-2
+                                                    border-[#8b0e06]
+                                                    py-3
+                                                    px-5
+                                                    bg-white
+                                                    text-base text-body-color
+                                                    placeholder-[#ACB6BE]
+                                                    outline-none
+                                                    focus-visible:shadow-none
+                                                    focus:border-primary
+                                                    '
+											required
+										/>
+									</div>
+									<div className='mb-6 w-full'>
+										<p className='text-xs text-gray-400 text-center'>
+											Price per plate for over 100 people
+										</p>
+										<input
+											type='number'
+											min={0}
+											step={0}
+											value={cateringPlate.priceAfterHundred}
+											placeholder={'Price per plate'}
+											name='priceAfterHundred'
+											onChange={handleChange}
+											className='
+                                                    w-full
+                                                    rounded-[25px]
+                                                    border-2
+                                                    border-[#8b0e06]
+                                                    py-3
+                                                    px-5
+                                                    bg-white
+                                                    text-base text-body-color
+                                                    placeholder-[#ACB6BE]
+                                                    outline-none
+                                                    focus-visible:shadow-none
+                                                    focus:border-primary
+                                                    '
 											required
 										/>
 									</div>
 									<button
 										onClick={() => {
-											edit ? editMenuItem() : addMenuItem();
+											edit ? editCateringPlate() : addCateringPlate();
 										}}
 										className='
-                        font-bold
-                        w-full
-                        rounded-[25px]
-                        border-2
-                        border-[#8b0e06]
-                        border-primary
-                        py-3
-                        px-10
-                        bg-[#8b0e06]
-                        text-base 
-                        text-white
-                        cursor-pointer
-                        hover:bg-opacity-90
-                        transition
-                    '
+                                            font-bold
+                                            w-full
+                                            rounded-[25px]
+                                            border-2
+                                            border-[#8b0e06]
+                                            border-primary
+                                            py-3
+                                            px-10
+                                            bg-[#8b0e06]
+                                            text-base 
+                                            text-white
+                                            cursor-pointer
+                                            hover:bg-opacity-90
+                                            transition
+                                        '
 									>
-										{edit ? 'Update Menu Item' : 'Add Menu Item'}
+										{edit ? 'Update Catering Plate' : 'Add Catering Plate'}
 									</button>
 								</div>
 							</div>
@@ -598,4 +701,4 @@ const AddMenuItem = () => {
 	);
 };
 
-export default AddMenuItem;
+export default AddCateringMenu;

@@ -157,7 +157,7 @@ const BoothsComp = (props: {
 					<Loader color={''} />
 				</div>
 			) : (
-				<div className='bg-white rounded-[30px] p-4 '>
+				<div className='bg-white rounded-[30px] p-1 md:p-4 '>
 					<div
 						className='border rounded-[25px] w-full h-full'
 						style={{ borderColor: PRIMARY_COLOR }}
@@ -187,7 +187,7 @@ const BoothsComp = (props: {
 								</svg>
 							</button>
 						</div>
-						<div className='p-8'>
+						<div className='p-2 md:p-8'>
 							<input
 								type='text'
 								value={search}
@@ -213,7 +213,7 @@ const BoothsComp = (props: {
 								onKeyDown={handleKeyDown}
 							/>
 
-							<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-8 p-2 md:p-8'>
+							<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-8 p-12'>
 								{booths.map((v) => (
 									<div className='relative shadow-2xl rounded-[25px] p-4 w-full'>
 										<div className='p-4'>

@@ -83,12 +83,14 @@ const Header = () => {
 							onClick={() => {
 								router.push('/market');
 							}}
-							style={{ backgroundColor: PRIMARY_COLOR }}
+							style={{
+								backgroundColor: PRIMARY_COLOR,
+								borderColor: PRIMARY_COLOR,
+							}}
 							className='font-bold
                                         w-full
                                         rounded-[25px]
                                         border-2
-                                        border-primary
                                         py-3
                                         px-5
                                         text-base 
@@ -110,7 +112,6 @@ const Header = () => {
                                         w-full
                                         rounded-[25px]
                                         border-2
-                                        border-primary
                                         py-3
                                         px-5
                                         text-base 

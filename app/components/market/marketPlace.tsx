@@ -1,8 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router';
-import { IMeal, IMenuItem, IMenuItemPromotions } from '../../types/menuTypes';
+import {
+	ICateringPlate,
+	IMeal,
+	IMenuItem,
+	IMenuItemPromotions,
+} from '../../types/menuTypes';
 import {
 	DEFAULT_LOCATION,
 	DEFAULT_ZOOM,
@@ -17,6 +22,8 @@ import {
 	updateDocument,
 } from '../../api/mainApi';
 import {
+	CATEGORIES,
+	CATERING_PLATE_COLLECTION,
 	MEAL_ITEM_COLLECTION,
 	MEAL_STORAGE_REF,
 	MENU_ITEM_COLLECTION,
@@ -46,7 +53,7 @@ import { print } from '../../utils/console';
 import DateMethods from '../../utils/date';
 import { differenceInHours, isAfter, isEqual } from 'date-fns';
 import { sendOrderEmail } from '../../api/emailApi';
-import { Disclosure } from '@headlessui/react';
+import { Dialog, Disclosure, Transition } from '@headlessui/react';
 import { IPoints, IPointsRate } from '../../types/loyaltyTypes';
 import {
 	POINTS_COLLECTION,
@@ -55,11 +62,12 @@ import {
 import { logEvent } from 'firebase/analytics';
 import { analytics } from '../../../firebase/clientApp';
 
-const FoodiesBoothMarketPlace = (props: {
+const MarketPlace = (props: {
 	info: IWebsiteOneInfo[];
 	changeIndex: (index: number) => void;
+	borderRadius: string;
 }) => {
-	const { info, changeIndex } = props;
+	const { info, changeIndex, borderRadius } = props;
 	const [loading, setLoading] = useState(true);
 	const router = useRouter();
 	const [isOpen, setIsOpen] = useState(false);
@@ -93,7 +101,7 @@ const FoodiesBoothMarketPlace = (props: {
 		clientId: '',
 		customerName: '',
 		customerEmail: '',
-		customerPhone: '+263',
+		customerPhone: '',
 		customerAddress: '',
 		deliveryLocation: null,
 		tableNo: '',
@@ -126,11 +134,37 @@ const FoodiesBoothMarketPlace = (props: {
 	]);
 	const [paymentMethod, setPaymentMethod] = useState('');
 	const [confirmationMessage, setConfirmationMessage] = useState('');
+	const [mainColor, setMainColor] = useState('');
+	const [cateringPlates, setCateringPlates] = useState<ICateringPlate[]>([]);
+	const [openDialog, setOpenDialog] = useState(false);
+	const [cateringPlate, setPlate] = useState<ICateringPlate>({
+		id: '',
+		adminId: '',
+		userId: '',
+		category: '',
+		title: '',
+		description: '',
+		date: new Date(),
+		dateString: new Date().toDateString(),
+		minimumOrder: 10,
+		preparationTime: 48,
+		pic: '',
+		price: 0,
+		priceAfterFifty: 0,
+		priceAfterHundred: 0,
+	});
+	const [noOfPeople, setNoOfPeople] = useState(0);
 
 	useEffect(() => {
+		if (info.length > 1) {
+			setMainColor(PRIMARY_COLOR);
+		} else {
+			setMainColor(info[0].themeMainColor);
+		}
 		getMeals();
 		getPromos();
 		getMenuItems();
+		getCateringPlates();
 		logEvent(analytics, 'foodies_booth_market_place_page_visit');
 	}, []);
 
@@ -265,6 +299,43 @@ const FoodiesBoothMarketPlace = (props: {
 									oldPrice: d.oldPrice,
 									newPrice: d.newPrice,
 									endDate: d.endDate,
+								},
+							]);
+						});
+					}
+					setLoading(false);
+				})
+				.catch((e) => {
+					console.error(e);
+					setLoading(true);
+				});
+		});
+	};
+
+	const getCateringPlates = () => {
+		info.forEach((element) => {
+			getDataFromDBOne(CATERING_PLATE_COLLECTION, AMDIN_FIELD, element.adminId)
+				.then((v) => {
+					if (v !== null) {
+						v.data.forEach((element) => {
+							let d = element.data();
+							setCateringPlates((plate) => [
+								...plate,
+								{
+									id: element.id,
+									adminId: d.adminId,
+									userId: d.userId,
+									pic: d.pic,
+									title: d.title,
+									description: d.description,
+									category: d.category,
+									date: d.date,
+									dateString: d.dateString,
+									minimumOrder: d.minimumOrder,
+									preparationTime: d.preperationTime,
+									price: d.price,
+									priceAfterFifty: d.priceAfterFifty,
+									priceAfterHundred: d.priceAfterHundred,
 								},
 							]);
 						});
@@ -591,7 +662,17 @@ const FoodiesBoothMarketPlace = (props: {
 					order.customerName !== '' &&
 					order.customerPhone !== ''
 				) {
-					setMakePayment(true);
+					if (noOfPeople > 100) {
+						if (hrs > 168) {
+							setMakePayment(true);
+						} else {
+							toast.info(
+								`Delivery date can only be after 1 week to serve ${noOfPeople} `
+							);
+						}
+					} else {
+						setMakePayment(true);
+					}
 				} else {
 					toast.error('Ensure you enter all details');
 				}
@@ -851,22 +932,32 @@ const FoodiesBoothMarketPlace = (props: {
 					<Loader color={''} />
 				</div>
 			) : (
-				<div className='bg-white rounded-[30px] p-0 sm:p-4 text-black'>
+				<div className={'bg-white p-0 sm:p-4 text-black ' + borderRadius}>
 					<div className='relative'>
 						<div className='w-full h-full'>
 							<div className='p-2 sm:p-8'>
 								<div className='flex justify-center content-center items-center mb-6'>
-									<div className='flex flex-row space-x-4 w-full overflow-x-auto'>
-										{returnOnlyUnique(categories).map((v) => (
-											<h1
-												className='hover:cursor-pointer w-full whitespace-nowrap'
-												onClick={() => {
-													setSearch(v);
-													searchFor();
-												}}
-											>
-												{v}
-											</h1>
+									<div className='carousel carousel-center bg-white bg-white'>
+										{CATEGORIES.map((v) => (
+											<div className='carousel-item p-4'>
+												<div
+													className={
+														'relative shadow-2xl border-2 py-2 px-4 ' +
+														borderRadius
+													}
+													style={{ borderColor: mainColor }}
+												>
+													<h1
+														className='hover:cursor-pointer w-full whitespace-nowrap'
+														onClick={() => {
+															setSearch(v);
+															searchFor();
+														}}
+													>
+														{v}
+													</h1>
+												</div>
+											</div>
 										))}
 									</div>
 								</div>
@@ -877,10 +968,9 @@ const FoodiesBoothMarketPlace = (props: {
 									onChange={(e) => {
 										setSearch(e.target.value);
 									}}
-									style={{ borderColor: PRIMARY_COLOR }}
-									className='
+									style={{ borderColor: mainColor }}
+									className={`
                                         w-full
-                                        rounded-[25px]
                                         border-2
                                         py-3
                                         px-5
@@ -891,67 +981,16 @@ const FoodiesBoothMarketPlace = (props: {
                                         focus-visible:shadow-none
                                         focus:border-primary
                                         mb-6
-                                        '
+										${borderRadius}
+                                        `}
 									onKeyDown={handleKeyDown}
 								/>
-								{/* <div className='grid grid-cols-2 gap-4'>
-									<input
-										type='text'
-										value={locationSearch}
-										placeholder={'Search by location'}
-										onChange={(e) => {
-											setLocationSearch(e.target.value);
-										}}
-										style={{ borderColor: PRIMARY_COLOR }}
-										className='
-                                        w-full
-                                        rounded-[25px]
-                                        border-2
-                                        py-3
-                                        px-5
-                                        bg-white
-                                        text-base text-body-color
-                                        placeholder-[#ACB6BE]
-                                        outline-none
-                                        focus-visible:shadow-none
-                                        focus:border-primary
-                                        mb-6
-                                        '
-										onKeyDown={handleKeyDown}
-									/>
-									<input
-										type='text'
-										value={price}
-										placeholder={'Search by price '}
-										onChange={(e) => {
-											setPrice(e.target.value);
-										}}
-										style={{ borderColor: PRIMARY_COLOR }}
-										className='
-                                        w-full
-                                        rounded-[25px]
-                                        border-2
-                                        py-3
-                                        px-5
-                                        bg-white
-                                        text-base text-body-color
-                                        placeholder-[#ACB6BE]
-                                        outline-none
-                                        focus-visible:shadow-none
-                                        focus:border-primary
-                                        mb-6
-                                        '
-										onKeyDown={handleKeyDown}
-									/>
-								</div> */}
-								<div className='flex flex-col mb-6 p-2 md:p-8 mb-6 border-b-2'>
+
+								<div className='flex flex-col mb-6 border-b-2'>
 									<div>
 										{promos.length > 0 ? (
 											<div className='flex justify-center content-center items-center mb-6'>
-												<h1
-													className='text-2xl'
-													style={{ color: PRIMARY_COLOR }}
-												>
+												<h1 className='text-2xl' style={{ color: mainColor }}>
 													PROMOS
 												</h1>
 											</div>
@@ -964,12 +1003,16 @@ const FoodiesBoothMarketPlace = (props: {
 										<div className='carousel carousel-center bg-white bg-white'>
 											{promos.map((v) => (
 												<div className='carousel-item p-4'>
-													<div className='relative shadow-2xl rounded-[25px] w-[200px]'>
+													<div
+														className={
+															'relative shadow-2xl w-[250px] ' + borderRadius
+														}
+													>
 														<div className='p-2 md:p-4 flex flex-col space-y-1'>
 															<ShowImage
 																src={`/${v.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
 																alt={'Menu Item'}
-																style={'rounded-[25px] h-20 lg:h-40 w-full '}
+																style={' h-20 lg:h-40 w-full ' + borderRadius}
 															/>
 
 															<p className='text-xs md:text-xl'>{v.title}</p>
@@ -1010,14 +1053,21 @@ const FoodiesBoothMarketPlace = (props: {
 																	};
 																	addToCart(item);
 																}}
-																className='py-2 px-5 text-white rounded-[25px] w-full'
+																className={
+																	'py-2 px-5 text-white w-full ' + borderRadius
+																}
 																style={{
-																	backgroundColor: `${PRIMARY_COLOR}`,
+																	backgroundColor: `${mainColor}`,
 																}}
 															>
 																Add
 															</button>
-															<div className='rounded-[25px] font-bold w-full h-fit font-bold text-xs text-center flex flex-row justify-center my-1'>
+															<div
+																className={
+																	'font-bold w-full h-fit font-bold text-xs text-center flex flex-row justify-center my-1 ' +
+																	borderRadius
+																}
+															>
 																<p className='text-gray-400'>
 																	{DateMethods.diffDatesDays(
 																		new Date().toDateString(),
@@ -1030,7 +1080,7 @@ const FoodiesBoothMarketPlace = (props: {
 
 														<div
 															className='absolute -top-2 -right-2  z-10 rounded-full text-white font-bold w-12 h-12 font-bold text-xs text-center flex items-center'
-															style={{ backgroundColor: PRIMARY_COLOR }}
+															style={{ backgroundColor: mainColor }}
 														>
 															{100 - (v.newPrice / v.oldPrice) * 100} % OFF
 														</div>
@@ -1043,13 +1093,92 @@ const FoodiesBoothMarketPlace = (props: {
 									)}
 								</div>
 								<div className='grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6'>
-									{menuItems.map((v) => (
-										<div className='flex flex-col justify-between shadow-2xl rounded-[25px]'>
+									{cateringPlates.map((v) => (
+										<div
+											className={
+												'flex flex-col justify-between shadow-2xl ' +
+												borderRadius
+											}
+										>
 											<div className='flex flex-col'>
 												<ShowImage
 													src={`/${v.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
 													alt={'Menu Item'}
-													style={'rounded-[25px] h-32 md:h-64 w-full'}
+													style={borderRadius + ' h-32 md:h-64 w-full'}
+												/>
+												<h1 className='font-bold text-xs md:text-xl px-2 md:px-4'>
+													{v.title}
+												</h1>
+												<Disclosure>
+													<Disclosure.Button
+														className={
+															' underline text-xs text-left px-2 md:px-4'
+														}
+													>
+														See Details
+													</Disclosure.Button>
+													<Disclosure.Panel>
+														<p className='flex flex-col text-xs px-2 md:px-4 w-full'>
+															<div>
+																Discount (Price for over 100 people):{' '}
+																{v.priceAfterHundred}
+															</div>
+															<div>
+																Discount (Price for 51 to 100 people):{' '}
+																{v.priceAfterFifty}
+															</div>
+															{v.description}
+														</p>
+													</Disclosure.Panel>
+												</Disclosure>
+											</div>
+
+											<div className='flex flex-row justify-between p-4 items-center'>
+												<h1 className='font-bold text-sm md:text-xl'>
+													{v.price}USD
+												</h1>
+
+												<button
+													onClick={() => {
+														setPlate(v);
+														setOpenDialog(true);
+													}}
+													className={
+														borderRadius + ' py-2 px-5 text-white w-fit'
+													}
+													style={{ backgroundColor: mainColor }}
+												>
+													<p className='hidden lg:flex'>Add</p>
+													<svg
+														xmlns='http://www.w3.org/2000/svg'
+														fill='none'
+														viewBox='0 0 24 24'
+														stroke-width='1.5'
+														stroke='currentColor'
+														className='w-6 h-6 flex lg:hidden'
+													>
+														<path
+															stroke-linecap='round'
+															stroke-linejoin='round'
+															d='M12 4.5v15m7.5-7.5h-15'
+														/>
+													</svg>
+												</button>
+											</div>
+										</div>
+									))}
+									{menuItems.map((v) => (
+										<div
+											className={
+												'flex flex-col justify-between shadow-2xl ' +
+												borderRadius
+											}
+										>
+											<div className='flex flex-col'>
+												<ShowImage
+													src={`/${v.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
+													alt={'Menu Item'}
+													style={borderRadius + ' h-32 md:h-64 w-full'}
 												/>
 												<h1 className='font-bold text-xs md:text-xl px-2 md:px-4'>
 													{v.title}
@@ -1079,8 +1208,10 @@ const FoodiesBoothMarketPlace = (props: {
 													onClick={() => {
 														addToCart(v);
 													}}
-													className='py-2 px-5 text-white rounded-[25px] w-fit '
-													style={{ backgroundColor: PRIMARY_COLOR }}
+													className={
+														'py-2 px-5 text-white w-fit ' + borderRadius
+													}
+													style={{ backgroundColor: mainColor }}
 												>
 													<p className='hidden lg:flex'>Add</p>
 													<svg
@@ -1102,12 +1233,17 @@ const FoodiesBoothMarketPlace = (props: {
 										</div>
 									))}
 									{meals.map((v) => (
-										<div className='flex flex-col justify-between shadow-2xl rounded-[25px]'>
+										<div
+											className={
+												'flex flex-col justify-between shadow-2xl ' +
+												borderRadius
+											}
+										>
 											<div className='flex flex-col'>
 												<ShowImage
 													src={`/${v.adminId}/${MEAL_STORAGE_REF}/${v.pic.thumbnail}`}
 													alt={'Menu Item'}
-													style={'rounded-[25px] h-32 md:h-64 w-full'}
+													style={borderRadius + ' h-32 md:h-64 w-full'}
 												/>
 												<h1 className='font-bold text-xs md:text-xl px-2 md:px-4'>
 													{v.title}
@@ -1137,8 +1273,10 @@ const FoodiesBoothMarketPlace = (props: {
 													onClick={() => {
 														addToCart(v);
 													}}
-													className='py-2 px-5 text-white rounded-[25px] w-fit'
-													style={{ backgroundColor: PRIMARY_COLOR }}
+													className={
+														borderRadius + ' py-2 px-5 text-white w-fit'
+													}
+													style={{ backgroundColor: mainColor }}
 												>
 													<p className='hidden lg:flex'>Add</p>
 													<svg
@@ -1167,8 +1305,8 @@ const FoodiesBoothMarketPlace = (props: {
 							<div className='flex flex-row-reverse space-x-4'>
 								<button
 									style={{
-										backgroundColor: PRIMARY_COLOR,
-										borderColor: PRIMARY_COLOR,
+										backgroundColor: mainColor,
+										borderColor: mainColor,
 									}}
 									className='
 										py-4 
@@ -1221,7 +1359,7 @@ const FoodiesBoothMarketPlace = (props: {
 											className={
 												'inline-flex items-center px-1.5 py-0.5 border-2 border-white rounded-full text-xs font-semibold leading-4 text-white'
 											}
-											style={{ backgroundColor: PRIMARY_COLOR }}
+											style={{ backgroundColor: mainColor }}
 										>
 											{addItems.length}
 										</div>
@@ -1234,16 +1372,22 @@ const FoodiesBoothMarketPlace = (props: {
 						isOpen={isOpen}
 						setIsOpen={setIsOpen}
 						bg={'#fff'}
-						color={PRIMARY_COLOR}
+						color={mainColor}
 					>
 						{makePayment ? (
 							<div
-								style={{ borderColor: PRIMARY_COLOR }}
-								className='border rounded-[25px] h-fit w-full flex flex-col items-center m-2 md:m-4 p-2 md:p-4'
+								style={{ borderColor: mainColor }}
+								className={
+									borderRadius +
+									' border  h-fit w-full flex flex-col items-center m-2 md:m-4 p-2 md:p-4'
+								}
 							>
 								<button
-									className='font-bold rounded-[25px] border-2 bg-white px-4 py-3 w-full mb-2'
-									style={{ borderColor: PRIMARY_COLOR }}
+									className={
+										borderRadius +
+										' font-bold border-2 bg-white px-4 py-3 w-full mb-2'
+									}
+									style={{ borderColor: mainColor }}
 									onClick={(e) => e.preventDefault()}
 								>
 									<select
@@ -1285,11 +1429,10 @@ const FoodiesBoothMarketPlace = (props: {
 											onChange={(e) => {
 												setConfirmationMessage(e.target.value);
 											}}
-											className='
+											className={`
 													w-full
-													rounded-[25px]
+													${borderRadius}
 													border-2
-													border-[#8b0e06]
 													py-3
 													px-5
 													h-64
@@ -1299,7 +1442,9 @@ const FoodiesBoothMarketPlace = (props: {
 													outline-none
 													focus-visible:shadow-none
 													focus:border-primary
-												'
+
+												`}
+											style={{ borderColor: mainColor }}
 											required
 										/>
 									</div>
@@ -1309,10 +1454,9 @@ const FoodiesBoothMarketPlace = (props: {
 									onClick={() => {
 										paymentConfirmed();
 									}}
-									className='
+									className={`
                                         font-bold
                                         w-full
-                                        rounded-[25px]
                                         border-2
                                         border-primary
                                         py-3
@@ -1322,10 +1466,11 @@ const FoodiesBoothMarketPlace = (props: {
                                         cursor-pointer
                                         hover:bg-opacity-90
                                         transition
-                                    '
+										${borderRadius}
+                                    `}
 									style={{
-										borderColor: PRIMARY_COLOR,
-										backgroundColor: PRIMARY_COLOR,
+										borderColor: mainColor,
+										backgroundColor: mainColor,
 									}}
 								>
 									Confirm order
@@ -1333,8 +1478,11 @@ const FoodiesBoothMarketPlace = (props: {
 							</div>
 						) : (
 							<div
-								style={{ borderColor: PRIMARY_COLOR }}
-								className='border rounded-[25px] h-fit w-full flex flex-col items-center m-2 md:m-4 p-2 md:p-4'
+								style={{ borderColor: mainColor }}
+								className={
+									borderRadius +
+									' border  h-fit w-full flex flex-col items-center m-2 md:m-4 p-2 md:p-4'
+								}
 							>
 								<div className={'mb-2 w-full'}>
 									<input
@@ -1343,10 +1491,10 @@ const FoodiesBoothMarketPlace = (props: {
 										name='customerName'
 										placeholder={'Full Name'}
 										onChange={handleChangeOrder}
-										style={{ borderColor: PRIMARY_COLOR }}
-										className='
+										style={{ borderColor: mainColor }}
+										className={`
                                                 w-full
-                                                rounded-[25px]
+                                                ${borderRadius}
                                                 border-2                                               
                                                 py-3
                                                 px-5
@@ -1356,7 +1504,7 @@ const FoodiesBoothMarketPlace = (props: {
                                                 outline-none
                                                 focus-visible:shadow-none
                                                 focus:border-primary
-                                        '
+                                        `}
 									/>
 								</div>
 								<div className={'mb-2 w-full'}>
@@ -1366,10 +1514,10 @@ const FoodiesBoothMarketPlace = (props: {
 										placeholder={'Phone Number'}
 										name='customerPhone'
 										onChange={handleChangeOrder}
-										style={{ borderColor: PRIMARY_COLOR }}
-										className='
+										style={{ borderColor: mainColor }}
+										className={`
                                                 w-full
-                                                rounded-[25px]
+                                                ${borderRadius}
                                                 border-2
                                                 py-3
                                                 px-5
@@ -1377,7 +1525,7 @@ const FoodiesBoothMarketPlace = (props: {
                                                 outline-none
                                                 focus-visible:shadow-none
                                                 focus:border-primary
-                                        '
+                                        `}
 									/>
 								</div>
 								<div className={'mb-2 w-full'}>
@@ -1387,10 +1535,10 @@ const FoodiesBoothMarketPlace = (props: {
 										placeholder={'Email'}
 										name='customerEmail'
 										onChange={handleChangeOrder}
-										style={{ borderColor: PRIMARY_COLOR }}
-										className='
+										style={{ borderColor: mainColor }}
+										className={`
                                                 w-full
-                                                rounded-[25px]
+                                                ${borderRadius}
                                                 border-2
                                                 py-3
                                                 px-5
@@ -1398,12 +1546,15 @@ const FoodiesBoothMarketPlace = (props: {
                                                 outline-none
                                                 focus-visible:shadow-none
                                                 focus:border-primary
-                                        '
+                                        `}
 									/>
 								</div>
 								<button
-									className='font-bold rounded-[25px] border-2 bg-white px-4 py-3 w-full mb-2'
-									style={{ borderColor: PRIMARY_COLOR }}
+									className={
+										borderRadius +
+										' font-bold border-2 bg-white px-4 py-3 w-full mb-2'
+									}
+									style={{ borderColor: mainColor }}
 									onClick={(e) => e.preventDefault()}
 								>
 									<select
@@ -1433,10 +1584,9 @@ const FoodiesBoothMarketPlace = (props: {
 										placeholder={`Date of ${order.deliveryMethod}`}
 										name='deliveryDate'
 										onChange={handleChangeOrder}
-										style={{ borderColor: PRIMARY_COLOR }}
-										className='
+										style={{ borderColor: mainColor }}
+										className={`
                                                 w-full
-                                                rounded-[25px]
                                                 border-2
                                                 py-3
                                                 px-5
@@ -1446,7 +1596,8 @@ const FoodiesBoothMarketPlace = (props: {
                                                 outline-none
                                                 focus-visible:shadow-none
                                                 focus:border-primary
-                                        '
+												${borderRadius}
+                                        `}
 									/>
 								</div>
 								<div className={'mb-2 w-full'}>
@@ -1459,10 +1610,10 @@ const FoodiesBoothMarketPlace = (props: {
 										placeholder={`Date of ${order.deliveryMethod}`}
 										name='deliveryTime'
 										onChange={handleChangeOrder}
-										style={{ borderColor: PRIMARY_COLOR }}
-										className='
+										style={{ borderColor: mainColor }}
+										className={`
                                                 w-full
-                                                rounded-[25px]
+                                                ${borderRadius}
                                                 border-2
                                                 py-3
                                                 px-5
@@ -1472,12 +1623,16 @@ const FoodiesBoothMarketPlace = (props: {
                                                 outline-none
                                                 focus-visible:shadow-none
                                                 focus:border-primary
-                                        '
+                                        `}
 									/>
 								</div>
 								<div className='mb-4 w-full'>
 									<button
-										className='font-bold rounded-[25px] border-2 border-[#8b0e06] bg-white py-3 px-4 w-full'
+										className={
+											borderRadius +
+											' font-bold border-2 bg-white py-3 px-4 w-full'
+										}
+										style={{ borderColor: mainColor }}
 										onClick={(e) => e.preventDefault()}
 									>
 										<select
@@ -1511,7 +1666,11 @@ const FoodiesBoothMarketPlace = (props: {
 											</div>
 											<div className='mb-4'>
 												<button
-													className='font-bold rounded-[25px] border-2 border-[#8b0e06] bg-white px-4 py-3 w-full'
+													className={
+														borderRadius +
+														' font-bold border-2  bg-white px-4 py-3 w-full'
+													}
+													style={{ borderColor: mainColor }}
 													onClick={(e) => e.preventDefault()}
 												>
 													<select
@@ -1543,9 +1702,14 @@ const FoodiesBoothMarketPlace = (props: {
 								</div>
 								<div className='mb-2 overflow-y-auto max-h-54 w-full'>
 									<div>
-										<div className='flex flex-row justify-between shadow-md m-4 p-4 rounded-[25px]'>
+										<div
+											className={
+												borderRadius +
+												' flex flex-row justify-between shadow-md m-4 p-4 '
+											}
+										>
 											<p className='text-xs'> Item</p>
-											<div className='flex justify-between space-x-2'>
+											<div className='flex flex-row justify-between space-x-2'>
 												<p className='text-xs'>No of Items</p>
 												<p className='text-xs'>Price</p>
 												<p className='text-xs'>Total</p>
@@ -1553,7 +1717,12 @@ const FoodiesBoothMarketPlace = (props: {
 											</div>
 										</div>
 										{displayedItems.map((v: any) => (
-											<div className='flex flex-row justify-between shadow-md m-4 p-4 rounded-[25px]'>
+											<div
+												className={
+													borderRadius +
+													' flex flex-row justify-between shadow-md m-4 p-4'
+												}
+											>
 												<h1>{v.itemName}</h1>
 												<div className='flex justify-between space-x-4'>
 													<h1>{getCount(v.id)}</h1>
@@ -1593,10 +1762,9 @@ const FoodiesBoothMarketPlace = (props: {
 												placeholder={'Delivery Address'}
 												name='customerAddress'
 												onChange={handleChangeOrder}
-												style={{ borderColor: PRIMARY_COLOR }}
-												className='
+												style={{ borderColor: mainColor }}
+												className={`
                                                     w-full
-                                                    rounded-[25px]
                                                     border-2
                                                     py-3
                                                     px-5
@@ -1606,7 +1774,8 @@ const FoodiesBoothMarketPlace = (props: {
                                                     outline-none
                                                     focus-visible:shadow-none
                                                         focus:border-primary
-                                                '
+														${borderRadius}
+                                                `}
 											/>
 										</div>
 										<p>Tap your location</p>
@@ -1625,7 +1794,12 @@ const FoodiesBoothMarketPlace = (props: {
 									<p></p>
 								)}
 								{order.deliveryMethod == 'Delivery' ? (
-									<div className='flex flex-row items-center text-center px-8 py-4 my-2 shadow-xl rounded-[25px] w-full'>
+									<div
+										className={
+											'flex flex-row items-center text-center px-8 py-4 my-2 shadow-xl w-full ' +
+											borderRadius
+										}
+									>
 										{loadDist ? (
 											<p>Loading Distance...</p>
 										) : (
@@ -1637,24 +1811,29 @@ const FoodiesBoothMarketPlace = (props: {
 								) : (
 									<p></p>
 								)}
-								<div className='flex flex-col items-center text-left px-8 py-4 my-2 shadow-xl rounded-[25px] w-full'>
+								<div
+									className={
+										'flex flex-col items-center text-left px-8 py-4 my-2 shadow-xl w-full ' +
+										borderRadius
+									}
+								>
 									<div
 										className='flex flex-row justify-between w-full'
-										style={{ color: `${PRIMARY_COLOR}` }}
+										style={{ color: `${mainColor}` }}
 									>
 										<p>Price:</p>
 										<p>{numberWithCommas(getTotal(1).toString())} USD</p>
 									</div>
 									<div
 										className='flex flex-row justify-between w-full'
-										style={{ color: `${PRIMARY_COLOR}` }}
+										style={{ color: `${mainColor}` }}
 									>
 										<p>Processing fee:</p>
 										<p>{numberWithCommas(getTotal(2).toString())} USD</p>
 									</div>
 									<div
 										className='flex flex-row justify-between w-full text-xl'
-										style={{ color: `${PRIMARY_COLOR}` }}
+										style={{ color: `${mainColor}` }}
 									>
 										<h1>Total Cost:</h1>
 										<h1>{numberWithCommas(getTotal(3).toString())} USD</h1>
@@ -1675,10 +1854,9 @@ const FoodiesBoothMarketPlace = (props: {
 									onClick={() => {
 										addOrder();
 									}}
-									className='
+									className={`
                                         font-bold
                                         w-full
-                                        rounded-[25px]
                                         border-2
                                         border-primary
                                         py-3
@@ -1688,10 +1866,11 @@ const FoodiesBoothMarketPlace = (props: {
                                         cursor-pointer
                                         hover:bg-opacity-90
                                         transition
-                                    '
+										${borderRadius}
+                                    `}
 									style={{
-										borderColor: PRIMARY_COLOR,
-										backgroundColor: PRIMARY_COLOR,
+										borderColor: mainColor,
+										backgroundColor: mainColor,
 									}}
 								>
 									Make Payment
@@ -1699,6 +1878,136 @@ const FoodiesBoothMarketPlace = (props: {
 							</div>
 						)}
 					</Drawer>
+					<Transition appear show={openDialog} as={Fragment}>
+						<Dialog
+							as='div'
+							className='relative z-10'
+							onClose={() => {
+								setOpenDialog(false);
+							}}
+						>
+							<Transition.Child
+								as={Fragment}
+								enter='ease-out duration-300'
+								enterFrom='opacity-0'
+								enterTo='opacity-100'
+								leave='ease-in duration-200'
+								leaveFrom='opacity-100'
+								leaveTo='opacity-0'
+							>
+								<div className='fixed inset-0 bg-black/25' />
+							</Transition.Child>
+
+							<div className='fixed inset-0 overflow-y-auto'>
+								<div className='flex min-h-full items-center justify-center p-4 text-center'>
+									<Transition.Child
+										as={Fragment}
+										enter='ease-out duration-300'
+										enterFrom='opacity-0 scale-95'
+										enterTo='opacity-100 scale-100'
+										leave='ease-in duration-200'
+										leaveFrom='opacity-100 scale-100'
+										leaveTo='opacity-0 scale-95'
+									>
+										<Dialog.Panel className='w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all'>
+											<Dialog.Title
+												as='h3'
+												className='text-lg font-medium leading-6 text-gray-900 px-4'
+											>
+												Enter Number of people
+											</Dialog.Title>
+											<div className='flex flex-col justify-between space-y-3 p-4 items-start bg-white text-black w-full'>
+												<h1 className='font-bold text-sm md:text-xl'>
+													{cateringPlate.priceAfterHundred}USD over 100 people
+													people
+												</h1>
+												<h1 className='font-bold text-sm md:text-xl'>
+													{cateringPlate.priceAfterFifty}USD for 51 to 100
+													people
+												</h1>
+												<h1 className='font-bold text-sm md:text-xl'>
+													{cateringPlate.price}USD for 0 to 50 people
+												</h1>
+												<div className='w-full'>
+													<p className='text-xs text-gray-400 my-2'>
+														Type number of people at (minimum is 10)
+													</p>
+													<input
+														type='number'
+														value={noOfPeople}
+														placeholder={'Number of peole'}
+														onChange={(e) => {
+															setNoOfPeople(parseInt(e.target.value));
+														}}
+														style={{ borderColor: mainColor }}
+														className={`
+														w-full
+														border-2
+														py-3
+														px-5
+														bg-white
+														text-base text-body-color
+														placeholder-[#ACB6BE]
+														outline-none
+														focus-visible:shadow-none
+														focus:border-primary
+														${borderRadius}
+													`}
+													/>
+												</div>
+
+												<button
+													onClick={() => {
+														if (noOfPeople >= 10) {
+															let v = cateringPlate;
+															let total = 0;
+
+															if (total > 50) {
+																total = v.priceAfterFifty * noOfPeople;
+															} else if (total > 100) {
+																total = v.priceAfterHundred * noOfPeople;
+															} else {
+																total = v.price * noOfPeople;
+															}
+															let item: IMenuItem = {
+																id: v.id,
+																adminId: v.adminId,
+																userId: v.userId,
+																category: v.category,
+																title: v.title,
+																description: `${v.description} for ${noOfPeople}`,
+																discount: 0,
+																pic: v.pic,
+																date: v.date,
+																dateString: v.dateString,
+																price: total,
+															};
+															setOpenDialog(false);
+															addToCart(item);
+														} else {
+															toast.error(
+																'Minimum number of people per order is 10'
+															);
+														}
+													}}
+													className={
+														borderRadius +
+														' py-3 px-5 text-white w-full border '
+													}
+													style={{
+														backgroundColor: mainColor,
+														borderColor: mainColor,
+													}}
+												>
+													Add
+												</button>
+											</div>
+										</Dialog.Panel>
+									</Transition.Child>
+								</div>
+							</div>
+						</Dialog>
+					</Transition>
 				</div>
 			)}
 			<ToastContainer position='top-right' autoClose={5000} />
@@ -1706,4 +2015,4 @@ const FoodiesBoothMarketPlace = (props: {
 	);
 };
 
-export default FoodiesBoothMarketPlace;
+export default MarketPlace;
