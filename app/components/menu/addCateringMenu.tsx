@@ -44,6 +44,7 @@ import { addDays } from 'date-fns';
 import DateMethods from '../../utils/date';
 import { logEvent } from 'firebase/analytics';
 import { analytics } from '../../../firebase/clientApp';
+import { getCurrency } from '../../utils/currency';
 
 const AddCateringMenu = () => {
 	const [loading, setLoading] = useState(true);
@@ -82,6 +83,7 @@ const AddCateringMenu = () => {
 		duration: 0,
 	});
 	const [open, setOpen] = useState(false);
+	const [currency, setCurrency] = useState('US$');
 
 	useEffect(() => {
 		document.body.style.backgroundColor = LIGHT_GRAY;
@@ -90,7 +92,9 @@ const AddCateringMenu = () => {
 		getCateringPlates();
 	}, []);
 
-	const getCateringPlates = () => {
+	const getCateringPlates = async () => {
+		let currny = await getCurrency();
+		setCurrency(currny);
 		getDataFromDBOne(CATERING_PLATE_COLLECTION, AMDIN_FIELD, adminId)
 			.then((v) => {
 				if (v !== null) {
@@ -380,7 +384,10 @@ const AddCateringMenu = () => {
 									/>
 									<div className='flex flex-row justify-between'>
 										<h1 className='font-bold text-sm'>{v.title}</h1>
-										<h1 className='font-bold text-sm'>{v.price}USD</h1>
+										<h1 className='font-bold text-sm'>
+											{v.price}
+											{currency}
+										</h1>
 									</div>
 								</div>
 							);

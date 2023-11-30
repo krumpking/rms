@@ -42,6 +42,7 @@ import { useAuthIds } from '../authHook';
 import { sendSMS } from '../../api/twillioApi';
 import { sendSMSToDrivers } from '../../utils/deliveryMethods';
 import { sendEmail, sendOrderEmail } from '../../api/emailApi';
+import { getCurrency } from '../../utils/currency';
 
 const OrderStatus = (props: { level: number }) => {
 	const { level } = props;
@@ -51,6 +52,7 @@ const OrderStatus = (props: { level: number }) => {
 	const [orders, setOrders] = useState<IOrder[]>([]);
 	const [ordersSto, setOrdersSto] = useState<IOrder[]>([]);
 	const [search, setSearch] = useState('');
+	const [currency, setCurrency] = useState('US$');
 
 	useEffect(() => {
 		document.body.style.backgroundColor = LIGHT_GRAY;
@@ -58,7 +60,7 @@ const OrderStatus = (props: { level: number }) => {
 		getOrders();
 	}, []);
 
-	const getOrders = () => {
+	const getOrders = async () => {
 		let fieldTwo = 'Sent';
 		if (level == 1) {
 			fieldTwo = ORDER_IN_PREP;
@@ -67,6 +69,9 @@ const OrderStatus = (props: { level: number }) => {
 		} else if (level == 3) {
 			fieldTwo = ORDER_SHIPPED;
 		}
+
+		let currny = await getCurrency();
+		setCurrency(currny);
 
 		getDataFromDBThree(
 			ORDER_COLLECTION,
@@ -265,7 +270,8 @@ const OrderStatus = (props: { level: number }) => {
 											Order No: {v.orderNo}
 										</h1>
 										<h1 className='font-bold text-sm'>
-											Due: {v.totalCost.toFixed(2)}USD
+											Due: {v.totalCost.toFixed(2)}
+											{currency}
 										</h1>
 										<h1
 											className={

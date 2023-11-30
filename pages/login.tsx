@@ -261,7 +261,6 @@ const Login = (props: {
                                         placeholder-[#ACB6BE]
                                         outline-none
                                         focus-visible:shadow-none
-                                        focus:border-primary
                                         '
 											style={{ borderColor: PRIMARY_COLOR }}
 											required
@@ -276,7 +275,6 @@ const Login = (props: {
                                         w-full
                                         rounded-[25px]
                                         border-2
-                                        border-primary
                                         py-3
                                         px-5
                                         text-base 

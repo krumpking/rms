@@ -39,6 +39,8 @@ import DateMethods from '../app/utils/date';
 import YouTube from 'react-youtube';
 import { logEvent } from 'firebase/analytics';
 import { analytics } from '../firebase/clientApp';
+import { getCookie } from 'react-use-cookie';
+import { getCurrency, subscriptionPrice } from '../app/utils/currency';
 
 const Home: NextPage = () => {
 	const [trackingId, settrackingId] = useState('AW-11208371394');
@@ -202,6 +204,10 @@ const Home: NextPage = () => {
 		'KO0pDE711uM',
 		'2U1Ny1Nw9HI',
 	]);
+	const [price, setPrice] = useState(0);
+	const [priceTeam, setPriceTeam] = useState(0);
+	const [priceEnt, setPriceEnt] = useState(0);
+	const [currency, setCurrency] = useState('US$');
 
 	useEffect(() => {
 		let url = window.location.href;
@@ -223,7 +229,16 @@ const Home: NextPage = () => {
 		}
 	}, []);
 
-	const getMenuItems = () => {
+	const getMenuItems = async () => {
+		let p = await subscriptionPrice(11);
+		let priceT = await subscriptionPrice(29);
+		let priceE = await subscriptionPrice(49);
+		setPrice(p);
+		setPriceTeam(priceT);
+		setPriceEnt(priceE);
+		let currny = await getCurrency();
+		setCurrency(currny);
+
 		getDataFromAll(MENU_ITEM_COLLECTION)
 			.then((v) => {
 				if (v !== null) {
@@ -312,6 +327,16 @@ const Home: NextPage = () => {
 		event.target.pauseVideo();
 	};
 
+	const getPackagePrice = (packages: number) => {
+		if (packages == 9) {
+			return price;
+		} else if (packages == 29) {
+			return priceTeam;
+		} else {
+			return priceEnt;
+		}
+	};
+
 	return (
 		<div>
 			{loading ? (
@@ -327,7 +352,14 @@ const Home: NextPage = () => {
 							<Header />
 							<div className='flex flex-col p-4' id='menu'>
 								<div className='flex justify-between content-center items-center mb-6'>
-									<h1 className='text-2xl'>Market Place</h1>
+									<h1
+										className='text-2xl'
+										onClick={() => {
+											router.push('/market');
+										}}
+									>
+										Open Market Place
+									</h1>
 									<div
 										className='flex flex-row space-x-4 max-w-[800px] overflow-x-auto'
 										onClick={() => {
@@ -350,7 +382,10 @@ const Home: NextPage = () => {
 											</div>
 
 											<div className='flex flex-row justify-between p-4 items-center'>
-												<h1 className='font-bold text-xl'>{v.price}USD</h1>
+												<h1 className='font-bold text-xl'>
+													{v.price}
+													{currency}
+												</h1>
 												<button
 													onClick={() => {
 														router.push('/market');
@@ -532,28 +567,32 @@ const Home: NextPage = () => {
 									</Switch>
 								</div>
 								<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
-									{pricing.map((v) => (
-										<div className='shadow-xl w-full flex flex-col justify-between p-4 rounded-[25px]'>
-											<div className='flex flex-col'>
-												<h1 className='text-4xl'>{v.title}</h1>
-												<p>{v.desc}</p>
-												<h1 className='text-2xl'>
-													{enabled ? v.pricing * 11 : v.pricing}USD
-												</h1>
-												<p>/{enabled ? 'year' : 'month'}</p>
-												<h1 className='text-xl'>Features You will love</h1>
-												<div className='p-4'>
-													<ul className='list-disc'>
-														{v.feats.map((v: string) => {
-															return <li className='text-sm'>{v}</li>;
-														})}
-													</ul>
+									{pricing.map((v) => {
+										return (
+											<div className='shadow-xl w-full flex flex-col justify-between p-4 rounded-[25px]'>
+												<div className='flex flex-col'>
+													<h1 className='text-4xl'>{v.title}</h1>
+													<p>{v.desc}</p>
+													<h1 className='text-2xl'>
+														{enabled
+															? getPackagePrice(v.pricing) * 11
+															: getPackagePrice(v.pricing)}
+														{currency}
+													</h1>
+													<p>/{enabled ? 'year' : 'month'}</p>
+													<h1 className='text-xl'>Features You will love</h1>
+													<div className='p-4'>
+														<ul className='list-disc'>
+															{v.feats.map((v: string) => {
+																return <li className='text-sm'>{v}</li>;
+															})}
+														</ul>
+													</div>
 												</div>
-											</div>
 
-											<div className='m-4'>
-												<button
-													className='
+												<div className='m-4'>
+													<button
+														className='
 															font-bold
 															w-full
 															rounded-[25px]
@@ -567,16 +606,17 @@ const Home: NextPage = () => {
 															hover:bg-opacity-90
 															transition
 														'
-													style={{
-														borderColor: PRIMARY_COLOR,
-														color: PRIMARY_COLOR,
-													}}
-												>
-													Try for free
-												</button>
+														style={{
+															borderColor: PRIMARY_COLOR,
+															color: PRIMARY_COLOR,
+														}}
+													>
+														Try for free
+													</button>
+												</div>
 											</div>
-										</div>
-									))}
+										);
+									})}
 								</div>
 							</div>
 							<div className='grid grid-cols-1 lg:grid-cols-2 p-8'>

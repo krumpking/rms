@@ -41,12 +41,6 @@ const CustomerPoints = () => {
 		[]
 	);
 	const { adminId, userId, access } = useAuthIds();
-	const [totalUSD, setTotalUSD] = useState(0);
-	const [totalZWL, setTotalZWL] = useState(0);
-	const [totalRecUSD, setTotalRecUSD] = useState(0);
-	const [totalRecZWL, setTotalRecZWL] = useState(0);
-	const [totalSpentUSD, setTotalSpentUSD] = useState(0);
-	const [totalSpentZWL, setTotalSpentZWL] = useState(0);
 	const [search, setSearch] = useState('');
 	const [open, setOpen] = useState(false);
 	const [selectedTrans, setSelectedTrans] = useState<any>();

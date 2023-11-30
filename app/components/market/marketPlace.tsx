@@ -61,6 +61,7 @@ import {
 } from '../../constants/loyaltyConstants';
 import { logEvent } from 'firebase/analytics';
 import { analytics } from '../../../firebase/clientApp';
+import { getCurrency } from '../../utils/currency';
 
 const MarketPlace = (props: {
 	info: IWebsiteOneInfo[];
@@ -154,6 +155,7 @@ const MarketPlace = (props: {
 		priceAfterHundred: 0,
 	});
 	const [noOfPeople, setNoOfPeople] = useState(0);
+	const [currency, setCurrency] = useState('US$');
 
 	useEffect(() => {
 		if (info.length > 1) {
@@ -172,7 +174,10 @@ const MarketPlace = (props: {
 		setLocation({ lat: lat, lng: lng });
 	};
 
-	const getMeals = () => {
+	const getMeals = async () => {
+		let currny = await getCurrency();
+		setCurrency(currny);
+
 		info.forEach((element) => {
 			getDataFromDBOne(MEAL_ITEM_COLLECTION, AMDIN_FIELD, element.adminId)
 				.then((v) => {
@@ -1030,10 +1035,12 @@ const MarketPlace = (props: {
 															</Disclosure>
 															<div className='flex flex-row space-x-4 justify-between content-center items-center my-1'>
 																<p className='text-xs md:text-md line-through'>
-																	{v.oldPrice}USD
+																	{v.oldPrice}
+																	{currency}
 																</p>
 																<p className='text-xs md:text-md'>
-																	{v.newPrice}USD
+																	{v.newPrice}
+																	{currency}
 																</p>
 															</div>
 															<button
@@ -1135,7 +1142,8 @@ const MarketPlace = (props: {
 
 											<div className='flex flex-row justify-between p-4 items-center'>
 												<h1 className='font-bold text-sm md:text-xl'>
-													{v.price}USD
+													{v.price}
+													{currency}
 												</h1>
 
 												<button
@@ -1201,7 +1209,8 @@ const MarketPlace = (props: {
 
 											<div className='flex flex-row justify-between p-4 items-center'>
 												<h1 className='font-bold text-sm md:text-xl'>
-													{v.price}USD
+													{v.price}
+													{currency}
 												</h1>
 
 												<button
@@ -1266,7 +1275,8 @@ const MarketPlace = (props: {
 
 											<div className='flex flex-row justify-between p-4 items-center'>
 												<h1 className='font-bold text-sm md:text-xl'>
-													{v.price}USD
+													{v.price}
+													{currency}
 												</h1>
 
 												<button
@@ -1308,19 +1318,20 @@ const MarketPlace = (props: {
 										backgroundColor: mainColor,
 										borderColor: mainColor,
 									}}
-									className='
+									className={`
+									${borderRadius}
 										py-4 
 										px-4 
 										relative 
 										border-2 
 										border-transparent 
 										text-gray-800 
-										rounded-full
+										
 										hover:text-gray-400 
 										focus:outline-none 
 										ocus:text-gray-500 
 										transition duration-150 
-										ease-in-out'
+										ease-in-out`}
 									aria-label='Cart'
 									onClick={() => {
 										let index = returnOccurrencesIndexAdmin(
@@ -1410,7 +1421,7 @@ const MarketPlace = (props: {
 								<div className='flex flex-col space-y-2'>
 									<h1>
 										Send payment of {numberWithCommas(getTotal(3).toString())}{' '}
-										USD{' '}
+										{currency}{' '}
 										{parseFloat(getTotal(3).toString()) > 40
 											? `or ${parseFloat(getTotal(3).toString()) * 0.6}`
 											: ''}{' '}
@@ -1822,24 +1833,30 @@ const MarketPlace = (props: {
 										style={{ color: `${mainColor}` }}
 									>
 										<p>Price:</p>
-										<p>{numberWithCommas(getTotal(1).toString())} USD</p>
+										<p>
+											{numberWithCommas(getTotal(1).toString())} {currency}
+										</p>
 									</div>
 									<div
 										className='flex flex-row justify-between w-full'
 										style={{ color: `${mainColor}` }}
 									>
 										<p>Processing fee:</p>
-										<p>{numberWithCommas(getTotal(2).toString())} USD</p>
+										<p>
+											{numberWithCommas(getTotal(2).toString())} {currency}
+										</p>
 									</div>
 									<div
 										className='flex flex-row justify-between w-full text-xl'
 										style={{ color: `${mainColor}` }}
 									>
 										<h1>Total Cost:</h1>
-										<h1>{numberWithCommas(getTotal(3).toString())} USD</h1>
+										<h1>
+											{numberWithCommas(getTotal(3).toString())} {currency}
+										</h1>
 									</div>
 									<p className='my-2 text-xs'>
-										On orders above 40USD deposit is 60%
+										On orders above 40{currency} deposit is 60%
 									</p>
 								</div>
 								<p
@@ -1918,15 +1935,16 @@ const MarketPlace = (props: {
 											</Dialog.Title>
 											<div className='flex flex-col justify-between space-y-3 p-4 items-start bg-white text-black w-full'>
 												<h1 className='font-bold text-sm md:text-xl'>
-													{cateringPlate.priceAfterHundred}USD over 100 people
-													people
+													{cateringPlate.priceAfterHundred}
+													{currency} over 100 people people
 												</h1>
 												<h1 className='font-bold text-sm md:text-xl'>
-													{cateringPlate.priceAfterFifty}USD for 51 to 100
-													people
+													{cateringPlate.priceAfterFifty}
+													{currency} for 51 to 100 people
 												</h1>
 												<h1 className='font-bold text-sm md:text-xl'>
-													{cateringPlate.price}USD for 0 to 50 people
+													{cateringPlate.price}
+													{currency} for 0 to 50 people
 												</h1>
 												<div className='w-full'>
 													<p className='text-xs text-gray-400 my-2'>
