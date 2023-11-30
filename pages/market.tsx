@@ -381,7 +381,7 @@ const Market = () => {
 			>
 				<div
 					style={{ backgroundColor: PRIMARY_COLOR }}
-					className='h-fit p-2 rounded-t-[25px] flex flex-col space md:space-y-0 md:flex-row md:justify-between'
+					className='h-fit p-2 rounded-t-[20px] flex flex-col space md:space-y-0 md:flex-row md:justify-between'
 				>
 					<button
 						onClick={() => {
@@ -469,7 +469,7 @@ const Market = () => {
 									<ShowImage
 										src={`/${v.websiteName}/logo/${v.logo.thumbnail}`}
 										alt={'Logo'}
-										style={'rounded-full h-20 w-20 '}
+										style={'rounded-[25px] h-20 w-20 '}
 									/>
 								</li>
 							))}

@@ -61,7 +61,7 @@ const Nav = () => {
 								onClick={() => setIsOpen(!isOpen)}
 								type='button'
 								style={{ backgroundColor: PRIMARY_COLOR }}
-								className='inline-flex items-center justify-center p-2 rounded-full text-white hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white'
+								className='inline-flex items-center justify-center p-3 rounded-[20px] text-white hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white'
 								aria-controls='mobile-menu'
 								aria-expanded='false'
 							>

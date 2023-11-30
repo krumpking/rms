@@ -66,6 +66,7 @@ import {
 import { IPoints, IPointsRate } from '../../../types/loyaltyTypes';
 import MarketPlace from '../../market/marketPlace';
 import { number } from 'prop-types';
+import { getCurrency } from '../../../utils/currency';
 
 interface MyProps {
 	info: IWebsiteOneInfo;
@@ -174,6 +175,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 	const [rewards, setRewards] = useState<IPointsRate[]>([]);
 	const [points, setPoints] = useState<IPoints[]>([]);
 	const [usePoints, setUsePoints] = useState(false);
+	const [currency, setCurrency] = useState('US$');
 
 	useEffect(() => {
 		getMeals();
@@ -185,7 +187,9 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 		setLocation({ lat: lat, lng: lng });
 	};
 
-	const getMeals = () => {
+	const getMeals = async () => {
+		let currny = await getCurrency();
+		setCurrency(currny);
 		getDataFromDBOne(MEAL_ITEM_COLLECTION, AMDIN_FIELD, info.adminId)
 			.then((v) => {
 				if (v !== null) {
@@ -1062,9 +1066,13 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 													<p className='text-xl'>{v.title}</p>
 													<div className='flex flex-row space-x-4 justify-end content-center items-center'>
 														<p className='text-xs line-through'>
-															{v.oldPrice}USD
+															{v.oldPrice}
+															{currency}
 														</p>
-														<p className='text-md'>{v.newPrice}USD</p>
+														<p className='text-md'>
+															{v.newPrice}
+															{currency}
+														</p>
 													</div>
 													<div className='rounded-md font-bold w-full h-fit font-bold text-xs text-center flex flex-row justify-end'>
 														<p className=''>
@@ -1093,7 +1101,10 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 												<div className='p-4'>
 													<p className='text-xl'>{v.title}</p>
 													<div className='flex justify-between'>
-														<p className='text-md'>{v.price}USD</p>
+														<p className='text-md'>
+															{v.price}
+															{currency}
+														</p>
 														<button
 															onClick={() => {
 																addToCart(v);
@@ -1178,7 +1189,10 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 											<h1 className='font-bold text-xl px-4'>{v.title}</h1>
 											<p className='text-xs px-4 w-full'>{v.description}</p>
 											<div className='flex flex-row justify-between p-4 items-center'>
-												<h1 className='font-bold text-xl'>{v.price}USD</h1>
+												<h1 className='font-bold text-xl'>
+													{v.price}
+													{currency}
+												</h1>
 												<button
 													onClick={() => {
 														addToCart(v);
@@ -1200,7 +1214,10 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 											/>
 											<h1 className='font-bold text-xl px-4'>{v.title}</h1>
 											<div className='flex flex-row justify-between p-4 items-center'>
-												<h1 className='font-bold text-xl'>{v.price}USD</h1>
+												<h1 className='font-bold text-xl'>
+													{v.price}
+													{currency}
+												</h1>
 												<button
 													onClick={() => {
 														addToCart(v);
@@ -1866,9 +1883,13 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 													<p className='text-xl'>{v.title}</p>
 													<div className='flex flex-row space-x-4 justify-end content-center items-center'>
 														<p className='text-xs line-through'>
-															{v.oldPrice}USD
+															{v.oldPrice}
+															{currency}
 														</p>
-														<p className='text-md'>{v.newPrice}USD</p>
+														<p className='text-md'>
+															{v.newPrice}
+															{currency}
+														</p>
 													</div>
 													<div className='rounded-md font-bold w-full h-fit font-bold text-xs text-center flex flex-row justify-end'>
 														<p className=''>
@@ -1897,7 +1918,10 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 												<div className='p-4'>
 													<p className='text-xl'>{v.title}</p>
 													<div className='flex justify-between'>
-														<p className='text-md'>{v.price}USD</p>
+														<p className='text-md'>
+															{v.price}
+															{currency}
+														</p>
 														<button
 															onClick={() => {
 																addToCart(v);
@@ -1982,7 +2006,10 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 											<h1 className='font-bold text-xl px-4'>{v.title}</h1>
 											<p className='text-xs px-4 w-full'>{v.description}</p>
 											<div className='flex flex-row justify-between p-4 items-center'>
-												<h1 className='font-bold text-xl'>{v.price}USD</h1>
+												<h1 className='font-bold text-xl'>
+													{v.price}
+													{currency}
+												</h1>
 												<button
 													onClick={() => {
 														addToCart(v);
@@ -2004,7 +2031,10 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 											/>
 											<h1 className='font-bold text-xl px-4'>{v.title}</h1>
 											<div className='flex flex-row justify-between p-4 items-center'>
-												<h1 className='font-bold text-xl'>{v.price}USD</h1>
+												<h1 className='font-bold text-xl'>
+													{v.price}
+													{currency}
+												</h1>
 												<button
 													onClick={() => {
 														addToCart(v);
@@ -2750,7 +2780,8 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 											className='text-xl'
 											style={{ color: `${info.themeMainColor}` }}
 										>
-											Total Cost: {numberWithCommas(getTotal().toString())} USD
+											Total Cost: {numberWithCommas(getTotal().toString())}{' '}
+											{currency}
 										</h1>
 									</div>
 									<button
