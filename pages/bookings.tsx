@@ -72,7 +72,7 @@ const Bookings = () => {
 			<Head>
 				<meta name='viewport' content='width=978'></meta>
 			</Head>
-			<div className='flex flex-col'>
+			<div className='flex flex-col min-h-screen h-full'>
 				<div className='lg:col-span-3'>
 					<ClientNav organisationName={'Vision Is Primary'} url={'bookings'} />
 				</div>

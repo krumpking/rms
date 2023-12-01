@@ -9,7 +9,7 @@ export const getCurrency = async () => {
 		return currency;
 	} else {
 		currency = await locationResult();
-		print(currency);
+
 		setCookie(CURRENNCY, currency.data.currency.symbol_native, {
 			days: 90,
 			SameSite: 'Strict',
@@ -44,7 +44,7 @@ export const subscriptionPrice = async (amount: number) => {
 			SameSite: 'Strict',
 			Secure: true,
 		});
-		setCookie(CURRENT_COUNTRY, currency.data.location.country, {
+		setCookie(CURRENT_COUNTRY, currency.data.location.country.name, {
 			days: 90,
 			SameSite: 'Strict',
 			Secure: true,
@@ -58,4 +58,27 @@ export const subscriptionPrice = async (amount: number) => {
 			return amount;
 		}
 	}
+};
+
+export const getCountry = async () => {
+	let country: any = getCookie(CURRENT_COUNTRY);
+	if (country !== '') {
+		return country;
+	} else {
+		country = await locationResult();
+
+		setCookie(CURRENNCY, country.data.currency.symbol_native, {
+			days: 90,
+			SameSite: 'Strict',
+			Secure: true,
+		});
+		setCookie(CURRENT_COUNTRY, country.data.location.country.name, {
+			days: 90,
+			SameSite: 'Strict',
+			Secure: true,
+		});
+		return country.data.location.country.name;
+	}
+
+	// Send every order to me
 };

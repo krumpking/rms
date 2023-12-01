@@ -26,6 +26,7 @@ import { print } from '../app/utils/console';
 import AppAccess from '../app/components/accessLevel';
 import { useAuthIds } from '../app/components/authHook';
 import Head from 'next/head';
+import { getCurrency } from '../app/utils/currency';
 
 function classNames(...classes: string[]) {
 	return classes.filter(Boolean).join(' ');
@@ -65,9 +66,6 @@ const Accounting = () => {
 		confirmed: true,
 	});
 	const [open, setOpen] = useState(false);
-
-	const [currency, setCurrency] = useState('USD');
-	const [zwlRate, setZwlRate] = useState('');
 	const [categories, setCategories] = useState<string[]>([
 		'cash',
 		'online',
@@ -77,7 +75,7 @@ const Accounting = () => {
 	]);
 	const [category, setCategory] = useState('');
 	const [originalCost, setOriginalCost] = useState(0);
-	const [changeToZWL, setChangeToZWL] = useState(false);
+	const [currency, setCurrency] = useState('US$');
 
 	useEffect(() => {
 		document.body.style.backgroundColor = LIGHT_GRAY;
@@ -85,7 +83,9 @@ const Accounting = () => {
 		getOrders();
 	}, []);
 
-	const getOrders = () => {
+	const getOrders = async () => {
+		let currny = await getCurrency();
+		setCurrency(currny);
 		getDataFromDBTwo(
 			ORDER_COLLECTION,
 			AMDIN_FIELD,
@@ -139,12 +139,7 @@ const Accounting = () => {
 
 	const handleKeyDown = (event: { key: string }) => {
 		if (event.key === 'Enter') {
-			if (changeToZWL) {
-				toast.info('Currency Updated');
-				update('ZWL');
-			} else {
-				searchFor();
-			}
+			searchFor();
 		}
 	};
 
@@ -182,50 +177,6 @@ const Accounting = () => {
 	const addOrder = (v: any) => {
 		setOriginalCost(v.totalCost);
 		setSelectedOrder(v);
-	};
-
-	const update = (to: string) => {
-		let d = selectedOrder;
-
-		if (parseFloat(zwlRate) > 0) {
-			let cost = 0;
-			if (to === 'USD') {
-				cost = originalCost;
-			} else {
-				cost = originalCost * parseFloat(zwlRate);
-			}
-			setCurrency(to);
-
-			let sOrder = {
-				id: d.id,
-				adminId: d.adminId,
-				clientId: d.clientId,
-				deliveryMethod: d.deliveryMethod,
-				orderNo: d.orderNo,
-				items: d.items,
-				status: d.status,
-				statusCode: d.statusCode,
-				userId: d.userId,
-				customerName: d.customerName,
-				tableNo: d.tableNo,
-				date: d.date,
-				dateString: d.dateString,
-				totalCost: cost,
-				customerPhone: d.customerName,
-				customerEmail: d.customerEmail,
-				customerAddress: d.customerAddress,
-				deliveryLocation: d.deliveryLocation,
-				deliveredSignature: d.deliveredSignature,
-				deliverer: d.deliverer,
-				deliveryDate: d.deliveryDate,
-				deliveryDateString: d.deliveryDateString,
-				deliveryTime: d.deliveryTime,
-				confirmed: d.confirmed,
-			};
-			setSelectedOrder(sOrder);
-		} else {
-			toast.error("Looks like you are yet to put in today's rate");
-		}
 	};
 
 	const SaveAsPDFHandler = () => {
@@ -329,12 +280,9 @@ const Accounting = () => {
 
 	return (
 		<div>
-			<Head>
-				<meta name='viewport' content='width=978'></meta>
-			</Head>
 			<AppAccess access={access} component={'receipting'}>
 				<div>
-					<div className='flex flex-col'>
+					<div className='flex flex-col min-h-screen h-full'>
 						<div className='lg:col-span-3'>
 							<ClientNav
 								organisationName={'Vision Is Primary'}
@@ -342,13 +290,13 @@ const Accounting = () => {
 							/>
 						</div>
 
-						<div className='w-full m-2 px-2 py-8 sm:px-0 col-span-9 bg-white rounded-[30px] p-4 '>
+						<div className='w-full  px-2 py-8 sm:px-0  bg-white rounded-[30px] p-4 '>
 							{loading ? (
 								<div className='w-full flex flex-col items-center content-center'>
 									<Loader color={''} />
 								</div>
 							) : (
-								<div className='grid grid-cols-12'>
+								<div className='grid grid-cols-1 lg:grid-cols-12'>
 									<div className='col-span-9   overflow-y-scroll max-h-[700px] w-full gap-4 p-4'>
 										<div className='mb-6'>
 											<input
@@ -376,11 +324,11 @@ const Accounting = () => {
 											/>
 										</div>
 
-										<div className='grid grid-cols-2 lg:grid-cols-3 gap-4'>
+										<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[400px]'>
 											{orders.map((v) => {
 												return (
 													<div
-														className='flex flex-col shadow-xl rounded-[25px] p-8 w-[250px] '
+														className='flex flex-col shadow-xl rounded-[25px] p-8 w-full md:w-[250px] '
 														onClick={() => {
 															addOrder(v);
 														}}
@@ -389,14 +337,14 @@ const Accounting = () => {
 															Order No: {v.orderNo}
 														</h1>
 														<h1 className='font-bold text-sm'>
-															Due: {v.totalCost.toFixed(2)}USD
+															Due: {v.totalCost.toFixed(2)} {currency}
 														</h1>
 														<h1 className='font-bold text-sm'>
 															{v.customerName}
 														</h1>
 														<Disclosure>
 															<Disclosure.Button
-																className={'-ml-16 underline text-xs'}
+																className={'underline text-xs'}
 															>
 																See Order Details
 															</Disclosure.Button>
@@ -415,73 +363,6 @@ const Accounting = () => {
 										</div>
 									</div>
 									<div className='col-span-3 flex flex-col p-4 '>
-										<div className='flex flex-row mb-6'>
-											{CURRENCIES.map((v) => (
-												<button
-													onClick={() => {
-														if (selectedOrder.totalCost > 0) {
-															if (currency === 'ZWL' && v === 'USD') {
-																setChangeToZWL(false);
-																update('USD');
-															} else {
-																setChangeToZWL(true);
-															}
-														} else {
-															toast.error('Ensure you select the order first');
-														}
-													}}
-													className='
-                                                    font-bold
-                                                    w-full
-                                                    rounded-[25px]
-                                                    border-2
-                                                    border-[#8b0e06]
-                                                    border-primary
-                                                    py-3
-                                                    px-10
-                                                    bg-[#8b0e06]
-                                                    text-base 
-                                                    text-white
-                                                    cursor-pointer
-                                                    hover:bg-opacity-90
-                                                    transition
-                                                '
-												>
-													{v}
-												</button>
-											))}
-										</div>
-										<div
-											className={changeToZWL ? 'mb-6 flex flex-col' : 'hidden'}
-										>
-											<input
-												type='string'
-												value={zwlRate}
-												placeholder={"Today's rate"}
-												onChange={(e) => {
-													setZwlRate(e.target.value);
-												}}
-												className='
-                                                w-full
-                                                rounded-[25px]
-                                                border-2
-                                                border-[#8b0e06]
-                                                py-3
-                                                px-5
-                                                bg-white
-                                                text-base text-body-color
-                                                placeholder-[#ACB6BE]
-                                                outline-none
-                                                focus-visible:shadow-none
-                                                focus:border-primary
-                                        '
-												onKeyDown={handleKeyDown}
-											/>
-											<p className='text-gray-500 text-xs w-full px-4 py-2'>
-												Click enter after typing to change the currency
-											</p>
-										</div>
-
 										<div className='mb-6'>
 											<h1>Order No: {selectedOrder.orderNo}</h1>
 										</div>
@@ -646,7 +527,8 @@ const Accounting = () => {
 																			{v.title}
 																		</td>
 																		<td className='text-right text-gray-700'>
-																			{v.price}USD
+																			{v.price}
+																			{currency}
 																		</td>
 																	</tr>
 																))}

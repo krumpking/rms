@@ -376,7 +376,7 @@ const Market = () => {
 	const getView = () => {
 		return (
 			<div
-				className='border rounded-[25px] w-full h-full'
+				className='border rounded-[25px] w-full min-h-screen h-full'
 				style={{ borderColor: PRIMARY_COLOR }}
 			>
 				<div

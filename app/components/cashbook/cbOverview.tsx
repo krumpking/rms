@@ -20,7 +20,7 @@ import OrderedItems from '../order/orderedItems';
 import ReactPaginate from 'react-paginate';
 import AppAccess from '../accessLevel';
 import { useAuthIds } from '../authHook';
-import { getCurrency } from '../../utils/currency';
+import { getCountry, getCurrency } from '../../utils/currency';
 
 const CBOverview = () => {
 	const [loading, setLoading] = useState(false);
@@ -62,6 +62,7 @@ const CBOverview = () => {
 	const [pages, setPages] = useState(0);
 	const [count, setCount] = useState(0);
 	const [currency, setCurrency] = useState('US$');
+	const [country, setCountry] = useState('');
 
 	useEffect(() => {
 		getTransactions();
@@ -301,24 +302,16 @@ const CBOverview = () => {
 						<Loader color={''} />
 					</div>
 				) : (
-					<div className='bg-white rounded-[30px] p-4 flex flex-col'>
-						<div className='grid grid-cols-2 shadow-lg p-8 rounded-[25px]'>
-							<div className='grid grid-cols-2 border-r-2'>
-								<div className='flex flex-col items-center'>
-									<h1 className='text-md'>
-										{getAvail(currency)} {currency}
-									</h1>
-									<h1>Available </h1>
-								</div>
-							</div>
-							<div className='grid grid-cols-2'>
-								<div className='flex flex-col items-center'>
-									<h1 className='text-md'>{getAvail('ZWL')} ZWL</h1>
-									<h1>Available</h1>
-								</div>
+					<div className='bg-white rounded-[30px] p-4 flex flex-col mb-6'>
+						<div className='grid grid-cols-1 md:grid-cols-2 shadow-lg p-8 rounded-[25px] place-items-center w-full'>
+							<div className='flex flex-col items-center'>
+								<h1 className='text-md'>
+									{getAvail(currency)} {currency}
+								</h1>
+								<h1>Available </h1>
 							</div>
 						</div>
-						<div className='flex flex-row space-x-4 m-6'>
+						<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4'>
 							{cat.map((v) => (
 								<button
 									onClick={() => {
@@ -345,40 +338,25 @@ const CBOverview = () => {
 								</button>
 							))}
 						</div>
-						<div className='grid grid-cols-4 shadow-lg p-8 rounded-[25px]'>
-							<div className='flex flex-col items-center border-r-2'>
+						<div className='grid grid-cols-1 lg:grid-cols-4 shadow-lg p-8 rounded-[25px]'>
+							<div className='flex flex-col items-center'>
 								<h1 className='text-2xl'>{transactions.length}</h1>
 								<h1>Transactions</h1>
 							</div>
-							<div className='grid grid-cols-2 border-r-2'>
-								<div className='flex flex-col items-center'>
-									<h1 className='text-md'>{totalUSD.toFixed(2)}</h1>
-									<p className='text-xs'>{currency} Transactions</p>
-								</div>
-								<div className='flex flex-col items-center'>
-									<h1 className='text-md'>{totalZWL.toFixed(2)}</h1>
-									<p className='text-xs'>ZWL Transactions</p>
-								</div>
+
+							<div className='flex flex-col items-center'>
+								<h1 className='text-md'>{totalUSD.toFixed(2)}</h1>
+								<p className='text-xs'>{currency} Transactions</p>
 							</div>
-							<div className='grid grid-cols-2 border-r-2'>
-								<div className='flex flex-col items-center'>
-									<h1 className='text-md'>{totalRecUSD.toFixed(2)}</h1>
-									<p className='text-xs'>{currency} Received</p>
-								</div>
-								<div className='flex flex-col items-center'>
-									<h1 className='text-md'>{totalRecZWL.toFixed(2)}</h1>
-									<p className='text-xs'>ZWL Received</p>
-								</div>
+
+							<div className='flex flex-col items-center'>
+								<h1 className='text-md'>{totalRecUSD.toFixed(2)}</h1>
+								<p className='text-xs'>{currency} Received</p>
 							</div>
-							<div className='grid grid-cols-2'>
-								<div className='flex flex-col items-center'>
-									<h1 className='text-md'>{totalSpentUSD.toFixed(2)}</h1>
-									<p className='text-xs'>{currency} Spent</p>
-								</div>
-								<div className='flex flex-col items-center'>
-									<h1 className='text-md'>{totalSpentZWL.toFixed(2)}</h1>
-									<p className='text-xs'>ZWL Spent</p>
-								</div>
+
+							<div className='flex flex-col items-center'>
+								<h1 className='text-md'>{totalSpentUSD.toFixed(2)}</h1>
+								<p className='text-xs'>{currency} Spent</p>
 							</div>
 						</div>
 						<div>
@@ -422,7 +400,7 @@ const CBOverview = () => {
 									)}
 								</div>
 							) : (
-								<div className='overflow-auto lg:overflow-visible h-screen shadow-lg p-8 rounded-[25px]'>
+								<div className='overflow-auto lg:overflow-visible h-screen shadow-lg p-4 md:p-8 rounded-[25px]'>
 									<div className='mb-6'>
 										<input
 											type='text'

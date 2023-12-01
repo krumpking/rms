@@ -216,10 +216,10 @@ const Login = (props: {
 							</a>
 						</div>
 						<div className='grid grid-cols-1 lg:grid-cols-2 place-items-center p-4 h-full'>
-							<div className='hidden lg:block'>
+							<div className='hidden lg:block '>
 								<img
 									src={'images/webOneDefaultPicture.jpg'}
-									className='h-96 w-full'
+									className='h-fit w-full object-contain'
 								/>
 							</div>
 

@@ -291,7 +291,7 @@ const ManageUsers = () => {
 		<div>
 			<AppAccess access={accessArray} component={'admin'}>
 				<div>
-					<div className='flex flex-col'>
+					<div className='flex flex-col min-h-screen h-full'>
 						<div className='col-span-3'>
 							<ClientNav organisationName={'Vision Is Primary'} url={'users'} />
 						</div>
@@ -437,7 +437,7 @@ const ManageUsers = () => {
 										}}
 										className='
                                     font-bold
-                                    rounded-full
+                                    rounded-[25px]
                                     border-2
                                     border-[#8b0e06]
                                     border-primary

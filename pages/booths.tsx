@@ -259,7 +259,7 @@ const Booths = () => {
 	};
 
 	return (
-		<div>
+		<div className='min-h-screen h-full'>
 			{loading ? (
 				<div className='flex flex-col items-center content-center min-h-screen h-full'>
 					<Loader color={''} />
