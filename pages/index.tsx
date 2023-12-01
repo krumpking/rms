@@ -328,7 +328,9 @@ const Home: NextPage = () => {
 	};
 
 	const getPackagePrice = (packages: number) => {
-		if (packages == 9) {
+		if (packages == 0) {
+			return 0;
+		} else if (packages == 9) {
 			return price;
 		} else if (packages == 29) {
 			return priceTeam;
