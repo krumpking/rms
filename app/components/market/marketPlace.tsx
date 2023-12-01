@@ -289,23 +289,30 @@ const MarketPlace = (props: {
 						v.data.forEach((element) => {
 							let d = element.data();
 
-							setPromos((promos) => [
-								...promos,
-								{
-									id: element.id,
-									adminId: d.adminId,
-									userId: d.userId,
-									pic: d.pic,
-									title: d.title,
-									description: d.description,
-									category: d.category,
-									date: d.date,
-									dateString: d.dateString,
-									oldPrice: d.oldPrice,
-									newPrice: d.newPrice,
-									endDate: d.endDate,
-								},
-							]);
+							if (
+								DateMethods.diffDatesDays(
+									new Date().toDateString(),
+									d.endDate
+								) > 0
+							) {
+								setPromos((promos) => [
+									...promos,
+									{
+										id: element.id,
+										adminId: d.adminId,
+										userId: d.userId,
+										pic: d.pic,
+										title: d.title,
+										description: d.description,
+										category: d.category,
+										date: d.date,
+										dateString: d.dateString,
+										oldPrice: d.oldPrice,
+										newPrice: d.newPrice,
+										endDate: d.endDate,
+									},
+								]);
+							}
 						});
 					}
 					setLoading(false);

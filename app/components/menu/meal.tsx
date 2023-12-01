@@ -31,6 +31,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import { useAuthIds } from '../authHook';
 import { logEvent } from 'firebase/analytics';
 import { analytics } from '../../../firebase/clientApp';
+import { getCurrency } from '../../utils/currency';
 
 const Meal = () => {
 	const { adminId, userId, access } = useAuthIds();
@@ -54,6 +55,7 @@ const Meal = () => {
 	const [open, setOpen] = useState(false);
 	const [menuItems, setMenuItems] = useState<IMenuItem[]>([]);
 	const [discount, setDiscount] = useState(0);
+	const [currency, setCurrency] = useState('US$');
 
 	useEffect(() => {
 		document.body.style.backgroundColor = LIGHT_GRAY;
@@ -61,7 +63,9 @@ const Meal = () => {
 		getMeals();
 	}, []);
 
-	const getMeals = () => {
+	const getMeals = async () => {
+		let currny = await getCurrency();
+		setCurrency(currny);
 		getDataFromDBOne(MEAL_ITEM_COLLECTION, AMDIN_FIELD, adminId)
 			.then((v) => {
 				if (v !== null) {
@@ -278,7 +282,10 @@ const Meal = () => {
 											/>
 											<div className='flex flex-row justify-between'>
 												<h1 className='font-bold text-sm'>{v.title}</h1>
-												<h1 className='font-bold text-sm'>{v.price}USD</h1>
+												<h1 className='font-bold text-sm'>
+													{v.price}
+													{currency}
+												</h1>
 											</div>
 										</div>
 									);

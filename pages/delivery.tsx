@@ -117,7 +117,7 @@ const Delivery = () => {
 	};
 
 	return (
-		<div>
+		<div className='min-h-screen h-full'>
 			<Head>
 				<meta name='viewport' content='width=978'></meta>
 			</Head>
