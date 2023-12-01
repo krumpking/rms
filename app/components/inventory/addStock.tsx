@@ -31,6 +31,7 @@ import { IStockCategory, IStockItem } from '../../types/stockTypes';
 import {
 	STOCK_CATEGORY_REF,
 	STOCK_ITEM_COLLECTION,
+	STOCK_MEASUREMENTS,
 } from '../../constants/stockConstants';
 import ReactPaginate from 'react-paginate';
 import { searchStringInArray } from '../../utils/arrayM';
@@ -65,6 +66,7 @@ const AddInventory = () => {
 		dateOfUpdate: new Date().toDateString(),
 		status: 'Pantry',
 		confirmed: false,
+		unit: '',
 	});
 	const [labels, setLabels] = useState<string[]>([
 		'TRANSACTION DATE',
@@ -72,6 +74,7 @@ const AddInventory = () => {
 		'DETAILS',
 		'CATEGORY',
 		'NUMBER OF ITEMS',
+		'UNIT OF MEASURE',
 	]);
 	const [stockItemsTemp, setStockItemsTemp] = useState<IStockItem[]>([]);
 	const [count, setCount] = useState(0);
@@ -143,6 +146,7 @@ const AddInventory = () => {
 								dateOfUpdate: d.dateOdUpdate,
 								status: 'Pantry',
 								confirmed: false,
+								unit: d.unit,
 							},
 						]);
 						setStockItemsTemp((stockItems) => [
@@ -161,6 +165,7 @@ const AddInventory = () => {
 								dateOfUpdate: d.dateOdUpdate,
 								status: 'Pantry',
 								confirmed: false,
+								unit: d.unit,
 							},
 						]);
 					});
@@ -302,56 +307,59 @@ const AddInventory = () => {
 										setSearch(e.target.value);
 									}}
 									className='
-                    w-full
-                    rounded-[25px]
-                    border-2
-                    border-[#8b0e06]
-                    py-3
-                    px-5
-                    bg-white
-                    text-base text-body-color
-                    placeholder-[#ACB6BE]
-                    outline-none
-                    focus-visible:shadow-none
-                    focus:border-primary
-                '
+										w-full
+										rounded-[25px]
+										border-2
+										border-[#8b0e06]
+										py-3
+										px-5
+										bg-white
+										text-base text-body-color
+										placeholder-[#ACB6BE]
+										outline-none
+										focus-visible:shadow-none
+										focus:border-primary
+									'
 									onKeyDown={handleKeyDown}
 								/>
 							</div>
-							<table className='table  border-separate space-y-6 text-sm w-full'>
-								<thead className='bg-[#8b0e06] text-white font-bold0'>
-									<tr>
-										{labels.map((v: any, index) => (
-											<th key={v.label} className={`text-left`}>
-												{v}
-											</th>
-										))}
-									</tr>
-								</thead>
-								<tbody>
-									{stockItemsTemp.slice(start, end).map((value, index) => {
-										return (
-											<tr
-												key={index}
-												onClick={() => {
-													getReadyToUpdate(value);
-												}}
-												className={
-													'odd:bg-white even:bg-slate-50  hover:cursor-pointer hover:bg-[#8b0e06] hover:text-white'
-												}
-											>
-												<td className='text-left'>{value.dateString}</td>
-												<td className='text-left'>{value.title}</td>
-												<td className='text-left'>{value.details}</td>
-												<td className='text-left col-span-3'>
-													{value.category}
-												</td>
-												<td className='text-left'>{value.itemNumber}</td>
-											</tr>
-										);
-									})}
-								</tbody>
-							</table>
+							<div className='overflow-x-scroll '>
+								<table className='table  border-separate space-y-6 text-sm w-full'>
+									<thead className='bg-[#8b0e06] text-white font-bold0'>
+										<tr>
+											{labels.map((v: any, index) => (
+												<th key={v.label} className={`text-left`}>
+													{v}
+												</th>
+											))}
+										</tr>
+									</thead>
+									<tbody>
+										{stockItemsTemp.slice(start, end).map((value, index) => {
+											return (
+												<tr
+													key={index}
+													onClick={() => {
+														getReadyToUpdate(value);
+													}}
+													className={
+														'odd:bg-white even:bg-slate-50  hover:cursor-pointer hover:bg-[#8b0e06] hover:text-white'
+													}
+												>
+													<td className='text-left'>{value.dateString}</td>
+													<td className='text-left'>{value.title}</td>
+													<td className='text-left'>{value.details}</td>
+													<td className='text-left col-span-3'>
+														{value.category}
+													</td>
+													<td className='text-left'>{value.itemNumber}</td>
+													<td className='text-left'>{value.unit}</td>
+												</tr>
+											);
+										})}
+									</tbody>
+								</table>
+							</div>
 							<div>
 								{stockItemsTemp.length > 0 ? (
 									<div className='flex w-full'>
@@ -384,19 +392,19 @@ const AddInventory = () => {
 							setOpen(true);
 						}}
 						className='
-              font-bold
-              rounded-full
-              border-2
-              border-[#8b0e06]
-              border-primary
-              p-5
-              bg-[#8b0e06]
-              text-base 
-              text-white
-              cursor-pointer
-              hover:bg-opacity-90
-              transition
-          '
+							font-bold
+							rounded-[25px]
+							border-2
+							border-[#8b0e06]
+							border-primary
+							p-5
+							bg-[#8b0e06]
+							text-base 
+							text-white
+							cursor-pointer
+							hover:bg-opacity-90
+							transition
+						'
 					>
 						<svg
 							xmlns='http://www.w3.org/2000/svg'
@@ -464,19 +472,19 @@ const AddInventory = () => {
 												onChange={handleChange}
 												name='title'
 												className='
-                          w-full
-                          rounded-[25px]
-                          border-2
-                          border-[#8b0e06]
-                          py-3
-                          px-5
-                          bg-white
-                          text-base text-body-color
-                          placeholder-[#ACB6BE]
-                          outline-none
-                          focus-visible:shadow-none
-                          focus:border-primary
-                         '
+													w-full
+													rounded-[25px]
+													border-2
+													border-[#8b0e06]
+													py-3
+													px-5
+													bg-white
+													text-base text-body-color
+													placeholder-[#ACB6BE]
+													outline-none
+													focus-visible:shadow-none
+													focus:border-primary
+													'
 												required
 											/>
 										</div>
@@ -487,20 +495,20 @@ const AddInventory = () => {
 												placeholder={'Item Description'}
 												onChange={handleChange}
 												className='
-                          h-25
-                          w-full
-                          rounded-[25px]
-                          border-2
-                          border-[#8b0e06]
-                          py-3
-                          px-5
-                          bg-white
-                          text-base text-body-color
-                          placeholder-[#ACB6BE]
-                          outline-none
-                          focus-visible:shadow-none
-                          focus:border-primary
-                          '
+													h-25
+													w-full
+													rounded-[25px]
+													border-2
+													border-[#8b0e06]
+													py-3
+													px-5
+													bg-white
+													text-base text-body-color
+													placeholder-[#ACB6BE]
+													outline-none
+													focus-visible:shadow-none
+													focus:border-primary
+												'
 												required
 											/>
 										</div>
@@ -526,6 +534,7 @@ const AddInventory = () => {
 												</select>
 											</button>
 										</div>
+
 										<div className='mb-6 w-full'>
 											<p className='text-xs text-gray-400 text-center'>
 												Number of items
@@ -537,42 +546,64 @@ const AddInventory = () => {
 												placeholder={'Number of items'}
 												onChange={handleChange}
 												className='
-                         w-full
-                         rounded-[25px]
-                         border-2
-                         border-[#8b0e06]
-                         py-3
-                         px-5
-                         bg-white
-                         text-base text-body-color
-                         placeholder-[#ACB6BE]
-                         outline-none
-                         focus-visible:shadow-none
-                         focus:border-primary
-                         '
+													w-full
+													rounded-[25px]
+													border-2
+													border-[#8b0e06]
+													py-3
+													px-5
+													bg-white
+													text-base text-body-color
+													placeholder-[#ACB6BE]
+													outline-none
+													focus-visible:shadow-none
+													focus:border-primary
+												'
 												required
 											/>
+										</div>
+										<div className='mb-6 w-full'>
+											<button
+												className='font-bold rounded-[25px] border-2 border-[#8b0e06] bg-white px-4 py-3 w-full'
+												onClick={(e) => e.preventDefault()}
+											>
+												<select
+													value={stockItem.unit}
+													onChange={handleChange}
+													name='unit'
+													className='bg-white w-full'
+													data-required='1'
+													required
+												>
+													<option value='Item Category' hidden>
+														Select Unit Of Measure
+													</option>
+													{STOCK_MEASUREMENTS.map((v) => (
+														<option value={v}>{v}</option>
+													))}
+												</select>
+											</button>
 										</div>
 										<button
 											onClick={() => {
 												edit ? editStockItem() : addStockItem();
 											}}
 											className='
-                        font-bold
-                        w-full
-                        rounded-[25px]
-                        border-2
-                        border-[#8b0e06]
-                        border-primary
-                        py-3
-                        px-10
-                        bg-[#8b0e06]
-                        text-base 
-                        text-white
-                        cursor-pointer
-                        hover:bg-opacity-90
-                        transition
-                    '
+												font-bold
+												w-full
+												rounded-[25px]
+												border-2
+												border-[#8b0e06]
+												border-primary
+												py-3
+												px-10
+												bg-[#8b0e06]
+												text-base 
+												text-white
+												cursor-pointer
+												hover:bg-opacity-90
+												transition
+											'
 										>
 											{edit ? 'Update Stock Item' : 'Add Stock Item'}
 										</button>

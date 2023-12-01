@@ -38,7 +38,7 @@ const Orders = () => {
 		<div>
 			<AppAccess access={access} component={'orders'}>
 				<div>
-					<div className='flex flex-col '>
+					<div className='flex flex-col min-h-screen h-full'>
 						<div className='lg:col-span-3' id='nav'>
 							<ClientNav organisationName={'FoodiesBooth'} url={'orders'} />
 						</div>

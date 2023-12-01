@@ -38,15 +38,12 @@ const Inventory = () => {
 
 	return (
 		<div>
-			<Head>
-				<meta name='viewport' content='width=978'></meta>
-			</Head>
-			<div className='flex flex-col'>
+			<div className='flex flex-col min-h-screen h-full'>
 				<div className='col-span-3'>
 					<ClientNav organisationName={'Vision Is Primary'} url={'inventory'} />
 				</div>
 
-				<div className='w-full m-2 px-2 py-8 sm:px-0 col-span-9 '>
+				<div className='w-full px-2 py-8 sm:px-0 col-span-9 '>
 					<Tab.Group>
 						<Tab.List className='flex space-x-4 rounded-[25px] bg-[#f3f3f3] p-1 overflow-x-auto whitespace-nowrap'>
 							{tabs.map((category) => (
@@ -57,7 +54,7 @@ const Inventory = () => {
 											'w-full  py-2.5 text-sm font-medium leading-5 text-black rounded-[25px]',
 											'ring-white m-1',
 											selected
-												? 'bg-white shadow-md focus:outline-none'
+												? 'bg-white shadow-md focus:outline-none p-4'
 												: 'text-black hover:bg-white/[0.12] hover:text-white focus:outline-none'
 										)
 									}

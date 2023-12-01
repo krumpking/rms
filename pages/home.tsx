@@ -225,6 +225,7 @@ const Home = () => {
 								dateOfUpdate: d.dateOdUpdate,
 								status: d.status,
 								confirmed: d.confirmed,
+								unit: d.unit,
 							},
 						]);
 					});
@@ -416,7 +417,7 @@ const Home = () => {
             /> */}
 
 			<div>
-				<div className='flex flex-col '>
+				<div className='flex flex-col min-h-screen h-full'>
 					<div className='lg:col-span-3' id='nav'>
 						<ClientNav organisationName={'Vision Is Primary'} url={'home'} />
 					</div>
@@ -433,35 +434,20 @@ const Home = () => {
 									<h1 className='text-2xl'>{transactions.length}</h1>
 									<h1>Transactions</h1>
 								</div>
-								<div className='grid grid-cols-1 md:grid-cols-2 gap-4  border-none lg:border-r-2 '>
-									<div className='flex flex-row space-x-1 lg:space-x-0 lg:flex-col justify-center items-center '>
-										<h1 className='text-md'>{totalUSD.toFixed(2)}</h1>
-										<h1>USD</h1>
-									</div>
-									<div className='flex fflex-row space-x-1 lg:space-x-0 lg:flex-col justify-center items-center'>
-										<h1 className='text-md'>{totalZWL.toFixed(2)}</h1>
-										<h1>ZWL</h1>
-									</div>
+
+								<div className='flex flex-row space-x-1 lg:space-x-0 lg:flex-col justify-center items-center '>
+									<h1 className='text-md'>{totalUSD.toFixed(2)}</h1>
+									<h1>USD</h1>
 								</div>
-								<div className='grid grid-cols-1 md:grid-cols-2  gap-4 border-none lg:border-r-2'>
-									<div className='flex flex-row space-x-1 lg:space-x-0 lg:flex-col justify-center items-center'>
-										<h1 className='text-md'>{totalRecUSD.toFixed(2)}</h1>
-										<h1 className='text-xs'>USD Received</h1>
-									</div>
-									<div className='flex flex-row space-x-1 lg:space-x-0 lg:flex-col justify-center items-center'>
-										<h1 className='text-md'>{totalRecZWL.toFixed(2)}</h1>
-										<h1 className='text-xs'>ZWL Received</h1>
-									</div>
+
+								<div className='flex flex-row space-x-1 lg:space-x-0 lg:flex-col justify-center items-center'>
+									<h1 className='text-md'>{totalRecUSD.toFixed(2)}</h1>
+									<h1 className='text-xs'>USD Received</h1>
 								</div>
-								<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-									<div className='flex flex-row space-x-1 lg:space-x-0 lg:flex-col justify-center items-center'>
-										<h1 className='text-md'>{totalSpentUSD.toFixed(2)}</h1>
-										<h1 className='text-xs'>USD Spent</h1>
-									</div>
-									<div className='flex flex-row space-x-1 lg:space-x-0 lg:flex-col justify-center items-center'>
-										<h1 className='text-md'>{totalSpentZWL.toFixed(2)}</h1>
-										<h1 className='text-xs'>ZWL Spent</h1>
-									</div>
+
+								<div className='flex flex-row space-x-1 lg:space-x-0 lg:flex-col justify-center items-center'>
+									<h1 className='text-md'>{totalSpentUSD.toFixed(2)}</h1>
+									<h1 className='text-xs'>USD Spent</h1>
 								</div>
 							</div>
 							<div className='mt-5'>Stock Overview</div>

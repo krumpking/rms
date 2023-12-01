@@ -123,7 +123,7 @@ const Sales = () => {
 						<Loader color={''} />
 					</div>
 				) : (
-					<div className='bg-white rounded-[30px] p-4  grid grid-cols-2 gap-4'>
+					<div className='bg-white rounded-[30px] p-4  grid grid-cols-1 lg:grid-cols-2 gap-4'>
 						<div className='flex flex-col'>
 							<div className='mb-6'>
 								<p>Amount</p>
@@ -219,27 +219,6 @@ const Sales = () => {
 										Payment Method
 									</option>
 									{categories.map((v) => (
-										<option value={v}>{v}</option>
-									))}
-								</select>
-							</button>
-							<button
-								className='font-bold rounded-[25px] border-2 border-[#8b0e06] bg-white px-4 py-3 w-full mb-6'
-								onClick={(e) => e.preventDefault()}
-							>
-								<select
-									value={currency}
-									onChange={(e) => {
-										setCurrency(e.target.value);
-									}}
-									className='bg-white w-full'
-									data-required='1'
-									required
-								>
-									<option value='Chapter' hidden>
-										Payment Method
-									</option>
-									{CURRENCIES.map((v) => (
 										<option value={v}>{v}</option>
 									))}
 								</select>

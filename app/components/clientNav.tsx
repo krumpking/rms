@@ -73,7 +73,7 @@ const ClientNav: FC<MyProps> = ({ organisationName, url }) => {
 		<nav className='h-full'>
 			<div className='flex flex-row-reverse  '>
 				<button
-					className='rounded-full shadow-2xl bg-[#8b0e06] p-4 m-4'
+					className='rounded-[25px] shadow-2xl bg-[#8b0e06] p-4 m-4'
 					onClick={() => setIsOpen(!isOpen)}
 				>
 					<svg
