@@ -35,6 +35,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import { useAuthIds } from '../authHook';
 import { logEvent } from 'firebase/analytics';
 import { analytics } from '../../../firebase/clientApp';
+import { getCurrency } from '../../utils/currency';
 
 const AddMenuItem = () => {
 	const [loading, setLoading] = useState(true);
@@ -56,6 +57,7 @@ const AddMenuItem = () => {
 		price: 0,
 	});
 	const [open, setOpen] = useState(false);
+	const [currency, setCurrency] = useState('US$');
 
 	useEffect(() => {
 		document.body.style.backgroundColor = LIGHT_GRAY;
@@ -64,7 +66,9 @@ const AddMenuItem = () => {
 		logEvent(analytics, 'add_menu_page_visit');
 	}, []);
 
-	const getMenuItems = () => {
+	const getMenuItems = async () => {
+		let currny = await getCurrency();
+		setCurrency(currny);
 		getDataFromDBOne(MENU_ITEM_COLLECTION, AMDIN_FIELD, adminId)
 			.then((v) => {
 				if (v !== null) {
@@ -361,7 +365,10 @@ const AddMenuItem = () => {
 									/>
 									<div className='flex flex-row justify-between'>
 										<h1 className='font-bold text-sm'>{v.title}</h1>
-										<h1 className='font-bold text-sm'>{v.price}USD</h1>
+										<h1 className='font-bold text-sm'>
+											{v.price}
+											{currency}
+										</h1>
 									</div>
 								</div>
 							);
@@ -535,14 +542,14 @@ const AddMenuItem = () => {
 									</div>
 									<div className='mb-6 w-full'>
 										<p className='text-xs text-gray-400 text-center'>
-											Price in USD
+											Price in {currency}
 										</p>
 										<input
 											type='number'
 											min={0}
 											step={0.01}
 											value={price}
-											placeholder={'Price in USD'}
+											placeholder={`Price in ${currency}`}
 											onChange={(e) => {
 												setPrice(parseFloat(e.target.value));
 											}}

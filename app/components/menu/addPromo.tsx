@@ -42,6 +42,7 @@ import { addDays } from 'date-fns';
 import DateMethods from '../../utils/date';
 import { logEvent } from 'firebase/analytics';
 import { analytics } from '../../../firebase/clientApp';
+import { getCurrency } from '../../utils/currency';
 
 const AddPromotion = () => {
 	const [loading, setLoading] = useState(true);
@@ -79,6 +80,7 @@ const AddPromotion = () => {
 		duration: 0,
 	});
 	const [open, setOpen] = useState(false);
+	const [currency, setCurrency] = useState('US$');
 
 	useEffect(() => {
 		document.body.style.backgroundColor = LIGHT_GRAY;
@@ -86,7 +88,9 @@ const AddPromotion = () => {
 		getMenuItems();
 	}, []);
 
-	const getMenuItems = () => {
+	const getMenuItems = async () => {
+		let currny = await getCurrency();
+		setCurrency(currny);
 		getDataFromDBOne(MENU_PROMO_ITEM_COLLECTION, AMDIN_FIELD, adminId)
 			.then((v) => {
 				if (v !== null) {
@@ -381,8 +385,14 @@ const AddPromotion = () => {
 										/>
 										<p className='text-xl'>{v.title}</p>
 										<div className='flex flex-row space-x-4 justify-end content-center items-center'>
-											<p className='text-xs line-through'>{v.oldPrice}USD</p>
-											<p className='text-md'>{v.newPrice}USD</p>
+											<p className='text-xs line-through'>
+												{v.oldPrice}
+												{currency}
+											</p>
+											<p className='text-md'>
+												{v.newPrice}
+												{currency}
+											</p>
 										</div>
 										<div className='rounded-[25px] font-bold w-full h-fit font-bold text-xs text-center flex flex-row justify-end'>
 											<p className=''>
@@ -570,7 +580,7 @@ const AddPromotion = () => {
 									</div>
 									<div className='mb-6 w-full'>
 										<p className='text-xs text-gray-400 text-center'>
-											Old Price in USD
+											Old Price in {currency}
 										</p>
 										<input
 											type='number'
@@ -578,7 +588,7 @@ const AddPromotion = () => {
 											step={0}
 											name='oldPrice'
 											value={promo.oldPrice}
-											placeholder={'Old Price in USD'}
+											placeholder={`Old Price in ${currency}`}
 											onChange={handleChange}
 											className='
                                                 w-full
@@ -599,7 +609,7 @@ const AddPromotion = () => {
 									</div>
 									<div className='mb-6 w-full'>
 										<p className='text-xs text-gray-400 text-center'>
-											New Price in USD
+											New Price in {currency}
 										</p>
 										<input
 											type='number'
@@ -607,7 +617,7 @@ const AddPromotion = () => {
 											step={0}
 											name='newPrice'
 											value={promo.newPrice}
-											placeholder={'New Price in USD'}
+											placeholder={`New Price in ${currency}`}
 											onChange={handleChange}
 											className='
                                                     w-full

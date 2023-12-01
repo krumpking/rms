@@ -20,6 +20,7 @@ import OrderedItems from '../order/orderedItems';
 import ReactPaginate from 'react-paginate';
 import AppAccess from '../accessLevel';
 import { useAuthIds } from '../authHook';
+import { getCurrency } from '../../utils/currency';
 
 const CBOverview = () => {
 	const [loading, setLoading] = useState(false);
@@ -60,11 +61,15 @@ const CBOverview = () => {
 	const [end, setEnd] = useState(10);
 	const [pages, setPages] = useState(0);
 	const [count, setCount] = useState(0);
+	const [currency, setCurrency] = useState('US$');
+
 	useEffect(() => {
 		getTransactions();
 	}, []);
 
-	const getTransactions = () => {
+	const getTransactions = async () => {
+		let currny = await getCurrency();
+		setCurrency(currny);
 		getDataFromDBOne(CASHBOOOK_COLLECTION, AMDIN_FIELD, adminId)
 			.then((v) => {
 				if (v != null) {
@@ -76,7 +81,7 @@ const CBOverview = () => {
 					let tSZWL = 0;
 					v.data.forEach((element) => {
 						let d = element.data();
-						if (d.currency === 'USD') {
+						if (d.currency === currency) {
 							tUSD += d.amount;
 							if (d.transactionType === 'Cash In') {
 								tRUSD += d.amount;
@@ -242,7 +247,7 @@ const CBOverview = () => {
 				setTransactions((transactions) => [...transactions, element]);
 				setTransactionsSto((transactions) => [...transactions, element]);
 				let d = element;
-				if (d.currency === 'USD') {
+				if (d.currency === currency) {
 					tUSD += d.amount;
 					if (d.transactionType === 'Cash In') {
 						tRUSD += d.amount;
@@ -281,7 +286,7 @@ const CBOverview = () => {
 	};
 
 	const getAvail = (key: string) => {
-		if (key == 'USD') {
+		if (key == currency) {
 			return (totalRecUSD - totalSpentUSD).toFixed(2);
 		} else {
 			return (totalRecZWL - totalSpentZWL).toFixed(2);
@@ -300,7 +305,9 @@ const CBOverview = () => {
 						<div className='grid grid-cols-2 shadow-lg p-8 rounded-[25px]'>
 							<div className='grid grid-cols-2 border-r-2'>
 								<div className='flex flex-col items-center'>
-									<h1 className='text-md'>{getAvail('USD')} USD</h1>
+									<h1 className='text-md'>
+										{getAvail(currency)} {currency}
+									</h1>
 									<h1>Available </h1>
 								</div>
 							</div>
@@ -346,7 +353,7 @@ const CBOverview = () => {
 							<div className='grid grid-cols-2 border-r-2'>
 								<div className='flex flex-col items-center'>
 									<h1 className='text-md'>{totalUSD.toFixed(2)}</h1>
-									<p className='text-xs'>USD Transactions</p>
+									<p className='text-xs'>{currency} Transactions</p>
 								</div>
 								<div className='flex flex-col items-center'>
 									<h1 className='text-md'>{totalZWL.toFixed(2)}</h1>
@@ -356,7 +363,7 @@ const CBOverview = () => {
 							<div className='grid grid-cols-2 border-r-2'>
 								<div className='flex flex-col items-center'>
 									<h1 className='text-md'>{totalRecUSD.toFixed(2)}</h1>
-									<p className='text-xs'>USD Received</p>
+									<p className='text-xs'>{currency} Received</p>
 								</div>
 								<div className='flex flex-col items-center'>
 									<h1 className='text-md'>{totalRecZWL.toFixed(2)}</h1>
@@ -366,7 +373,7 @@ const CBOverview = () => {
 							<div className='grid grid-cols-2'>
 								<div className='flex flex-col items-center'>
 									<h1 className='text-md'>{totalSpentUSD.toFixed(2)}</h1>
-									<p className='text-xs'>USD Spent</p>
+									<p className='text-xs'>{currency} Spent</p>
 								</div>
 								<div className='flex flex-col items-center'>
 									<h1 className='text-md'>{totalSpentZWL.toFixed(2)}</h1>

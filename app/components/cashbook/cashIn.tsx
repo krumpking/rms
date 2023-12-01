@@ -16,13 +16,14 @@ import { Disclosure } from '@headlessui/react';
 import { print } from '../../utils/console';
 import AppAccess from '../accessLevel';
 import { useAuthIds } from '../authHook';
+import { getCurrency } from '../../utils/currency';
 
 const Sales = () => {
 	const [loading, setLoading] = useState(false);
 	const router = useRouter();
 	const [amount, setAmount] = useState(0);
 	const [details, setDetails] = useState('');
-	const [currency, setCurrency] = useState('USD');
+	const [currency, setCurrency] = useState('US$');
 	const [source, setSource] = useState('');
 	const [categories, setCategories] = useState<string[]>([
 		'cash',
@@ -39,7 +40,9 @@ const Sales = () => {
 		getIncome();
 	}, []);
 
-	const getIncome = () => {
+	const getIncome = async () => {
+		let currny = await getCurrency();
+		setCurrency(currny);
 		getDataFromDBTwo(
 			CASHBOOOK_COLLECTION,
 			AMDIN_FIELD,

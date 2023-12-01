@@ -46,6 +46,7 @@ import {
 	POINTS_COLLECTION,
 	REWARD_PARAMS_COLLECTION,
 } from '../../constants/loyaltyConstants';
+import { getCurrency } from '../../utils/currency';
 
 const CreateOrder = () => {
 	const [loading, setLoading] = useState(false);
@@ -80,35 +81,19 @@ const CreateOrder = () => {
 	const [rewards, setRewards] = useState<IPointsRate[]>([]);
 	const [points, setPoints] = useState<IPoints[]>([]);
 	const [usePoints, setUsePoints] = useState(false);
+	const [currency, setCurrency] = useState('US$');
 
 	useEffect(() => {
 		document.body.style.backgroundColor = LIGHT_GRAY;
 
-		getCategories();
 		getMeals();
 		getMenuItems();
 		getOrders();
 	}, []);
 
-	const getCategories = () => {
-		getDataFromDBOne(MENU_CAT_COLLECTION, AMDIN_FIELD, adminId)
-			.then((v) => {
-				if (v !== null) {
-					v.data.forEach((element) => {
-						let d = element.data();
-
-						setCategories((categories) => [...categories, d.category]);
-					});
-				}
-				setLoading(false);
-			})
-			.catch((e) => {
-				console.error(e);
-				setLoading(true);
-			});
-	};
-
-	const getMeals = () => {
+	const getMeals = async () => {
+		let currny = await getCurrency();
+		setCurrency(currny);
 		getDataFromDBOne(MEAL_ITEM_COLLECTION, AMDIN_FIELD, adminId)
 			.then((v) => {
 				if (v !== null) {
@@ -638,7 +623,10 @@ const CreateOrder = () => {
 											/>
 											<div className='flex flex-row justify-between'>
 												<h1 className='font-bold text-sm'>{v.title}</h1>
-												<h1 className='font-bold text-sm'>{v.price}USD</h1>
+												<h1 className='font-bold text-sm'>
+													{v.price}
+													{currency}
+												</h1>
 											</div>
 										</div>
 									);
@@ -661,7 +649,10 @@ const CreateOrder = () => {
 											/>
 											<div className='flex flex-row justify-between'>
 												<h1 className='font-bold text-sm'>{v.title}</h1>
-												<h1 className='font-bold text-sm'>{v.price}USD</h1>
+												<h1 className='font-bold text-sm'>
+													{v.price}
+													{currency}
+												</h1>
 											</div>
 										</div>
 									);
@@ -879,7 +870,10 @@ const CreateOrder = () => {
 
 								<div className='flex flex-row justify-between px-8'>
 									<h1 className='text-xl'>Combined Total</h1>
-									<h1 className='text-xl'>{getTotal()}USD</h1>
+									<h1 className='text-xl'>
+										{getTotal()}
+										{currency}
+									</h1>
 								</div>
 
 								<button

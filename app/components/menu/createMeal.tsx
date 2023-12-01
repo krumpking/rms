@@ -38,6 +38,7 @@ import { createId } from '../../utils/stringM';
 import { useAuthIds } from '../authHook';
 import { logEvent } from 'firebase/analytics';
 import { analytics } from '../../../firebase/clientApp';
+import { getCurrency } from '../../utils/currency';
 
 const CreateMeal = () => {
 	const [loading, setLoading] = useState(true);
@@ -65,6 +66,7 @@ const CreateMeal = () => {
 	const [search, setSearch] = useState('');
 	const [finalTotal, setFinalTotal] = useState(0);
 	const [displayedItems, setDisplayedItems] = useState<any>([]);
+	const [currency, setCurrency] = useState('US$');
 
 	useEffect(() => {
 		document.body.style.backgroundColor = LIGHT_GRAY;
@@ -74,7 +76,9 @@ const CreateMeal = () => {
 		logEvent(analytics, 'create_meal_page_visit');
 	}, []);
 
-	const getCategories = () => {
+	const getCategories = async () => {
+		let currny = await getCurrency();
+		setCurrency(currny);
 		getDataFromDBOne(MENU_CAT_COLLECTION, AMDIN_FIELD, adminId)
 			.then((v) => {
 				if (v !== null) {
@@ -409,7 +413,8 @@ const CreateMeal = () => {
 																		{v.title}
 																	</h1>
 																	<h1 className='font-bold text-sm'>
-																		{v.price}USD
+																		{v.price}
+																		{currency}
 																	</h1>
 																</div>
 															</div>
@@ -468,7 +473,10 @@ const CreateMeal = () => {
 
 										<div className='flex flex-row justify-between px-8'>
 											<h1 className='text-xl'>Combined Total</h1>
-											<h1 className='text-xl'>{getTotal()}USD</h1>
+											<h1 className='text-xl'>
+												{getTotal()}
+												{currency}
+											</h1>
 										</div>
 										<div>
 											<div
