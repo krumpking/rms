@@ -306,7 +306,8 @@ const CBOverview = () => {
 						<div className='grid grid-cols-1 md:grid-cols-2 shadow-lg p-8 rounded-[25px] place-items-center w-full'>
 							<div className='flex flex-col items-center'>
 								<h1 className='text-md'>
-									{getAvail(currency)} {currency}
+									{currency}
+									{getAvail(currency)}
 								</h1>
 								<h1>Available </h1>
 							</div>

@@ -386,12 +386,12 @@ const AddPromotion = () => {
 										<p className='text-xl'>{v.title}</p>
 										<div className='flex flex-row space-x-4 justify-end content-center items-center'>
 											<p className='text-xs line-through'>
-												{v.oldPrice}
 												{currency}
+												{v.oldPrice}
 											</p>
 											<p className='text-md'>
-												{v.newPrice}
 												{currency}
+												{v.newPrice}
 											</p>
 										</div>
 										<div className='rounded-[25px] font-bold w-full h-fit font-bold text-xs text-center flex flex-row justify-end'>

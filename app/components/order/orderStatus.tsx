@@ -270,8 +270,7 @@ const OrderStatus = (props: { level: number }) => {
 											Order No: {v.orderNo}
 										</h1>
 										<h1 className='font-bold text-sm'>
-											Due: {v.totalCost.toFixed(2)}
-											{currency}
+											Due: {currency} {v.totalCost.toFixed(2)}
 										</h1>
 										<h1
 											className={

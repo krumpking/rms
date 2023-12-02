@@ -348,8 +348,7 @@ const Expenses = () => {
 											Title: {v.title}
 										</h1>
 										<h1 className='font-bold text-sm'>
-											Amount: {v.amount.toFixed(2)}
-											{v.currency}
+											Amount:{v.currency} {v.amount.toFixed(2)}
 										</h1>
 										<h1 className='font-bold text-xs text-gray-400'>
 											{v.dateString}

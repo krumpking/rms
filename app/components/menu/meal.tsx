@@ -283,8 +283,8 @@ const Meal = () => {
 											<div className='flex flex-row justify-between'>
 												<h1 className='font-bold text-sm'>{v.title}</h1>
 												<h1 className='font-bold text-sm'>
-													{v.price}
 													{currency}
+													{v.price}
 												</h1>
 											</div>
 										</div>
