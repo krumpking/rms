@@ -863,7 +863,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 										))}
 
 										<button
-											className='py-4 px-1 relative border-2 border-transparent text-gray-800 rounded-full hover:text-gray-400 focus:outline-none focus:text-gray-500 transition duration-150 ease-in-out'
+											className='py-4 px-1 relative border-2 border-transparent text-gray-800 rounded-md hover:text-gray-400 focus:outline-none focus:text-gray-500 transition duration-150 ease-in-out'
 											aria-label='Cart'
 											onClick={() => {
 												setIsOpen(true);
@@ -1066,12 +1066,12 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 													<p className='text-xl'>{v.title}</p>
 													<div className='flex flex-row space-x-4 justify-end content-center items-center'>
 														<p className='text-xs line-through'>
-															{v.oldPrice}
 															{currency}
+															{v.oldPrice}
 														</p>
 														<p className='text-md'>
-															{v.newPrice}
 															{currency}
+															{v.newPrice}
 														</p>
 													</div>
 													<div className='rounded-md font-bold w-full h-fit font-bold text-xs text-center flex flex-row justify-end'>
@@ -1102,8 +1102,8 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 													<p className='text-xl'>{v.title}</p>
 													<div className='flex justify-between'>
 														<p className='text-md'>
-															{v.price}
 															{currency}
+															{v.price}
 														</p>
 														<button
 															onClick={() => {
@@ -1190,8 +1190,8 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 											<p className='text-xs px-4 w-full'>{v.description}</p>
 											<div className='flex flex-row justify-between p-4 items-center'>
 												<h1 className='font-bold text-xl'>
-													{v.price}
 													{currency}
+													{v.price}
 												</h1>
 												<button
 													onClick={() => {
@@ -1215,8 +1215,8 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 											<h1 className='font-bold text-xl px-4'>{v.title}</h1>
 											<div className='flex flex-row justify-between p-4 items-center'>
 												<h1 className='font-bold text-xl'>
-													{v.price}
 													{currency}
+													{v.price}
 												</h1>
 												<button
 													onClick={() => {
@@ -1883,12 +1883,12 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 													<p className='text-xl'>{v.title}</p>
 													<div className='flex flex-row space-x-4 justify-end content-center items-center'>
 														<p className='text-xs line-through'>
-															{v.oldPrice}
 															{currency}
+															{v.oldPrice}
 														</p>
 														<p className='text-md'>
-															{v.newPrice}
 															{currency}
+															{v.newPrice}
 														</p>
 													</div>
 													<div className='rounded-md font-bold w-full h-fit font-bold text-xs text-center flex flex-row justify-end'>
@@ -1919,8 +1919,8 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 													<p className='text-xl'>{v.title}</p>
 													<div className='flex justify-between'>
 														<p className='text-md'>
-															{v.price}
 															{currency}
+															{v.price}
 														</p>
 														<button
 															onClick={() => {
@@ -2007,8 +2007,8 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 											<p className='text-xs px-4 w-full'>{v.description}</p>
 											<div className='flex flex-row justify-between p-4 items-center'>
 												<h1 className='font-bold text-xl'>
-													{v.price}
 													{currency}
+													{v.price}
 												</h1>
 												<button
 													onClick={() => {
@@ -2032,8 +2032,8 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 											<h1 className='font-bold text-xl px-4'>{v.title}</h1>
 											<div className='flex flex-row justify-between p-4 items-center'>
 												<h1 className='font-bold text-xl'>
-													{v.price}
 													{currency}
+													{v.price}
 												</h1>
 												<button
 													onClick={() => {
@@ -2780,8 +2780,8 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 											className='text-xl'
 											style={{ color: `${info.themeMainColor}` }}
 										>
-											Total Cost: {numberWithCommas(getTotal().toString())}{' '}
-											{currency}
+											Total Cost: {currency}{' '}
+											{numberWithCommas(getTotal().toString())}{' '}
 										</h1>
 									</div>
 									<button

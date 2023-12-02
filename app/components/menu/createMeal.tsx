@@ -413,8 +413,8 @@ const CreateMeal = () => {
 																		{v.title}
 																	</h1>
 																	<h1 className='font-bold text-sm'>
-																		{v.price}
 																		{currency}
+																		{v.price}
 																	</h1>
 																</div>
 															</div>
@@ -474,8 +474,8 @@ const CreateMeal = () => {
 										<div className='flex flex-row justify-between px-8'>
 											<h1 className='text-xl'>Combined Total</h1>
 											<h1 className='text-xl'>
-												{getTotal()}
 												{currency}
+												{getTotal()}
 											</h1>
 										</div>
 										<div>

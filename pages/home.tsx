@@ -26,6 +26,7 @@ import {
 import Head from 'next/head';
 import { logEvent } from 'firebase/analytics';
 import { analytics } from '../firebase/clientApp';
+import { getCurrency } from '../app/utils/currency';
 
 const Home = () => {
 	const [loading, setLoading] = useState(false);
@@ -138,6 +139,7 @@ const Home = () => {
 	const [menuItems, setMenuItems] = useState<IMenuItem[]>([]);
 	const [meals, setMeals] = useState<IMeal[]>([]);
 	const [reservations, setReservations] = useState<IReservation[]>([]);
+	const [currency, setCurrency] = useState('US$');
 
 	useEffect(() => {
 		document.body.style.backgroundColor = LIGHT_GRAY;
@@ -150,7 +152,9 @@ const Home = () => {
 		logEvent(analytics, 'home_page_visit');
 	}, []);
 
-	const getOrders = () => {
+	const getOrders = async () => {
+		let currny = await getCurrency();
+		setCurrency(currny);
 		let fieldTwo = 'Sent';
 		getDataFromDBTwo(
 			ORDER_COLLECTION,
@@ -242,27 +246,16 @@ const Home = () => {
 			.then((v) => {
 				if (v != null) {
 					let tUSD = 0;
-					let tZWL = 0;
 					let tRUSD = 0;
-					let tRZWL = 0;
 					let tSUSD = 0;
-					let tSZWL = 0;
 					v.data.forEach((element) => {
 						let d = element.data();
-						if (d.currency === 'USD') {
-							tUSD += d.amount;
-							if (d.transactionType === 'Cash In') {
-								tRUSD += d.amount;
-							} else {
-								tSUSD += d.amount;
-							}
+
+						tUSD += d.amount;
+						if (d.transactionType === 'Cash In') {
+							tRUSD += d.amount;
 						} else {
-							tZWL = d.amount;
-							if (d.transactionType === 'Cash In') {
-								tRZWL += d.amount;
-							} else {
-								tSZWL += d.amount;
-							}
+							tSUSD += d.amount;
 						}
 
 						setTransactions((transactions) => [
@@ -284,11 +277,8 @@ const Home = () => {
 							},
 						]);
 						setTotalUSD(tUSD);
-						setTotalZWL(tZWL);
 						setTotalRecUSD(tRUSD);
-						setTotalRecZWL(tRZWL);
 						setTotalSpentUSD(tSUSD);
-						setTotalSpentZWL(tSZWL);
 					});
 				}
 			})
@@ -436,18 +426,18 @@ const Home = () => {
 								</div>
 
 								<div className='flex flex-row space-x-1 lg:space-x-0 lg:flex-col justify-center items-center '>
+									<h1>{currency}</h1>
 									<h1 className='text-md'>{totalUSD.toFixed(2)}</h1>
-									<h1>USD</h1>
 								</div>
 
 								<div className='flex flex-row space-x-1 lg:space-x-0 lg:flex-col justify-center items-center'>
 									<h1 className='text-md'>{totalRecUSD.toFixed(2)}</h1>
-									<h1 className='text-xs'>USD Received</h1>
+									<h1 className='text-xs'>Received</h1>
 								</div>
 
 								<div className='flex flex-row space-x-1 lg:space-x-0 lg:flex-col justify-center items-center'>
 									<h1 className='text-md'>{totalSpentUSD.toFixed(2)}</h1>
-									<h1 className='text-xs'>USD Spent</h1>
+									<h1 className='text-xs'>Spent</h1>
 								</div>
 							</div>
 							<div className='mt-5'>Stock Overview</div>
@@ -493,7 +483,7 @@ const Home = () => {
 															Order No: {v.orderNo}
 														</h1>
 														<h1 className='font-bold text-sm'>
-															Due: {v.totalCost.toFixed(2)}USD
+															Due: {currency} {v.totalCost.toFixed(2)}
 														</h1>
 														<h1 className='font-bold text-sm'>
 															{v.customerName}

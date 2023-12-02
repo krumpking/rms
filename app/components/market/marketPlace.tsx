@@ -1042,12 +1042,12 @@ const MarketPlace = (props: {
 															</Disclosure>
 															<div className='flex flex-row space-x-4 justify-between content-center items-center my-1'>
 																<p className='text-xs md:text-md line-through'>
-																	{v.oldPrice}
 																	{currency}
+																	{v.oldPrice}
 																</p>
 																<p className='text-xs md:text-md'>
-																	{v.newPrice}
 																	{currency}
+																	{v.newPrice}
 																</p>
 															</div>
 															<button
@@ -1149,8 +1149,8 @@ const MarketPlace = (props: {
 
 											<div className='flex flex-row justify-between p-4 items-center'>
 												<h1 className='font-bold text-sm md:text-xl'>
-													{v.price}
 													{currency}
+													{v.price}
 												</h1>
 
 												<button
@@ -1216,8 +1216,8 @@ const MarketPlace = (props: {
 
 											<div className='flex flex-row justify-between p-4 items-center'>
 												<h1 className='font-bold text-sm md:text-xl'>
-													{v.price}
 													{currency}
+													{v.price}
 												</h1>
 
 												<button
@@ -1282,8 +1282,8 @@ const MarketPlace = (props: {
 
 											<div className='flex flex-row justify-between p-4 items-center'>
 												<h1 className='font-bold text-sm md:text-xl'>
-													{v.price}
 													{currency}
+													{v.price}
 												</h1>
 
 												<button
@@ -1427,8 +1427,8 @@ const MarketPlace = (props: {
 
 								<div className='flex flex-col space-y-2'>
 									<h1>
-										Send payment of {numberWithCommas(getTotal(3).toString())}{' '}
-										{currency}{' '}
+										Send payment of {currency}
+										{numberWithCommas(getTotal(3).toString())}{' '}
 										{parseFloat(getTotal(3).toString()) > 40
 											? `or ${parseFloat(getTotal(3).toString()) * 0.6}`
 											: ''}{' '}
@@ -1841,7 +1841,8 @@ const MarketPlace = (props: {
 									>
 										<p>Price:</p>
 										<p>
-											{numberWithCommas(getTotal(1).toString())} {currency}
+											{currency}
+											{numberWithCommas(getTotal(1).toString())}
 										</p>
 									</div>
 									<div
@@ -1850,7 +1851,8 @@ const MarketPlace = (props: {
 									>
 										<p>Processing fee:</p>
 										<p>
-											{numberWithCommas(getTotal(2).toString())} {currency}
+											{currency}
+											{numberWithCommas(getTotal(2).toString())}
 										</p>
 									</div>
 									<div
@@ -1859,11 +1861,11 @@ const MarketPlace = (props: {
 									>
 										<h1>Total Cost:</h1>
 										<h1>
-											{numberWithCommas(getTotal(3).toString())} {currency}
+											{currency} {numberWithCommas(getTotal(3).toString())}
 										</h1>
 									</div>
 									<p className='my-2 text-xs'>
-										On orders above 40{currency} deposit is 60%
+										On orders above {currency}40 deposit is 60%
 									</p>
 								</div>
 								<p
