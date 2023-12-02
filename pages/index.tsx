@@ -385,8 +385,8 @@ const Home: NextPage = () => {
 
 											<div className='flex flex-row justify-between p-4 items-center'>
 												<h1 className='font-bold text-xl'>
-													{v.price}
 													{currency}
+													{v.price}
 												</h1>
 												<button
 													onClick={() => {
@@ -576,10 +576,10 @@ const Home: NextPage = () => {
 													<h1 className='text-4xl'>{v.title}</h1>
 													<p>{v.desc}</p>
 													<h1 className='text-2xl'>
+														{currency}
 														{enabled
 															? getPackagePrice(v.pricing) * 11
 															: getPackagePrice(v.pricing)}
-														{currency}
 													</h1>
 													<p>/{enabled ? 'year' : 'month'}</p>
 													<h1 className='text-xl'>Features You will love</h1>

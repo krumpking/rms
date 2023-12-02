@@ -40,7 +40,7 @@ const OrderedItems: FC<MyProps> = ({ id }) => {
 					setOrderNo(`Order No: ${res.orderNo}`);
 					setCustomerName(`Customer Name: ${res.customerName}`);
 					setDate(res.dateString);
-					setTotal(`Total: ${res.totalCost}{currency}`);
+					setTotal(`Total: ${currency}${res.totalCost}`);
 					res.items.forEach((element: any) => {
 						let d = element;
 
@@ -92,8 +92,7 @@ const OrderedItems: FC<MyProps> = ({ id }) => {
 										Title: {v.title}
 									</h1>
 									<h1 className='font-bold text-sm'>
-										Price: {v.price}
-										{currency}
+										Price:{currency} {v.price}
 									</h1>
 									<p className='font-bold text-sm'>{v.description}</p>
 								</div>
