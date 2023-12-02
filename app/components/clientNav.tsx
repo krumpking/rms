@@ -99,7 +99,7 @@ const ClientNav: FC<MyProps> = ({ organisationName, url }) => {
 				>
 					<img src='/images/logo.png' className='h-12 w-48 my-6 rounded-xl' />
 
-					<div className='flex flex-col space-y-4'>
+					<div className='flex flex-col space-y-4 z-20'>
 						<a
 							href={'/home'}
 							className={
