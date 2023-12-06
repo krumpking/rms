@@ -207,7 +207,7 @@ const Home: NextPage = () => {
 	const [price, setPrice] = useState(0);
 	const [priceTeam, setPriceTeam] = useState(0);
 	const [priceEnt, setPriceEnt] = useState(0);
-	const [currency, setCurrency] = useState('US$');
+	const [currency, setCurrency] = useState('');
 
 	useEffect(() => {
 		let url = window.location.href;
@@ -577,7 +577,7 @@ const Home: NextPage = () => {
 													<h1 className='text-2xl'>
 														{currency}
 														{enabled
-															? getPackagePrice(v.pricing) * 9
+															? getPackagePrice(v.pricing) * 11
 															: getPackagePrice(v.pricing)}
 													</h1>
 													<p>/{enabled ? 'year' : 'month'}</p>
