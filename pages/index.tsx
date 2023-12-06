@@ -577,7 +577,7 @@ const Home: NextPage = () => {
 													<h1 className='text-2xl'>
 														{currency}
 														{enabled
-															? getPackagePrice(v.pricing) * 9
+															? getPackagePrice(v.pricing) * 11
 															: getPackagePrice(v.pricing)}
 													</h1>
 													<p>/{enabled ? 'year' : 'month'}</p>
