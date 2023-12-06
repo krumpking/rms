@@ -225,12 +225,11 @@ const Home: NextPage = () => {
 		} else {
 			getMenuItems();
 			logEvent(analytics, 'welcome_page_visit');
-			setLoading(false);
 		}
 	}, []);
 
 	const getMenuItems = async () => {
-		let p = await subscriptionPrice(11);
+		let p = await subscriptionPrice(9);
 		let priceT = await subscriptionPrice(29);
 		let priceE = await subscriptionPrice(49);
 		setPrice(p);
@@ -385,8 +384,8 @@ const Home: NextPage = () => {
 
 											<div className='flex flex-row justify-between p-4 items-center'>
 												<h1 className='font-bold text-xl'>
-													{currency}
-													{v.price}
+													{/* {currency}
+													{v.price} */}
 												</h1>
 												<button
 													onClick={() => {
@@ -578,7 +577,7 @@ const Home: NextPage = () => {
 													<h1 className='text-2xl'>
 														{currency}
 														{enabled
-															? getPackagePrice(v.pricing) * 11
+															? getPackagePrice(v.pricing) * 9
 															: getPackagePrice(v.pricing)}
 													</h1>
 													<p>/{enabled ? 'year' : 'month'}</p>

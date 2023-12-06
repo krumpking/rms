@@ -22,8 +22,6 @@ export const getCurrency = async () => {
 		});
 		return currency.data.currency.symbol_native;
 	}
-
-	// Send every order to me
 };
 
 export const subscriptionPrice = async (amount: number) => {
