@@ -27,16 +27,16 @@ export const getCurrency = async () => {
 export const subscriptionPrice = async (amount: number) => {
 	let code = getCookie(CURRENNCY);
 	if (code !== '') {
-		if (code == 'BWP') {
-			return amount * 13.59;
-		} else if (code === 'ZAR') {
-			return amount * 18.85;
+		if (code == 'P') {
+			return Math.round(amount * 13.59);
+		} else if (code === 'R') {
+			return Math.round(amount * 18.85);
 		} else {
 			return amount;
 		}
 	} else {
 		let currency: any = await locationResult();
-		print(currency);
+
 		setCookie(CURRENNCY, currency.data.currency.symbol_native, {
 			days: 90,
 			SameSite: 'Strict',
@@ -48,10 +48,10 @@ export const subscriptionPrice = async (amount: number) => {
 			Secure: true,
 		});
 		code = currency.data.currency.symbol_native;
-		if (code == 'BWP') {
-			return amount * 13.59;
-		} else if (code === 'ZAR') {
-			return amount * 18.85;
+		if (code == 'P') {
+			return Math.round(amount * 13.59);
+		} else if (code === 'R') {
+			return Math.round(amount * 18.85);
 		} else {
 			return amount;
 		}

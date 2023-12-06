@@ -207,7 +207,7 @@ const Home: NextPage = () => {
 	const [price, setPrice] = useState(0);
 	const [priceTeam, setPriceTeam] = useState(0);
 	const [priceEnt, setPriceEnt] = useState(0);
-	const [currency, setCurrency] = useState('US$');
+	const [currency, setCurrency] = useState('');
 
 	useEffect(() => {
 		let url = window.location.href;
