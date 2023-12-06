@@ -36,7 +36,6 @@ export const subscriptionPrice = async (amount: number) => {
 		}
 	} else {
 		let currency: any = await locationResult();
-
 		setCookie(CURRENNCY, currency.data.currency.symbol_native, {
 			days: 90,
 			SameSite: 'Strict',
@@ -50,7 +49,7 @@ export const subscriptionPrice = async (amount: number) => {
 		code = currency.data.currency.symbol_native;
 		if (code == 'P') {
 			return Math.round(amount * 13.59);
-		} else if (code === 'R') {
+		} else if (code == 'R') {
 			return Math.round(amount * 18.85);
 		} else {
 			return amount;
