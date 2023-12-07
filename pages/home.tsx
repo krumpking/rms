@@ -426,8 +426,8 @@ const Home = () => {
 								</div>
 
 								<div className='flex flex-row space-x-1 lg:space-x-0 lg:flex-col justify-center items-center '>
-									<h1>{currency}</h1>
 									<h1 className='text-md'>{totalUSD.toFixed(2)}</h1>
+									<h1 className='text-xs'>Total</h1>
 								</div>
 
 								<div className='flex flex-row space-x-1 lg:space-x-0 lg:flex-col justify-center items-center'>
