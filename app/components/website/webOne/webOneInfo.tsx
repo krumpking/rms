@@ -233,9 +233,13 @@ const WebOneWebsiteInfo = () => {
 					};
 
 					let deliveryAreas: any[] = [];
-					if (info.freeDeliveryAreas.length > 0) {
-						deliveryAreas = info.freeDeliveryAreas;
+
+					if (typeof info.freeDeliveryAreas !== 'undefined') {
+						if (info.freeDeliveryAreas.length > 0) {
+							deliveryAreas = info.freeDeliveryAreas;
+						}
 					}
+
 					let newDeliveryAreas = freeDeliveryAreas.split(',');
 					newDeliveryAreas = newDeliveryAreas.concat(deliveryAreas);
 
@@ -253,26 +257,27 @@ const WebOneWebsiteInfo = () => {
 						socialMedialinks: newSocialMedialinks,
 						freeDeliveryAreas: newDeliveryAreas,
 					};
+					if (logoImageAdded) {
+						if (files.length > 0) {
+							const name = files[0].name;
+							// Upload Logo
+							await uploadFile(`${info.websiteName}/logo/${name}`, files[0]);
 
-					if (files.length > 0) {
-						const name = files[0].name;
-						// Upload Logo
-						await uploadFile(`${info.websiteName}/logo/${name}`, files[0]);
+							const compressedLogoFile = await imageCompression(
+								files[0],
+								options
+							);
+							// Thumbnail
+							await uploadFile(
+								`${info.websiteName}/logo/thumbnail_${name}`,
+								compressedLogoFile
+							);
 
-						const compressedLogoFile = await imageCompression(
-							files[0],
-							options
-						);
-						// Thumbnail
-						await uploadFile(
-							`${info.websiteName}/logo/thumbnail_${name}`,
-							compressedLogoFile
-						);
-
-						newInfo.logo = {
-							original: name,
-							thumbnail: `thumbnail_${name}`,
-						};
+							newInfo.logo = {
+								original: name,
+								thumbnail: `thumbnail_${name}`,
+							};
+						}
 					}
 
 					if (typeof aboutUsImageFile !== 'undefined') {
@@ -408,7 +413,7 @@ const WebOneWebsiteInfo = () => {
 					<Loader color={''} />
 				</div>
 			) : (
-				<div className='bg-white rounded-[30px] p-4  flex flex-col'>
+				<div className='bg-white rounded-[25px] p-4  flex flex-col'>
 					{websiteAdded ? (
 						<div className='flex flex-col items-center space-y-2 w-full text-center'>
 							<p className='text-center text-xs text-gray-300 mb-4 font-bold w-full'>
@@ -418,12 +423,12 @@ const WebOneWebsiteInfo = () => {
 								<ShowImage
 									src={`${info.websiteName}/logo/${info.logo.thumbnail}`}
 									alt={'logo'}
-									style={'rounded-[25px] shadow-md w-48 h-48'}
+									style={'rounded-[25px] shadow-md w-full h-48'}
 								/>
 							) : (
 								<img
 									src={logoImageAdded ? logoImage : `${logoImage}`}
-									className='rounded-[25px] shadow-md w-48 h-48'
+									className='rounded-[25px] shadow-md w-full h-48'
 								/>
 							)}
 							<h1 className='mb-6 w-full'>
@@ -489,12 +494,12 @@ const WebOneWebsiteInfo = () => {
 						<div>
 							<div
 								{...getRootProps()}
-								className='border-dashed h-48 w-full border-2 p-8 flex content-center items-center text-center '
+								className='border-dashed h-48 rounded-[25px] w-full border-2 p-8 flex content-center items-center text-center '
 							>
 								<input {...getInputProps()} />
 								<>
 									{logoImageAdded || info.id !== '' ? (
-										<div>
+										<div className='w-full'>
 											{info.id !== '' ? (
 												<ShowImage
 													src={`${info.websiteName}/logo/${info.logo.thumbnail}`}
