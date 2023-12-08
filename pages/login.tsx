@@ -251,17 +251,17 @@ const Login = (props: {
 												}
 											}}
 											className='
-                                        w-full
-                                        rounded-[25px]
-                                        border-2
-                                        py-3
-                                        px-5
-                                        bg-white
-                                        text-base text-body-color
-                                        placeholder-[#ACB6BE]
-                                        outline-none
-                                        focus-visible:shadow-none
-                                        '
+												w-full
+												rounded-[25px]
+												border-2
+												py-3
+												px-5
+												bg-white
+												text-base text-body-color
+												placeholder-[#ACB6BE]
+												outline-none
+												focus-visible:shadow-none
+												'
 											style={{ borderColor: PRIMARY_COLOR }}
 											required
 										/>
@@ -271,18 +271,18 @@ const Login = (props: {
 											type='submit'
 											value={sent ? 'Login' : 'Send One Time Password'}
 											className='
-                                        font-bold
-                                        w-full
-                                        rounded-[25px]
-                                        border-2
-                                        py-3
-                                        px-5
-                                        text-base 
-                                        text-white
-                                        cursor-pointer
-                                        hover:bg-opacity-90
-                                        transition
-                                    '
+												font-bold
+												w-full
+												rounded-[25px]
+												border-2
+												py-3
+												px-5
+												text-base 
+												text-white
+												cursor-pointer
+												hover:bg-opacity-90
+												transition
+											'
 											style={{
 												backgroundColor: PRIMARY_COLOR,
 												borderColor: PRIMARY_COLOR,
