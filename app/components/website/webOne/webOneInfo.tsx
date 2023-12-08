@@ -936,7 +936,7 @@ const WebOneWebsiteInfo = () => {
 								</p>
 								<input
 									type='number'
-									name='areas'
+									name='radius'
 									value={info.radius}
 									placeholder={'Radius'}
 									onChange={handleChange}
