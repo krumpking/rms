@@ -8,6 +8,7 @@ import Loader from '../../loader';
 import { IContact, IWebsiteOneInfo } from '../../../types/websiteTypes';
 import ShowImage from '../../showImage';
 import {
+	ICateringPlate,
 	IMeal,
 	IMenuItem,
 	IMenuItemPromotions,
@@ -19,6 +20,7 @@ import {
 	updateDocument,
 } from '../../../api/mainApi';
 import {
+	CATERING_PLATE_COLLECTION,
 	MEAL_ITEM_COLLECTION,
 	MEAL_STORAGE_REF,
 	MENU_ITEM_COLLECTION,
@@ -174,6 +176,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 	const [currentNoOfPoints, setCurrentNoOfPoints] = useState(0);
 	const [rewards, setRewards] = useState<IPointsRate[]>([]);
 	const [points, setPoints] = useState<IPoints[]>([]);
+	const [cateringPlates, setCateringPlates] = useState<ICateringPlate[]>([]);
 	const [usePoints, setUsePoints] = useState(false);
 	const [currency, setCurrency] = useState('US$');
 
@@ -181,6 +184,7 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 		getMeals();
 		getPromos();
 		getMenuItems();
+		getCateringPlates();
 	}, []);
 
 	const handleChangeLocation = (lat: any, lng: any) => {
@@ -231,6 +235,41 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 							},
 						]);
 						setCategories((categories) => [...categories, d.category]);
+					});
+				}
+				setLoading(false);
+			})
+			.catch((e) => {
+				console.error(e);
+				setLoading(true);
+			});
+	};
+
+	const getCateringPlates = () => {
+		getDataFromDBOne(CATERING_PLATE_COLLECTION, AMDIN_FIELD, info.adminId)
+			.then((v) => {
+				if (v !== null) {
+					v.data.forEach((element) => {
+						let d = element.data();
+						setCateringPlates((plate) => [
+							...plate,
+							{
+								id: element.id,
+								adminId: d.adminId,
+								userId: d.userId,
+								pic: d.pic,
+								title: d.title,
+								description: d.description,
+								category: d.category,
+								date: d.date,
+								dateString: d.dateString,
+								minimumOrder: d.minimumOrder,
+								preparationTime: d.preperationTime,
+								price: d.price,
+								priceAfterFifty: d.priceAfterFifty,
+								priceAfterHundred: d.priceAfterHundred,
+							},
+						]);
 					});
 				}
 				setLoading(false);
@@ -1179,6 +1218,85 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 									</div>
 								</div>
 								<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6'>
+									{cateringPlates.slice(0, 4).map((v) => (
+										<div
+											className={
+												'flex flex-col justify-between shadow-2xl rounded-md'
+											}
+										>
+											<div className='flex flex-col'>
+												<div className='relative'>
+													<ShowImage
+														src={`/${v.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
+														alt={'Menu Item'}
+														style={' rounded-md h-32 md:h-64 w-full'}
+													/>
+													<div
+														className='absolute top-2 right-2  z-10 rounded-md text-white font-bold w-fit h-fit font-bold text-xs text-center flex items-center py-2 px-4'
+														style={{
+															backgroundColor: `${info.themeMainColor}`,
+														}}
+													>
+														<h1>Catering plate</h1>
+													</div>
+												</div>
+
+												<h1 className='font-bold text-xs md:text-xl px-2 md:px-4'>
+													{v.title}
+												</h1>
+												<Disclosure>
+													<Disclosure.Button
+														className={
+															' underline text-xs text-left px-2 md:px-4'
+														}
+													>
+														See Details
+													</Disclosure.Button>
+													<Disclosure.Panel>
+														<p className='flex flex-col text-xs px-2 md:px-4 w-full'>
+															<div>
+																Discount (Price for over 100 people):{' '}
+																{v.priceAfterHundred}
+															</div>
+															<div>
+																Discount (Price for 51 to 100 people):{' '}
+																{v.priceAfterFifty}
+															</div>
+															{v.description}
+														</p>
+													</Disclosure.Panel>
+												</Disclosure>
+											</div>
+
+											<div className='flex flex-row justify-between p-4 items-center'>
+												<h1 className='font-bold text-sm md:text-xl'>
+													{currency}
+													{v.price}
+												</h1>
+
+												<button
+													className={'rounded-md py-2 px-5 text-white w-fit'}
+													style={{ backgroundColor: `${info.themeMainColor}` }}
+												>
+													<p className='hidden lg:flex'>Add</p>
+													<svg
+														xmlns='http://www.w3.org/2000/svg'
+														fill='none'
+														viewBox='0 0 24 24'
+														stroke-width='1.5'
+														stroke='currentColor'
+														className='w-6 h-6 flex lg:hidden'
+													>
+														<path
+															stroke-linecap='round'
+															stroke-linejoin='round'
+															d='M12 4.5v15m7.5-7.5h-15'
+														/>
+													</svg>
+												</button>
+											</div>
+										</div>
+									))}
 									{menuItems.slice(0, 4).map((v) => (
 										<div className='flex flex-col shadow-2xl rounded-md justify-between'>
 											<div>
