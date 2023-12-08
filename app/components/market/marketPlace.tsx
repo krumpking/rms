@@ -137,6 +137,9 @@ const MarketPlace = (props: {
 	const [confirmationMessage, setConfirmationMessage] = useState('');
 	const [mainColor, setMainColor] = useState('');
 	const [cateringPlates, setCateringPlates] = useState<ICateringPlate[]>([]);
+	const [cateringPlatesTemp, setCateringPlatesTemp] = useState<
+		ICateringPlate[]
+	>([]);
 	const [openDialog, setOpenDialog] = useState(false);
 	const [cateringPlate, setPlate] = useState<ICateringPlate>({
 		id: '',
@@ -350,6 +353,25 @@ const MarketPlace = (props: {
 									priceAfterHundred: d.priceAfterHundred,
 								},
 							]);
+							setCateringPlatesTemp((plate) => [
+								...plate,
+								{
+									id: element.id,
+									adminId: d.adminId,
+									userId: d.userId,
+									pic: d.pic,
+									title: d.title,
+									description: d.description,
+									category: d.category,
+									date: d.date,
+									dateString: d.dateString,
+									minimumOrder: d.minimumOrder,
+									preparationTime: d.preperationTime,
+									price: d.price,
+									priceAfterFifty: d.priceAfterFifty,
+									priceAfterHundred: d.priceAfterHundred,
+								},
+							]);
 						});
 					}
 					setLoading(false);
@@ -363,31 +385,36 @@ const MarketPlace = (props: {
 
 	const handleKeyDown = (event: { key: string }) => {
 		if (event.key === 'Enter') {
-			searchFor();
+			searchFor(search);
 		}
 	};
 
-	const searchFor = () => {
+	const searchFor = (v: string) => {
 		setMenuItems([]);
 		setMeals([]);
 		setPromos([]);
+		setCateringPlatesTemp([]);
 		setLoading(true);
-		logEvent(analytics, 'foodies_booth_market_place_search');
-		if (search !== '') {
-			let res: IMenuItem[] = searchStringInArray(menuItemsSto, search);
-			let results: IMeal[] = searchStringInArray(mealsSto, search);
 
-			if (res.length > 0 || results.length > 0) {
+		logEvent(analytics, 'foodies_booth_market_place_search');
+		if (v !== '') {
+			let res: IMenuItem[] = searchStringInArray(menuItemsSto, v);
+			let results: IMeal[] = searchStringInArray(mealsSto, v);
+			let catResults: ICateringPlate[] = searchStringInArray(cateringPlates, v);
+
+			if (res.length > 0 || results.length > 0 || catResults.length > 0) {
 				setTimeout(() => {
 					setMenuItems(res);
 					setMeals(results);
+					setCateringPlatesTemp(catResults);
 					setLoading(false);
 				}, 1500);
 			} else {
-				toast.info(`${search} not found `);
+				toast.info(`${v} not found `);
 				setTimeout(() => {
 					setMenuItems(menuItemsSto);
 					setMeals(mealsSto);
+					setCateringPlatesTemp(cateringPlates);
 					setLoading(false);
 				}, 1500);
 			}
@@ -963,7 +990,7 @@ const MarketPlace = (props: {
 														className='hover:cursor-pointer w-full whitespace-nowrap'
 														onClick={() => {
 															setSearch(v);
-															searchFor();
+															searchFor(v);
 														}}
 													>
 														{v}
@@ -1107,7 +1134,7 @@ const MarketPlace = (props: {
 									)}
 								</div>
 								<div className='grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6'>
-									{cateringPlates.map((v) => (
+									{cateringPlatesTemp.map((v) => (
 										<div
 											className={
 												'flex flex-col justify-between shadow-2xl ' +
@@ -1115,11 +1142,20 @@ const MarketPlace = (props: {
 											}
 										>
 											<div className='flex flex-col'>
-												<ShowImage
-													src={`/${v.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
-													alt={'Menu Item'}
-													style={borderRadius + ' h-32 md:h-64 w-full'}
-												/>
+												<div className='relative'>
+													<ShowImage
+														src={`/${v.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
+														alt={'Menu Item'}
+														style={borderRadius + ' h-32 md:h-64 w-full'}
+													/>
+													<div
+														className='absolute top-2 right-2  z-10 rounded-[25px] text-white font-bold w-fit h-fit font-bold text-xs text-center flex items-center py-2 px-4'
+														style={{ backgroundColor: mainColor }}
+													>
+														<h1>Catering plate</h1>
+													</div>
+												</div>
+
 												<h1 className='font-bold text-xs md:text-xl px-2 md:px-4'>
 													{v.title}
 												</h1>
