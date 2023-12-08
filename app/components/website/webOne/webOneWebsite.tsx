@@ -1180,14 +1180,15 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 								</div>
 								<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6'>
 									{menuItems.slice(0, 4).map((v) => (
-										<div className='flex flex-col shadow-2xl rounded-md'>
-											<ShowImage
-												src={`/${info.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
-												alt={'Menu Item'}
-												style={'rounded-md h-64 w-full'}
-											/>
-											<h1 className='font-bold text-xl px-4'>{v.title}</h1>
-											<p className='text-xs px-4 w-full'>{v.description}</p>
+										<div className='flex flex-col shadow-2xl rounded-md justify-between'>
+											<div>
+												<ShowImage
+													src={`/${info.adminId}/${MENU_STORAGE_REF}/${v.pic.thumbnail}`}
+													alt={'Menu Item'}
+													style={'rounded-md h-64 w-full'}
+												/>
+												<h1 className='font-bold text-xl px-4'>{v.title}</h1>
+											</div>
 											<div className='flex flex-row justify-between p-4 items-center'>
 												<h1 className='font-bold text-xl'>
 													{currency}
@@ -1206,13 +1207,16 @@ const WebOneWebsite: FC<MyProps> = ({ info }) => {
 										</div>
 									))}
 									{meals.slice(0, 4).map((v) => (
-										<div className='flex flex-col shadow-2xl rounded-md'>
-											<ShowImage
-												src={`/${info.adminId}/${MEAL_STORAGE_REF}/${v.pic.thumbnail}`}
-												alt={'Menu Item'}
-												style={'rounded-md h-64 w-full'}
-											/>
-											<h1 className='font-bold text-xl px-4'>{v.title}</h1>
+										<div className='flex flex-col shadow-2xl rounded-md justifiy-between'>
+											<div>
+												<ShowImage
+													src={`/${info.adminId}/${MEAL_STORAGE_REF}/${v.pic.thumbnail}`}
+													alt={'Menu Item'}
+													style={'rounded-md h-64 w-full'}
+												/>
+												<h1 className='font-bold text-xl px-4'>{v.title}</h1>
+											</div>
+
 											<div className='flex flex-row justify-between p-4 items-center'>
 												<h1 className='font-bold text-xl'>
 													{currency}
