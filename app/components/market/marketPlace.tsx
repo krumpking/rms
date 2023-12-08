@@ -1149,7 +1149,10 @@ const MarketPlace = (props: {
 														style={borderRadius + ' h-32 md:h-64 w-full'}
 													/>
 													<div
-														className='absolute top-2 right-2  z-10 rounded-[25px] text-white font-bold w-fit h-fit font-bold text-xs text-center flex items-center py-2 px-4'
+														className={
+															'absolute top-2 right-2  z-10  text-white font-bold w-fit h-fit font-bold text-xs text-center flex items-center py-2 px-4 ' +
+															borderRadius
+														}
 														style={{ backgroundColor: mainColor }}
 													>
 														<h1>Catering plate</h1>
