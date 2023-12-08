@@ -420,7 +420,7 @@ const Home: NextPage = () => {
 														<button
 															onClick={() => {
 																router.push(
-																	`${v.websiteName}.${FOODIES_BOOTH_URL}`
+																	`https://${v.websiteName}.${FOODIES_BOOTH_URL}`
 																);
 															}}
 															className='relative rounded-full p-2'
@@ -444,7 +444,7 @@ const Home: NextPage = () => {
 														<button
 															onClick={() => {
 																router.push(
-																	`${v.websiteName}.${FOODIES_BOOTH_URL}`
+																	`https://${v.websiteName}.${FOODIES_BOOTH_URL}`
 																);
 															}}
 															className='relative rounded-full p-2'
