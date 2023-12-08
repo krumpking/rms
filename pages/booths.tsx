@@ -249,7 +249,7 @@ const Booths = () => {
 						changeIndex={(index: number) => {
 							setIndex(index);
 						}}
-						borderRadius={'radius-[25px]'}
+						borderRadius={'rounded-md'}
 					/>
 				);
 
