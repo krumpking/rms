@@ -9,8 +9,11 @@ export const getCurrency = async () => {
 		return currency;
 	} else {
 		currency = await locationResult();
-
-		setCookie(CURRENNCY, currency.data.currency.symbol_native, {
+		let code = currency.data.currency.symbol_native;
+		if (code !== 'P' && code !== 'R') {
+			code = 'US$';
+		}
+		setCookie(CURRENNCY, code, {
 			days: 90,
 			SameSite: 'Strict',
 			Secure: true,
@@ -20,7 +23,7 @@ export const getCurrency = async () => {
 			SameSite: 'Strict',
 			Secure: true,
 		});
-		return currency.data.currency.symbol_native;
+		return code;
 	}
 };
 
