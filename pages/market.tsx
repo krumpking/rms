@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router';
@@ -45,6 +45,7 @@ import BoothsComp from '../app/components/booths/boothsComp';
 import DateMethods from '../app/utils/date';
 import Head from 'next/head';
 import { print } from '../app/utils/console';
+import { Dialog, Transition } from '@headlessui/react';
 
 const Market = () => {
 	const [loading, setLoading] = useState(true);
@@ -138,6 +139,8 @@ const Market = () => {
 		freeDeliveryAreas: [],
 	});
 	const [menuItemsLoading, setMenuItemsLoading] = useState(true);
+	const [openDialog, setOpenDialog] = useState(false);
+	const [isLogin, setIsLogin] = useState(false);
 
 	useEffect(() => {
 		getWebsites();
@@ -381,7 +384,7 @@ const Market = () => {
 			>
 				<div
 					style={{ backgroundColor: PRIMARY_COLOR }}
-					className='h-fit p-2 rounded-t-[20px] flex flex-col space md:space-y-0 md:flex-row md:justify-between'
+					className='h-fit p-2 rounded-t-[20px] flex flex-col space-y-2 md:space-y-0  md:justify-between'
 				>
 					<button
 						onClick={() => {
@@ -403,17 +406,18 @@ const Market = () => {
 							/>
 						</svg>
 					</button>
-					{/* <div className='flex flex-row space-x-4'>
+					<div className='flex justify-between space-x-4 px-1 md:px-4'>
 						<button
 							onClick={() => {
 								// router.push('/signup');
+								setIsLogin(false);
+								setOpenDialog(true);
 							}}
-							style={{ color: PRIMARY_COLOR }}
+							style={{ color: PRIMARY_COLOR, borderColor: '#fff' }}
 							className='font-bold
                                         w-48
                                         rounded-[25px]
                                         border-2
-                                        border-primary
                                         py-2
                                         px-5
                                         text-base 
@@ -429,15 +433,16 @@ const Market = () => {
 						<button
 							onClick={() => {
 								// router.push('/signup');
+								setIsLogin(true);
+								setOpenDialog(true);
 							}}
-							style={{ color: PRIMARY_COLOR }}
+							style={{ color: PRIMARY_COLOR, borderColor: '#fff' }}
 							className='
 										bg-white
                                         font-bold
                                         w-48
                                         rounded-[25px]
                                         border-2
-                                        border-primary
                                         py-2
                                         px-5
                                         text-base 
@@ -448,7 +453,7 @@ const Market = () => {
 						>
 							Login
 						</button>
-					</div> */}
+					</div>
 				</div>
 				<div className='flex items-center content-center items-center w-full'>
 					<div
@@ -504,6 +509,283 @@ const Market = () => {
 				</div>
 			)}
 			<ToastContainer position='top-right' autoClose={5000} />
+			<Transition appear show={openDialog} as={Fragment}>
+				<Dialog
+					as='div'
+					className='relative z-10'
+					onClose={() => {
+						setOpenDialog(false);
+					}}
+				>
+					<Transition.Child
+						as={Fragment}
+						enter='ease-out duration-300'
+						enterFrom='opacity-0'
+						enterTo='opacity-100'
+						leave='ease-in duration-200'
+						leaveFrom='opacity-100'
+						leaveTo='opacity-0'
+					>
+						<div className='fixed inset-0 bg-black/25' />
+					</Transition.Child>
+
+					<div className='fixed inset-0 overflow-y-auto'>
+						<div className='flex min-h-full items-center justify-center p-4 text-center'>
+							<Transition.Child
+								as={Fragment}
+								enter='ease-out duration-300'
+								enterFrom='opacity-0 scale-95'
+								enterTo='opacity-100 scale-100'
+								leave='ease-in duration-200'
+								leaveFrom='opacity-100 scale-100'
+								leaveTo='opacity-0 scale-95'
+							>
+								<Dialog.Panel className='w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all'>
+									<Dialog.Title
+										as='h3'
+										className='text-lg font-medium leading-6 text-gray-900 px-4'
+									></Dialog.Title>
+									<div className='flex flex-col justify-between space-y-3 p-4 items-start bg-white text-black w-full'>
+										{isLogin ? (
+											<form
+												className='flex flex-col content-center items-center justify-center'
+												onSubmit={(e) => {
+													e.preventDefault();
+													login();
+												}}
+											>
+												<div className='flex flex-col justify-center items-center'>
+													<img src='images/logo.png' className='w-full h-32' />
+												</div>
+												<div className='mb-6 w-full'>
+													<button
+														className='font-bold rounded-[25px] border-2 border-[#8b0e06] bg-white px-4 py-3 w-full'
+														onClick={(e) => e.preventDefault()}
+													>
+														<select
+															value={category}
+															onChange={(e) => {
+																setCategory(e.target.value);
+															}}
+															className='bg-white w-full'
+															data-required='1'
+															required
+														>
+															<option value='Value' hidden>
+																Select User Category
+															</option>
+															{USERS_CATEGORIES.map((v) => (
+																<option value={v}>{v}</option>
+															))}
+														</select>
+													</button>
+												</div>
+												<div className='mb-6 w-full'>
+													<input
+														type='text'
+														value={sent ? accessCode : phone}
+														placeholder={
+															sent
+																? 'Please enter the One Time Password'
+																: 'Phone (include country your code )'
+														}
+														onChange={(e) => {
+															if (sent) {
+																setAccessCode(e.target.value);
+															} else {
+																setPhone(e.target.value);
+															}
+														}}
+														className='
+												w-full
+												rounded-[25px]
+												border-2
+												py-3
+												px-5
+												bg-white
+												text-base text-body-color
+												placeholder-[#ACB6BE]
+												outline-none
+												focus-visible:shadow-none
+												'
+														style={{ borderColor: PRIMARY_COLOR }}
+														required
+													/>
+												</div>
+												<div className='mb-10 w-full'>
+													<input
+														type='submit'
+														value={sent ? 'Login' : 'Send One Time Password'}
+														className='
+												font-bold
+												w-full
+												rounded-[25px]
+												border-2
+												py-3
+												px-5
+												text-base 
+												text-white
+												cursor-pointer
+												hover:bg-opacity-90
+												transition
+											'
+														style={{
+															backgroundColor: PRIMARY_COLOR,
+															borderColor: PRIMARY_COLOR,
+														}}
+													/>
+												</div>
+											</form>
+										) : (
+											<form
+												onSubmit={(e) => {
+													e.preventDefault();
+													signUp();
+												}}
+											>
+												<p className='text-center text-xl text-black-300 mb-4 font-bold'>
+													Start your 7 Day FREE trial
+												</p>
+												<div className='mb-6'>
+													<input
+														type='text'
+														value={fullName}
+														placeholder={'Full Name'}
+														onChange={(e) => {
+															setFullName(e.target.value);
+														}}
+														className='
+																	w-full
+																	rounded-[25px]
+																	border-2
+																	border-[#8b0e06]
+																	py-3
+																	px-5
+																	bg-white
+																	text-base text-body-color
+																	placeholder-[#ACB6BE]
+																	outline-none
+																	focus-visible:shadow-none
+																	focus:border-primary
+																'
+														required
+													/>
+												</div>
+												<div className='mb-6'>
+													<input
+														type='text'
+														value={phone}
+														placeholder={'Phone (include country your code )'}
+														onChange={(e) => {
+															setPhone(e.target.value);
+														}}
+														className='
+																	w-full
+																	rounded-[25px]
+																	border-2
+																	border-[#8b0e06]
+																	py-3
+																	px-5
+																	bg-white
+																	text-base text-body-color
+																	placeholder-[#ACB6BE]
+																	outline-none
+																	focus-visible:shadow-none
+																	focus:border-primary
+																'
+														required
+													/>
+												</div>
+												<div className='mb-6'>
+													<input
+														type='text'
+														value={email}
+														placeholder={'Email'}
+														onChange={(e) => {
+															setEmail(e.target.value);
+														}}
+														className='
+																	w-full
+																	rounded-[25px]
+																	border-2
+																	border-[#8b0e06]
+																	py-3
+																	px-5
+																	bg-white
+																	text-base text-body-color
+																	placeholder-[#ACB6BE]
+																	outline-none
+																	focus-visible:shadow-none
+																	focus:border-primary
+																'
+														required
+													/>
+												</div>
+												<div className='mb-4'>
+													<input
+														type='submit'
+														value={'Send One Time Password'}
+														className='
+																	font-bold
+																	w-full
+																	rounded-[25px]
+																	border-2
+																	border-[#8b0e06]
+																	border-primary
+																	py-3
+																	px-5
+																	bg-[#8b0e06]
+																	text-base 
+																	text-white
+																	cursor-pointer
+																	hover:bg-opacity-90
+																	transition
+																'
+													/>
+												</div>
+												<div className='text-center'>
+													<input
+														onChange={() => {
+															setChecked(true);
+														}}
+														type='checkbox'
+														id='terms'
+														name='terms'
+														value='terms'
+														className='accent-[#8b0e06] text-white bg-whites'
+													/>
+													<label htmlFor='terms'>
+														{' '}
+														I understand the Terms and Conditions
+													</label>
+													<br></br>
+												</div>
+												<Link href={'/terms'}>
+													<p className='text-center text-xs text-gray-300 mb-4 font-bold underline'>
+														See Terms
+													</p>
+												</Link>
+											</form>
+										)}
+										<button
+											onClick={() => {}}
+											className={
+												'rounded-[25px] py-3 px-5 text-white w-full border '
+											}
+											style={{
+												backgroundColor: PRIMARY_COLOR,
+												borderColor: PRIMARY_COLOR,
+											}}
+										>
+											Add
+										</button>
+									</div>
+								</Dialog.Panel>
+							</Transition.Child>
+						</div>
+					</div>
+				</Dialog>
+			</Transition>
 		</div>
 	);
 };

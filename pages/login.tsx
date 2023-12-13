@@ -19,11 +19,16 @@ import { getCookie, setCookie } from 'react-use-cookie';
 import { decrypt, encrypt } from '../app/utils/crypto';
 
 import { COOKIE_AFFILIATE_NUMBER } from '../app/constants/affilliateConstants';
-import { ADMIN_COLLECTION } from '../app/constants/userConstants';
+import {
+	ADMIN_COLLECTION,
+	CUSTOMERS_COLLECTION,
+	USER_TYPE,
+} from '../app/constants/userConstants';
 import { getDataFromDBOne } from '../app/api/mainApi';
 import { DELIVERERS_COLLECTION } from '../app/constants/deliveryConstants';
 import { print } from '../app/utils/console';
 import { logEvent } from 'firebase/analytics';
+import { USERS_CATEGORIES } from '../app/constants/loginConstants';
 
 const Login = (props: {
 	changeIndex: (index: number, userId: string) => void;
@@ -36,6 +41,7 @@ const Login = (props: {
 	const [loading, setLoading] = useState(false);
 	const router = useRouter();
 	const [userId, setUserId] = useState('');
+	const [category, setCategory] = useState('');
 
 	useEffect(() => {
 		document.body.style.backgroundColor = PRIMARY_COLOR;
@@ -99,52 +105,95 @@ const Login = (props: {
 								console.error(e);
 							});
 					} else {
-						getDataFromDBOne(ADMIN_COLLECTION, 'contact', phone)
-							.then(async (v) => {
-								if (v == null) {
-									toast.warn('User not found, please Sign Up');
-									logEvent(analytics, 'user_not_found');
-									router.push({
-										pathname: '/signup',
-									});
-								} else {
-									logEvent(analytics, 'logins');
-									v.data.forEach((doc) => {
-										let d = doc.data();
+						if (category == 'Food Business') {
+							getDataFromDBOne(ADMIN_COLLECTION, 'contact', phone)
+								.then(async (v) => {
+									if (v == null) {
+										toast.warn('User not found, please Sign Up');
+										logEvent(analytics, 'user_not_found');
+										router.push({
+											pathname: '/signup',
+										});
+									} else {
+										logEvent(analytics, 'food_business_logins');
+										v.data.forEach((doc) => {
+											let d = doc.data();
+
+											setCookie(ADMIN_ID, encrypt(d.adminId, ADMIN_ID), {
+												days: 1,
+												SameSite: 'Strict',
+												Secure: true,
+											});
+											let accessKeys: string[] = [];
+
+											d.access.forEach((element: any) => {
+												accessKeys.push(encrypt(element, ADMIN_ID));
+											});
+											setCookie(ACCESS, accessKeys.toString(), {
+												days: 1,
+												SameSite: 'Strict',
+												Secure: true,
+											});
+										});
 										setCookie(USER_ID, encrypt(userId, ADMIN_ID), {
 											days: 1,
 											SameSite: 'Strict',
 											Secure: true,
 										});
-										setCookie(ADMIN_ID, encrypt(d.adminId, ADMIN_ID), {
+										setCookie(USER_TYPE, '1', {
 											days: 1,
 											SameSite: 'Strict',
 											Secure: true,
 										});
-										let accessKeys: string[] = [];
-
-										d.access.forEach((element: any) => {
-											accessKeys.push(encrypt(element, ADMIN_ID));
+										router.push({
+											pathname: '/home',
 										});
-										setCookie(ACCESS, accessKeys.toString(), {
+									}
+								})
+								.catch((e) => {
+									toast.error(
+										'There was an error getting your profile, please try again'
+									);
+									console.error(e);
+								});
+						} else {
+							getDataFromDBOne(CUSTOMERS_COLLECTION, 'customerPhone', phone)
+								.then(async (v) => {
+									if (v == null) {
+										toast.warn('User not found, please Sign Up');
+										logEvent(analytics, 'user_not_found');
+										router.push({
+											pathname: '/signup',
+										});
+									} else {
+										logEvent(analytics, 'customer_logins');
+										v.data.forEach((doc) => {
+											let d = doc.data();
+											setCookie(USER_ID, encrypt(userId, ADMIN_ID), {
+												days: 1,
+												SameSite: 'Strict',
+												Secure: true,
+											});
+										});
+
+										setCookie(USER_TYPE, '2', {
 											days: 1,
 											SameSite: 'Strict',
 											Secure: true,
 										});
-									});
 
-									router.push({
-										pathname: '/home',
-									});
-									setLoading(false);
-								}
-							})
-							.catch((e) => {
-								toast.error(
-									'There was an error getting your profile, please try again'
-								);
-								console.error(e);
-							});
+										router.push({
+											pathname: '/home',
+										});
+									}
+								})
+								.catch((e) => {
+									toast.error(
+										'There was an error getting your profile, please try again'
+									);
+									console.error(e);
+								});
+						}
 					}
 
 					// success
@@ -158,9 +207,6 @@ const Login = (props: {
 					);
 				});
 		} else {
-			toast.info(
-				'Please check the box to ensure your are not a robot,scroll to your bottom left'
-			);
 			const appVerifier = window.recaptchaVerifier;
 			signInWithPhoneNumber(auth, phone, appVerifier)
 				.then((confirmationResult) => {
@@ -233,6 +279,29 @@ const Login = (props: {
 								>
 									<div className='flex flex-col justify-center items-center'>
 										<img src='images/logo.png' className='w-full h-32' />
+									</div>
+									<div className='mb-6 w-full'>
+										<button
+											className='font-bold rounded-[25px] border-2 border-[#8b0e06] bg-white px-4 py-3 w-full'
+											onClick={(e) => e.preventDefault()}
+										>
+											<select
+												value={category}
+												onChange={(e) => {
+													setCategory(e.target.value);
+												}}
+												className='bg-white w-full'
+												data-required='1'
+												required
+											>
+												<option value='Value' hidden>
+													Select User Category
+												</option>
+												{USERS_CATEGORIES.map((v) => (
+													<option value={v}>{v}</option>
+												))}
+											</select>
+										</button>
 									</div>
 									<div className='mb-6 w-full'>
 										<input

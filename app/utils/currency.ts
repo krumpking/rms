@@ -30,7 +30,7 @@ export const getCurrency = async () => {
 export const subscriptionPrice = async (amount: number) => {
 	let code = getCookie(CURRENNCY);
 	if (code !== '') {
-		if (code == 'P') {
+		if (code === 'P') {
 			return Math.round(amount * 13.59);
 		} else if (code === 'R') {
 			return Math.round(amount * 18.85);
@@ -50,9 +50,9 @@ export const subscriptionPrice = async (amount: number) => {
 			Secure: true,
 		});
 		code = currency.data.currency.symbol_native;
-		if (code == 'P') {
+		if (code === 'P') {
 			return Math.round(amount * 13.59);
-		} else if (code == 'R') {
+		} else if (code === 'R') {
 			return Math.round(amount * 18.85);
 		} else {
 			return amount;

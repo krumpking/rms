@@ -250,7 +250,7 @@ const BoothsComp = (props: {
 													<button
 														onClick={() => {
 															router.push(
-																`https://${v.websiteName}.${FOODIES_BOOTH_URL}`
+																`https://${v.websiteName}.foodiesbooth.com`
 															);
 														}}
 														className='relative rounded-full p-2'

@@ -68,7 +68,7 @@ const Header = () => {
                                         hover:bg-opacity-90
                                         transition'
 						>
-							Sign Up
+							Register
 						</button>
 					</div>
 				</div>

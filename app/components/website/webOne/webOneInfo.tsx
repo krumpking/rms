@@ -1007,6 +1007,7 @@ const WebOneWebsiteInfo = () => {
 									style={{
 										chips: {
 											background: PRIMARY_COLOR,
+											'border-radius': '25px',
 										},
 										multiselectContainer: {
 											color: PRIMARY_COLOR,
