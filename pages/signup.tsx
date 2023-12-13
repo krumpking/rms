@@ -64,7 +64,7 @@ const SignUp = () => {
 		window.recaptchaVerifier = new RecaptchaVerifier(
 			'recaptcha-container',
 			{
-				size: 'visible',
+				size: 'invisible',
 				callback: (response: any) => {
 					// reCAPTCHA solved, allow signInWithPhoneNumber.
 					// ...
