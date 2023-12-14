@@ -62,6 +62,12 @@ import {
 import { logEvent } from 'firebase/analytics';
 import { analytics } from '../../../firebase/clientApp';
 import { getCurrency } from '../../utils/currency';
+import { getUser } from '../../utils/userInfo';
+import {
+	CUSTOMERS_COLLECTION,
+	CUSTOMERS_FIELD,
+} from '../../constants/userConstants';
+import { ICustomer } from '../../types/customerTypes';
 
 const MarketPlace = (props: {
 	info: IWebsiteOneInfo[];
@@ -159,6 +165,8 @@ const MarketPlace = (props: {
 	});
 	const [noOfPeople, setNoOfPeople] = useState(0);
 	const [currency, setCurrency] = useState('US$');
+	const [user, setUser] = useState<ICustomer | null>(null);
+	const [orderLoading, setOrderLoading] = useState(false);
 
 	useEffect(() => {
 		if (info.length > 1) {
@@ -166,6 +174,7 @@ const MarketPlace = (props: {
 		} else {
 			setMainColor(info[0].themeMainColor);
 		}
+		getUserInfo();
 		getMeals();
 		getPromos();
 		getMenuItems();
@@ -175,6 +184,47 @@ const MarketPlace = (props: {
 
 	const handleChangeLocation = (lat: any, lng: any) => {
 		setLocation({ lat: lat, lng: lng });
+	};
+
+	const getUserInfo = () => {
+		let userInfo = getUser();
+		if (userInfo !== null) {
+			getDataFromDBOne(CUSTOMERS_COLLECTION, CUSTOMERS_FIELD, userInfo.id)
+				.then((v) => {
+					if (v !== null) {
+						v.data.forEach((element) => {
+							let d = element.data();
+
+							setUser({
+								id: element.id,
+								userId: d.userId,
+								customerName: d.customerName,
+								customerEmail: d.customerEmail,
+								customerPhone: d.customerPhone,
+								date: d.date,
+								dateString: d.dateString,
+								location: d.location,
+								prefferedCuisine: d.prefferedCuisine,
+								address: d.address,
+							});
+
+							setOrder({
+								...order,
+								customerName: d.customerName,
+								customerEmail: d.customerEmail,
+								customerPhone: d.customerPhone,
+								customerAddress: d.customerAddress,
+							});
+							print(d.customerName);
+							print(d.location);
+							setLocation(d.location);
+						});
+					}
+				})
+				.catch((e) => {
+					console.error(e);
+				});
+		}
 	};
 
 	const getMeals = async () => {
@@ -663,7 +713,6 @@ const MarketPlace = (props: {
 						pointsTotal: Math.floor(total),
 						used: false,
 					};
-
 					addPoints(point);
 				}
 
@@ -1380,24 +1429,30 @@ const MarketPlace = (props: {
 										ease-in-out`}
 									aria-label='Cart'
 									onClick={() => {
-										let index = returnOccurrencesIndexAdmin(
-											info,
-											addItems[0].adminId
-										);
+										if (addItems.length > 0) {
+											let index = returnOccurrencesIndexAdmin(
+												info,
+												addItems[0].adminId
+											);
 
-										if (typeof info[index].freeDeliveryAreas !== 'undefined') {
-											if (info[index].freeDeliveryAreas.length > 0) {
-												info[index].freeDeliveryAreas.forEach((el) => {
-													setDeliveryMethods((prevDel) => [
-														...prevDel,
-														`Free Delivery in ${el}`,
-													]);
-												});
-												setPrepTime(info[index].prepTime);
+											if (
+												typeof info[index].freeDeliveryAreas !== 'undefined'
+											) {
+												if (info[index].freeDeliveryAreas.length > 0) {
+													info[index].freeDeliveryAreas.forEach((el) => {
+														setDeliveryMethods((prevDel) => [
+															...prevDel,
+															`Free Delivery in ${el}`,
+														]);
+													});
+													setPrepTime(info[index].prepTime);
+												}
 											}
-										}
 
-										setIsOpen(true);
+											setIsOpen(true);
+										} else {
+											toast.warn('It appears you are yet to add anything');
+										}
 									}}
 								>
 									<svg
@@ -1487,20 +1542,19 @@ const MarketPlace = (props: {
 												setConfirmationMessage(e.target.value);
 											}}
 											className={`
-													w-full
-													${borderRadius}
-													border-2
-													py-3
-													px-5
-													h-64
-													bg-white
-													text-base text-body-color
-													placeholder-[#ACB6BE]
-													outline-none
-													focus-visible:shadow-none
-													focus:border-primary
-
-												`}
+															w-full
+															${borderRadius}
+															border-2
+															py-3
+															px-5
+															h-64
+															bg-white
+															text-base text-body-color
+															placeholder-[#ACB6BE]
+															outline-none
+															focus-visible:shadow-none
+															focus:border-primary
+														`}
 											style={{ borderColor: mainColor }}
 											required
 										/>
@@ -1512,19 +1566,19 @@ const MarketPlace = (props: {
 										paymentConfirmed();
 									}}
 									className={`
-                                        font-bold
-                                        w-full
-                                        border-2
-                                        border-primary
-                                        py-3
-                                        px-10
-                                        text-base 
-                                        text-white
-                                        cursor-pointer
-                                        hover:bg-opacity-90
-                                        transition
-										${borderRadius}
-                                    `}
+													font-bold
+													w-full
+													border-2
+													border-primary
+													py-3
+													px-10
+													text-base 
+													text-white
+													cursor-pointer
+													hover:bg-opacity-90
+													transition
+													${borderRadius}
+												`}
 									style={{
 										borderColor: mainColor,
 										backgroundColor: mainColor,
@@ -1838,10 +1892,10 @@ const MarketPlace = (props: {
 										<p>Tap your location</p>
 										<div>
 											<MapPicker
-												defaultLocation={DEFAULT_LOCATION}
+												defaultLocation={location}
 												zoom={DEFAULT_ZOOM}
 												// mapTypeId={createId()}
-												style={{ height: '200px', width: '100%' }}
+												style={{ height: '300px', width: '100%' }}
 												onChangeLocation={handleChangeLocation}
 												apiKey={MAP_API}
 											/>
@@ -1920,19 +1974,19 @@ const MarketPlace = (props: {
 										addOrder();
 									}}
 									className={`
-                                        font-bold
-                                        w-full
-                                        border-2
-                                        border-primary
-                                        py-3
-                                        px-10
-                                        text-base 
-                                        text-white
-                                        cursor-pointer
-                                        hover:bg-opacity-90
-                                        transition
-										${borderRadius}
-                                    `}
+													font-bold
+													w-full
+													border-2
+													border-primary
+													py-3
+													px-10
+													text-base 
+													text-white
+													cursor-pointer
+													hover:bg-opacity-90
+													transition
+													${borderRadius}
+												`}
 									style={{
 										borderColor: mainColor,
 										backgroundColor: mainColor,

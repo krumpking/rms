@@ -4,9 +4,11 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router';
 import Loader from '../app/components/loader';
 import {
+	ADMIN_ID,
 	AMDIN_FIELD,
 	PRIMARY_COLOR,
 	PRIMARY_URL_LOCAL,
+	USER_ID,
 } from '../app/constants/constants';
 import { IMeal, IMenuItem } from '../app/types/menuTypes';
 import {
@@ -23,6 +25,7 @@ import {
 	getNearest,
 } from '../app/api/mainApi';
 import {
+	CATEGORIES,
 	MEAL_ITEM_COLLECTION,
 	MEAL_STORAGE_REF,
 	MENU_ITEM_COLLECTION,
@@ -46,6 +49,21 @@ import DateMethods from '../app/utils/date';
 import Head from 'next/head';
 import { print } from '../app/utils/console';
 import { Dialog, Transition } from '@headlessui/react';
+import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
+import { analytics, auth } from '../firebase/clientApp';
+import { addCustomer } from '../app/api/usersApi';
+import { ICustomer } from '../app/types/customerTypes';
+import { setCookie } from 'react-use-cookie';
+import { encrypt } from '../app/utils/crypto';
+import { logEvent } from 'firebase/analytics';
+import {
+	CUSTOMERS_COLLECTION,
+	USER_TYPE,
+} from '../app/constants/userConstants';
+import Multiselect from 'multiselect-react-dropdown';
+import Link from 'next/link';
+import { set } from 'lodash';
+import { getUser } from '../app/utils/userInfo';
 
 const Market = () => {
 	const [loading, setLoading] = useState(true);
@@ -141,12 +159,53 @@ const Market = () => {
 	const [menuItemsLoading, setMenuItemsLoading] = useState(true);
 	const [openDialog, setOpenDialog] = useState(false);
 	const [isLogin, setIsLogin] = useState(false);
+	const [phone, setPhone] = useState('');
+	const [accessCode, setAccessCode] = useState('');
+	const [sent, setSent] = useState(false);
+	const [checked, setChecked] = useState(false);
+	const [customer, setCustomer] = useState<ICustomer>({
+		userId: '',
+		id: '',
+		dateString: new Date().toDateString(),
+		date: new Date(),
+		customerName: '',
+		customerPhone: '',
+		customerEmail: '',
+		address: '',
+		location: '',
+		prefferedCuisine: [],
+	});
+	const [selectedCuisine, setSelectedCuisine] = useState(CATEGORIES);
+	const [userLoggedIn, setUserLoggedIn] = useState(false);
+	const [latlong, setLatlong] = useState<any>();
 
 	useEffect(() => {
+		auth.languageCode = 'en';
+		window.recaptchaVerifier = new RecaptchaVerifier(
+			'recaptcha-container',
+			{
+				size: 'invisible',
+				callback: (response: any) => {
+					// reCAPTCHA solved, allow signInWithPhoneNumber.
+					// ...
+				},
+				'expired-callback': () => {
+					// Response expired. Ask user to solve reCAPTCHA again.
+					// ...
+					window.location.reload();
+				},
+			},
+			auth
+		);
+
 		getWebsites();
 	}, []);
 
 	const getWebsites = () => {
+		let userInfo = getUser();
+		if (userInfo !== null) {
+			setUserLoggedIn(true);
+		}
 		if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function (position) {
 				// const latitude = position.coords.latitude;
@@ -376,6 +435,177 @@ const Market = () => {
 		}
 	};
 
+	const login = () => {
+		setOpenDialog(false);
+		setLoading(true);
+		if (sent) {
+			window.confirmationResult
+				.confirm(accessCode)
+				.then((result: { user: any }) => {
+					const user = result.user;
+					const userId = user.uid;
+
+					getDataFromDBOne(CUSTOMERS_COLLECTION, 'customerPhone', phone)
+						.then(async (v) => {
+							if (v == null) {
+								toast.warn('User not found, please Sign Up');
+								logEvent(analytics, 'user_not_found');
+							} else {
+								logEvent(analytics, 'customer_logins');
+								v.data.forEach((doc) => {
+									let d = doc.data();
+									setCookie(USER_ID, encrypt(userId, ADMIN_ID), {
+										days: 1,
+										SameSite: 'Strict',
+										Secure: true,
+									});
+								});
+
+								setCookie(USER_TYPE, '2', {
+									days: 1,
+									SameSite: 'Strict',
+									Secure: true,
+								});
+
+								setUserLoggedIn(true);
+								setLoading(false);
+							}
+						})
+						.catch((e) => {
+							toast.error(
+								'There was an error with the One Time Password, please try again'
+							);
+							console.error(e);
+							setLoading(false);
+							setOpenDialog(true);
+						});
+
+					// success
+				})
+				.catch((err: any) => {
+					alert('The One Time Password you sent was not correct please retry');
+					setLoading(false);
+					console.error(err);
+					toast.error(
+						'There was an error with the One Time Password, please try again'
+					);
+				});
+		} else {
+			const appVerifier = window.recaptchaVerifier;
+			signInWithPhoneNumber(auth, phone, appVerifier)
+				.then((confirmationResult) => {
+					// SMS sent. Prompt user to type the code from the message, then sign the
+					// user in with confirmationResult.confirm(code).
+					toast.success('Passcode sent');
+					setSent(true);
+					window.confirmationResult = confirmationResult;
+					setLoading(false);
+					setOpenDialog(true);
+					// ...
+				})
+				.catch((error) => {
+					// Error; SMS not sent
+					// ...
+					console.error(error);
+					setLoading(false);
+					toast.error(error.message);
+				});
+		}
+	};
+
+	const signUp = () => {
+		if (checked) {
+			setLoading(true);
+			setOpenDialog(false);
+			const appVerifier = window.recaptchaVerifier;
+			signInWithPhoneNumber(auth, customer.customerPhone, appVerifier)
+				.then((confirmationResult) => {
+					// SMS sent. Prompt user to type the code from the message, then sign the
+					// user in with confirmationResult.confirm(code).
+					toast.success('Passcode sent');
+					setSent(true);
+					window.confirmationResult = confirmationResult;
+
+					setIsLogin(false);
+
+					setLoading(false);
+					setOpenDialog(true);
+					// ...
+				})
+				.catch((error) => {
+					// Error; SMS not sent
+					// ...
+					console.error(error);
+					setLoading(false);
+					toast.error(error.message);
+				});
+		} else {
+			toast.error(
+				'It appears you are yet to agree to our Terms and Conditions'
+			);
+		}
+	};
+
+	const signIn = () => {
+		setOpenDialog(false);
+		setSent(false);
+		setLoading(true);
+		window.confirmationResult
+			.confirm(accessCode)
+			.then((result: { user: any }) => {
+				const user = result.user;
+				const userId = user.uid;
+
+				let newC = {
+					...customer,
+					userId: userId,
+					location: latlong,
+					prefferedCuisine: selectedCuisine,
+				};
+
+				addCustomer(newC)
+					.then((v) => {
+						setCookie(USER_ID, encrypt(userId, ADMIN_ID), {
+							days: 1,
+							SameSite: 'Strict',
+							Secure: true,
+						});
+						setCookie(USER_TYPE, '2', {
+							days: 1,
+							SameSite: 'Strict',
+							Secure: true,
+						});
+						setUserLoggedIn(true);
+						setLoading(false);
+
+						logEvent(analytics, 'customer_signups');
+					})
+					.catch((e) => {
+						toast.error(e.message);
+						setLoading(false);
+						console.error(e);
+					});
+			})
+			.catch((err: any) => {
+				toast.error(err.message);
+				setLoading(false);
+			});
+	};
+
+	const handleChangeCustomer = (e: any) => {
+		if (e.target.name === 'customerPhone') {
+			setPhone(e.target.value);
+		}
+		setCustomer({
+			...customer,
+			[e.target.name]: e.target.value,
+		});
+	};
+
+	const handleChangeLocation = (lat: any, lng: any) => {
+		setLatlong({ lat: lat, lng: lng });
+	};
+
 	const getView = () => {
 		return (
 			<div
@@ -384,7 +614,7 @@ const Market = () => {
 			>
 				<div
 					style={{ backgroundColor: PRIMARY_COLOR }}
-					className='h-fit p-2 rounded-t-[20px] flex flex-col space-y-2 md:space-y-0  md:justify-between'
+					className='h-fit p-2 rounded-t-[20px] flex flex-col md:flex-row space-y-2 md:space-y-0  md:justify-between'
 				>
 					<button
 						onClick={() => {
@@ -406,15 +636,18 @@ const Market = () => {
 							/>
 						</svg>
 					</button>
-					<div className='flex justify-between space-x-4 px-1 md:px-4'>
-						<button
-							onClick={() => {
-								// router.push('/signup');
-								setIsLogin(false);
-								setOpenDialog(true);
-							}}
-							style={{ color: PRIMARY_COLOR, borderColor: '#fff' }}
-							className='font-bold
+					{userLoggedIn ? (
+						<p></p>
+					) : (
+						<div className='flex justify-between space-x-4 px-1 md:px-4'>
+							<button
+								onClick={() => {
+									// router.push('/signup');
+									setIsLogin(false);
+									setOpenDialog(true);
+								}}
+								style={{ color: PRIMARY_COLOR, borderColor: '#fff' }}
+								className='font-bold
                                         w-48
                                         rounded-[25px]
                                         border-2
@@ -427,17 +660,17 @@ const Market = () => {
                                         transition
 										bg-white
 										'
-						>
-							Register
-						</button>
-						<button
-							onClick={() => {
-								// router.push('/signup');
-								setIsLogin(true);
-								setOpenDialog(true);
-							}}
-							style={{ color: PRIMARY_COLOR, borderColor: '#fff' }}
-							className='
+							>
+								Register
+							</button>
+							<button
+								onClick={() => {
+									// router.push('/signup');
+									setIsLogin(true);
+									setOpenDialog(true);
+								}}
+								style={{ color: PRIMARY_COLOR, borderColor: '#fff' }}
+								className='
 										bg-white
                                         font-bold
                                         w-48
@@ -450,10 +683,11 @@ const Market = () => {
                                         cursor-pointer
                                         hover:bg-opacity-90
                                         transition'
-						>
-							Login
-						</button>
-					</div>
+							>
+								Login
+							</button>
+						</div>
+					)}
 				</div>
 				<div className='flex items-center content-center items-center w-full'>
 					<div
@@ -509,6 +743,7 @@ const Market = () => {
 				</div>
 			)}
 			<ToastContainer position='top-right' autoClose={5000} />
+			<div id='recaptcha-container'></div>
 			<Transition appear show={openDialog} as={Fragment}>
 				<Dialog
 					as='div'
@@ -558,29 +793,6 @@ const Market = () => {
 													<img src='images/logo.png' className='w-full h-32' />
 												</div>
 												<div className='mb-6 w-full'>
-													<button
-														className='font-bold rounded-[25px] border-2 border-[#8b0e06] bg-white px-4 py-3 w-full'
-														onClick={(e) => e.preventDefault()}
-													>
-														<select
-															value={category}
-															onChange={(e) => {
-																setCategory(e.target.value);
-															}}
-															className='bg-white w-full'
-															data-required='1'
-															required
-														>
-															<option value='Value' hidden>
-																Select User Category
-															</option>
-															{USERS_CATEGORIES.map((v) => (
-																<option value={v}>{v}</option>
-															))}
-														</select>
-													</button>
-												</div>
-												<div className='mb-6 w-full'>
 													<input
 														type='text'
 														value={sent ? accessCode : phone}
@@ -597,17 +809,17 @@ const Market = () => {
 															}
 														}}
 														className='
-												w-full
-												rounded-[25px]
-												border-2
-												py-3
-												px-5
-												bg-white
-												text-base text-body-color
-												placeholder-[#ACB6BE]
-												outline-none
-												focus-visible:shadow-none
-												'
+															w-full
+															rounded-[25px]
+															border-2
+															py-3
+															px-5
+															bg-white
+															text-base text-body-color
+															placeholder-[#ACB6BE]
+															outline-none
+															focus-visible:shadow-none
+														'
 														style={{ borderColor: PRIMARY_COLOR }}
 														required
 													/>
@@ -617,18 +829,18 @@ const Market = () => {
 														type='submit'
 														value={sent ? 'Login' : 'Send One Time Password'}
 														className='
-												font-bold
-												w-full
-												rounded-[25px]
-												border-2
-												py-3
-												px-5
-												text-base 
-												text-white
-												cursor-pointer
-												hover:bg-opacity-90
-												transition
-											'
+															font-bold		
+															w-full
+															rounded-[25px]
+															border-2
+															py-3
+															px-5
+															text-base 
+															text-white
+															cursor-pointer
+															hover:bg-opacity-90
+															transition
+														'
 														style={{
 															backgroundColor: PRIMARY_COLOR,
 															borderColor: PRIMARY_COLOR,
@@ -640,21 +852,92 @@ const Market = () => {
 											<form
 												onSubmit={(e) => {
 													e.preventDefault();
-													signUp();
+													if (sent) {
+														signIn();
+													} else {
+														signUp();
+													}
 												}}
 											>
-												<p className='text-center text-xl text-black-300 mb-4 font-bold'>
-													Start your 7 Day FREE trial
-												</p>
-												<div className='mb-6'>
-													<input
-														type='text'
-														value={fullName}
-														placeholder={'Full Name'}
-														onChange={(e) => {
-															setFullName(e.target.value);
-														}}
-														className='
+												{sent ? (
+													<div className='flex flex-col w-full'>
+														<div className='flex flex-col justify-center items-center'>
+															<img
+																src='images/logo.png'
+																className='w-full h-32'
+															/>
+														</div>
+														<div className='mb-6 w-full'>
+															<input
+																type='text'
+																value={sent ? accessCode : phone}
+																placeholder={
+																	sent
+																		? 'Please enter the One Time Password'
+																		: 'Phone (include country your code )'
+																}
+																onChange={(e) => {
+																	if (sent) {
+																		setAccessCode(e.target.value);
+																	} else {
+																		setPhone(e.target.value);
+																	}
+																}}
+																className='
+															w-full
+															rounded-[25px]
+															border-2
+															py-3
+															px-5
+															bg-white
+															text-base text-body-color
+															placeholder-[#ACB6BE]
+															outline-none
+															focus-visible:shadow-none
+														'
+																style={{ borderColor: PRIMARY_COLOR }}
+																required
+															/>
+														</div>
+														<div className='mb-10 w-full'>
+															<input
+																type='submit'
+																value={
+																	sent ? 'Login' : 'Send One Time Password'
+																}
+																className='
+															font-bold		
+															w-full
+															rounded-[25px]
+															border-2
+															py-3
+															px-5
+															text-base 
+															text-white
+															cursor-pointer
+															hover:bg-opacity-90
+															transition
+														'
+																style={{
+																	backgroundColor: PRIMARY_COLOR,
+																	borderColor: PRIMARY_COLOR,
+																}}
+															/>
+														</div>
+													</div>
+												) : (
+													<div className='flex flex-col w-full'>
+														<p className='text-center text-xl text-black-300 mb-4 font-bold'>
+															Register for FREE
+														</p>
+														<div className='mb-6'>
+															<input
+																type='text'
+																value={customer.customerName}
+																placeholder={'Full Name'}
+																name='customerName'
+																onChange={handleChangeCustomer}
+																className='
 																	w-full
 																	rounded-[25px]
 																	border-2
@@ -668,18 +951,19 @@ const Market = () => {
 																	focus-visible:shadow-none
 																	focus:border-primary
 																'
-														required
-													/>
-												</div>
-												<div className='mb-6'>
-													<input
-														type='text'
-														value={phone}
-														placeholder={'Phone (include country your code )'}
-														onChange={(e) => {
-															setPhone(e.target.value);
-														}}
-														className='
+																required
+															/>
+														</div>
+														<div className='mb-6'>
+															<input
+																type='text'
+																value={customer.customerPhone}
+																placeholder={
+																	'Phone (include country your code )'
+																}
+																onChange={handleChangeCustomer}
+																name='customerPhone'
+																className='
 																	w-full
 																	rounded-[25px]
 																	border-2
@@ -693,18 +977,17 @@ const Market = () => {
 																	focus-visible:shadow-none
 																	focus:border-primary
 																'
-														required
-													/>
-												</div>
-												<div className='mb-6'>
-													<input
-														type='text'
-														value={email}
-														placeholder={'Email'}
-														onChange={(e) => {
-															setEmail(e.target.value);
-														}}
-														className='
+																required
+															/>
+														</div>
+														<div className='mb-6'>
+															<input
+																type='text'
+																value={customer.customerEmail}
+																name='customerEmail'
+																placeholder={'Email'}
+																onChange={handleChangeCustomer}
+																className='
 																	w-full
 																	rounded-[25px]
 																	border-2
@@ -718,14 +1001,96 @@ const Market = () => {
 																	focus-visible:shadow-none
 																	focus:border-primary
 																'
-														required
-													/>
-												</div>
-												<div className='mb-4'>
-													<input
-														type='submit'
-														value={'Send One Time Password'}
-														className='
+																required
+															/>
+														</div>
+														<div className='mb-6'>
+															<p className='text-center text-xs text-gray-300 mb-4 font-bold  w-full'>
+																Select Favorite Cuisine
+															</p>
+															<Multiselect
+																isObject={false}
+																onRemove={(selectedItem: any) => {
+																	setSelectedCuisine(
+																		selectedCuisine.filter((element) => {
+																			return element !== selectedItem;
+																		})
+																	);
+																}}
+																onSelect={(
+																	selectedList: React.SetStateAction<string[]>
+																) => {
+																	setSelectedCuisine(selectedList);
+																}}
+																options={CATEGORIES}
+																displayValue='Sunday'
+																placeholder='Select Favorite Cuisine'
+																style={{
+																	chips: {
+																		background: PRIMARY_COLOR,
+																		'border-radius': '25px',
+																	},
+																	multiselectContainer: {
+																		color: PRIMARY_COLOR,
+																	},
+																	searchBox: {
+																		border: 'display',
+																		// height: '0px',
+																		'border-bottom':
+																			'2px solid ' + PRIMARY_COLOR,
+																		'border-top': '2px solid ' + PRIMARY_COLOR,
+																		'border-radius': '25px',
+																		padding: '4px',
+																		color: PRIMARY_COLOR,
+																		':hover': PRIMARY_COLOR,
+																	},
+																}}
+															/>
+														</div>
+														<div className='mb-6'>
+															<input
+																type='text'
+																value={customer.address}
+																name='address'
+																placeholder={'Address'}
+																onChange={handleChangeCustomer}
+																className='
+																	w-full
+																	rounded-[25px]
+																	border-2
+																	border-[#8b0e06]
+																	py-3
+																	px-5
+																	bg-white
+																	text-base text-body-color
+																	placeholder-[#ACB6BE]
+																	outline-none
+																	focus-visible:shadow-none
+																	focus:border-primary
+																'
+																required
+															/>
+														</div>
+														<div className='mb-6'>
+															<p className='text-center text-xs text-gray-300 mb-4 font-bold  w-full rounded-[25px]'>
+																Click to select your location
+															</p>
+															<div className='mb-6 w-full'>
+																<MapPicker
+																	defaultLocation={DEFAULT_LOCATION}
+																	zoom={DEFAULT_ZOOM}
+																	// mapTypeId={createId()}
+																	style={{ height: '200px', width: '100%' }}
+																	onChangeLocation={handleChangeLocation}
+																	apiKey={MAP_API}
+																/>
+															</div>
+														</div>
+														<div className='mb-4'>
+															<input
+																type='submit'
+																value={'Send One Time Password'}
+																className='
 																	font-bold
 																	w-full
 																	rounded-[25px]
@@ -741,44 +1106,34 @@ const Market = () => {
 																	hover:bg-opacity-90
 																	transition
 																'
-													/>
-												</div>
-												<div className='text-center'>
-													<input
-														onChange={() => {
-															setChecked(true);
-														}}
-														type='checkbox'
-														id='terms'
-														name='terms'
-														value='terms'
-														className='accent-[#8b0e06] text-white bg-whites'
-													/>
-													<label htmlFor='terms'>
-														{' '}
-														I understand the Terms and Conditions
-													</label>
-													<br></br>
-												</div>
-												<Link href={'/terms'}>
-													<p className='text-center text-xs text-gray-300 mb-4 font-bold underline'>
-														See Terms
-													</p>
-												</Link>
+															/>
+														</div>
+														<div className='text-center'>
+															<input
+																onChange={() => {
+																	setChecked(true);
+																}}
+																type='checkbox'
+																id='terms'
+																name='terms'
+																value='terms'
+																className='accent-[#8b0e06] text-white bg-whites'
+															/>
+															<label htmlFor='terms'>
+																{' '}
+																I understand the Terms and Conditions
+															</label>
+															<br></br>
+														</div>
+														<Link href={'/terms'}>
+															<p className='text-center text-xs text-gray-300 mb-4 font-bold underline'>
+																See Terms
+															</p>
+														</Link>
+													</div>
+												)}
 											</form>
 										)}
-										<button
-											onClick={() => {}}
-											className={
-												'rounded-[25px] py-3 px-5 text-white w-full border '
-											}
-											style={{
-												backgroundColor: PRIMARY_COLOR,
-												borderColor: PRIMARY_COLOR,
-											}}
-										>
-											Add
-										</button>
 									</div>
 								</Dialog.Panel>
 							</Transition.Child>

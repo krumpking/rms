@@ -86,6 +86,7 @@ const SignUp = () => {
 		prefferedCuisine: [],
 	});
 	const [selectedCuisine, setSelectedCuisine] = useState(CATEGORIES);
+	const [latlong, setLatLng] = useState<any>();
 
 	useEffect(() => {
 		document.body.style.backgroundColor = PRIMARY_COLOR;
@@ -149,7 +150,14 @@ const SignUp = () => {
 				const userId = user.uid;
 
 				if (customer.customerName !== '') {
-					addCustomer(customer)
+					let newC = {
+						...customer,
+						userId: userId,
+						location: latlong,
+						prefferedCuisine: selectedCuisine,
+					};
+
+					addCustomer(newC)
 						.then((v) => {
 							setCookie(USER_ID, encrypt(userId, ADMIN_ID), {
 								days: 1,
@@ -274,10 +282,7 @@ const SignUp = () => {
 	};
 
 	const handleChangeLocation = (lat: any, lng: any) => {
-		setCustomer({
-			...customer,
-			location: { lat: lat, lng: lng },
-		});
+		setLatLng({ lat: lat, lng: lng });
 	};
 
 	return (
@@ -411,7 +416,7 @@ const SignUp = () => {
 														}}
 													>
 														<p className='text-center text-xl text-black-300 mb-4 font-bold'>
-															Sign up for FREE
+															Register for FREE
 														</p>
 														<div className='mb-6'>
 															<input
@@ -563,7 +568,7 @@ const SignUp = () => {
 																	defaultLocation={DEFAULT_LOCATION}
 																	zoom={DEFAULT_ZOOM}
 																	// mapTypeId={createId()}
-																	style={{ height: '200px', width: '100%' }}
+																	style={{ height: '300px', width: '100%' }}
 																	onChangeLocation={handleChangeLocation}
 																	apiKey={MAP_API}
 																/>

@@ -925,7 +925,7 @@ const WebOneWebsiteInfo = () => {
 									defaultLocation={DEFAULT_LOCATION}
 									zoom={DEFAULT_ZOOM}
 									// mapTypeId={createId()}
-									style={{ height: '200px', width: '100%' }}
+									style={{ height: '300px', width: '100%' }}
 									onChangeLocation={handleChangeLocation}
 									apiKey={MAP_API}
 								/>

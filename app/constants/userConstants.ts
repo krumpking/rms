@@ -8,3 +8,5 @@ export const ADMIN_COLLECTION = 'admins';
 export const CUSTOMERS_COLLECTION = 'customers';
 
 export const USER_TYPE = 'DQWKCOTD';
+
+export const CUSTOMERS_FIELD = 'userId';

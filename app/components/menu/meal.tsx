@@ -14,7 +14,6 @@ import imageCompression from 'browser-image-compression';
 import {
 	addDocument,
 	deleteDocument,
-	deleteFile,
 	getDataFromDBOne,
 	updateDocument,
 	uploadFile,
@@ -133,9 +132,6 @@ const Meal = () => {
 					`${adminId}/${MEAL_STORAGE_REF}/thumbnail_${name}`,
 					compressedFile
 				);
-
-				deleteFile(`${adminId}/${MEAL_STORAGE_REF}/${editItem.pic.original}`);
-				deleteFile(`${adminId}/${MEAL_STORAGE_REF}/${editItem.pic.thumbnail}`);
 			} catch (e) {
 				console.error(e);
 			}

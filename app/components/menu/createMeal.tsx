@@ -14,7 +14,6 @@ import imageCompression from 'browser-image-compression';
 import {
 	addDocument,
 	deleteDocument,
-	deleteFile,
 	getDataFromDBOne,
 	updateDocument,
 	uploadFile,

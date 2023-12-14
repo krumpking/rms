@@ -13,6 +13,7 @@ import {
 	query,
 	where,
 } from 'firebase/firestore';
+import { updateDocument } from './mainApi';
 
 export const addUser = async (user: IUser) => {
 	// Create a query against the collection.
@@ -22,7 +23,10 @@ export const addUser = async (user: IUser) => {
 	);
 	const snapshot = await getCountFromServer(q);
 	if (snapshot.data().count > 0) {
-		return null;
+		const querySnapshot = await getDocs(q);
+		querySnapshot.forEach((doc) => {
+			updateDocument(ADMIN_COLLECTION, doc.id, user);
+		});
 	} else {
 		return addDoc(collection(firestore, ADMIN_COLLECTION), user);
 	}
@@ -36,7 +40,10 @@ export const addCustomer = async (user: ICustomer) => {
 	);
 	const snapshot = await getCountFromServer(q);
 	if (snapshot.data().count > 0) {
-		return null;
+		const querySnapshot = await getDocs(q);
+		querySnapshot.forEach((doc) => {
+			updateDocument(CUSTOMERS_COLLECTION, doc.id, user);
+		});
 	} else {
 		return addDoc(collection(firestore, CUSTOMERS_COLLECTION), user);
 	}

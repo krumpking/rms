@@ -19,7 +19,6 @@ import imageCompression from 'browser-image-compression';
 import {
 	addDocument,
 	deleteDocument,
-	deleteFile,
 	getDataFromDBOne,
 	updateDocument,
 	uploadFile,
@@ -214,9 +213,6 @@ const AddMenuItem = () => {
 					`${adminId}/${MENU_STORAGE_REF}/thumbnail_${name}`,
 					compressedFile
 				);
-
-				deleteFile(`${adminId}/${MENU_STORAGE_REF}/${editItem.pic.original}`);
-				deleteFile(`${adminId}/${MENU_STORAGE_REF}/${editItem.pic.thumbnail}`);
 			} catch (e) {
 				console.error(e);
 			}
@@ -266,8 +262,6 @@ const AddMenuItem = () => {
 		if (result) {
 			//Logic to delete the item
 			setLoading(true);
-			deleteFile(`${adminId}/${MENU_STORAGE_REF}/${pic.original}`);
-			deleteFile(`${adminId}/${MENU_STORAGE_REF}/${pic.thumbnail}`);
 			deleteDocument(MENU_ITEM_COLLECTION, id)
 				.then(() => {
 					setMenuItems([]);
