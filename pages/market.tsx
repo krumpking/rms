@@ -58,12 +58,12 @@ import { encrypt } from '../app/utils/crypto';
 import { logEvent } from 'firebase/analytics';
 import {
 	CUSTOMERS_COLLECTION,
+	PHONE_COOKIE,
 	USER_TYPE,
 } from '../app/constants/userConstants';
 import Multiselect from 'multiselect-react-dropdown';
 import Link from 'next/link';
-import { set } from 'lodash';
-import { getUser } from '../app/utils/userInfo';
+import { useAuthIds } from '../app/components/authHook';
 
 const Market = () => {
 	const [loading, setLoading] = useState(true);
@@ -178,6 +178,7 @@ const Market = () => {
 	const [selectedCuisine, setSelectedCuisine] = useState(CATEGORIES);
 	const [userLoggedIn, setUserLoggedIn] = useState(false);
 	const [latlong, setLatlong] = useState<any>();
+	const { userId, userType } = useAuthIds();
 
 	useEffect(() => {
 		auth.languageCode = 'en';
@@ -202,8 +203,7 @@ const Market = () => {
 	}, []);
 
 	const getWebsites = () => {
-		let userInfo = getUser();
-		if (userInfo !== null) {
+		if (userType == '2' && userId !== '') {
 			setUserLoggedIn(true);
 		}
 		if (navigator.geolocation) {
@@ -467,6 +467,16 @@ const Market = () => {
 									Secure: true,
 								});
 
+								setCookie(
+									PHONE_COOKIE,
+									encrypt(customer.customerPhone, ADMIN_ID),
+									{
+										days: 1,
+										SameSite: 'Strict',
+										Secure: true,
+									}
+								);
+
 								setUserLoggedIn(true);
 								setLoading(false);
 							}
@@ -575,6 +585,13 @@ const Market = () => {
 							SameSite: 'Strict',
 							Secure: true,
 						});
+
+						setCookie(PHONE_COOKIE, encrypt(customer.customerPhone, ADMIN_ID), {
+							days: 1,
+							SameSite: 'Strict',
+							Secure: true,
+						});
+
 						setUserLoggedIn(true);
 						setLoading(false);
 

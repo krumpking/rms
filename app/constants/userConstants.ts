@@ -10,3 +10,5 @@ export const CUSTOMERS_COLLECTION = 'customers';
 export const USER_TYPE = 'DQWKCOTD';
 
 export const CUSTOMERS_FIELD = 'userId';
+
+export const PHONE_COOKIE = 'AEWFSDSVFD';

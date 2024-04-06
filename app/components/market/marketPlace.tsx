@@ -62,12 +62,12 @@ import {
 import { logEvent } from 'firebase/analytics';
 import { analytics } from '../../../firebase/clientApp';
 import { getCurrency } from '../../utils/currency';
-import { getUser } from '../../utils/userInfo';
 import {
 	CUSTOMERS_COLLECTION,
 	CUSTOMERS_FIELD,
 } from '../../constants/userConstants';
 import { ICustomer } from '../../types/customerTypes';
+import { useAuthIds } from '../authHook';
 
 const MarketPlace = (props: {
 	info: IWebsiteOneInfo[];
@@ -94,7 +94,6 @@ const MarketPlace = (props: {
 	]);
 	const [deliveryCost, setDeliveryCost] = useState(0);
 	const [location, setLocation] = useState(DEFAULT_LOCATION);
-	const [userId, setUserId] = useState('userId');
 	const [order, setOrder] = useState<IOrder>({
 		id: '',
 		adminId: 'adminId',
@@ -166,7 +165,7 @@ const MarketPlace = (props: {
 	const [noOfPeople, setNoOfPeople] = useState(0);
 	const [currency, setCurrency] = useState('US$');
 	const [user, setUser] = useState<ICustomer | null>(null);
-	const [orderLoading, setOrderLoading] = useState(false);
+	const { userId, userType } = useAuthIds();
 
 	useEffect(() => {
 		if (info.length > 1) {
@@ -187,9 +186,8 @@ const MarketPlace = (props: {
 	};
 
 	const getUserInfo = () => {
-		let userInfo = getUser();
-		if (userInfo !== null) {
-			getDataFromDBOne(CUSTOMERS_COLLECTION, CUSTOMERS_FIELD, userInfo.id)
+		if (userType == '2' && userId !== '') {
+			getDataFromDBOne(CUSTOMERS_COLLECTION, CUSTOMERS_FIELD, userId)
 				.then((v) => {
 					if (v !== null) {
 						v.data.forEach((element) => {
@@ -214,9 +212,8 @@ const MarketPlace = (props: {
 								customerEmail: d.customerEmail,
 								customerPhone: d.customerPhone,
 								customerAddress: d.customerAddress,
+								userId: d.userId,
 							});
-							print(d.customerName);
-							print(d.location);
 							setLocation(d.location);
 						});
 					}
@@ -694,14 +691,13 @@ const MarketPlace = (props: {
 					date: new Date(),
 					dateString: new Date().toDateString(),
 					adminId: order.adminId,
-					userId: order.adminId,
 					confirmed: false,
 				};
 
 				if (!usePoints) {
 					const point: IPoints = {
 						adminId: info[index].adminId,
-						userId: info[index].userId,
+						userId: order.userId,
 						id: 'id',
 						dateString: new Date().toDateString(),
 						date: new Date(),
@@ -745,6 +741,12 @@ const MarketPlace = (props: {
 			let hrs = differenceInHours(deliveryDate, new Date());
 			let index = returnOccurrencesIndexAdmin(info, addItems[0].adminId);
 			if (hrs >= info[index].prepTime) {
+				if (user == null) {
+					setOrder({
+						...order,
+						userId: addItems[0].adminId,
+					});
+				}
 				if (
 					order.customerEmail !== '' &&
 					order.customerName !== '' &&

@@ -1,14 +1,13 @@
 import { getCookie, setCookie } from 'react-use-cookie';
-import { locationResult } from './location';
 import { CURRENNCY, CURRENT_COUNTRY } from '../constants/locationConstants';
-import { print } from './console';
+import { locationResult } from '../utils/location';
 
 export const getCurrency = async () => {
-	let currency: any = getCookie(CURRENNCY);
-	if (currency !== '') {
-		return currency;
+	let code: any = getCookie(CURRENNCY);
+	if (code !== '') {
+		return code;
 	} else {
-		currency = await locationResult();
+		let currency = await locationResult();
 		let code = currency.data.currency.symbol_native;
 		if (code !== 'P' && code !== 'R') {
 			code = 'US$';

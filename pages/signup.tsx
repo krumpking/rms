@@ -34,7 +34,7 @@ import {
 	DEFAULT_ZOOM,
 	MAP_API,
 } from '../app/constants/websiteConstants';
-import { USER_TYPE } from '../app/constants/userConstants';
+import { PHONE_COOKIE, USER_TYPE } from '../app/constants/userConstants';
 
 function classNames(...classes: string[]) {
 	return classes.filter(Boolean).join(' ');
@@ -169,9 +169,14 @@ const SignUp = () => {
 								SameSite: 'Strict',
 								Secure: true,
 							});
+							setCookie(PHONE_COOKIE, encrypt(phone, ADMIN_ID), {
+								days: 1,
+								SameSite: 'Strict',
+								Secure: true,
+							});
 
 							router.push({
-								pathname: '/home',
+								pathname: '/myhome',
 							});
 
 							logEvent(analytics, 'customer_signups');

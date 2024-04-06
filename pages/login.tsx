@@ -22,6 +22,7 @@ import { COOKIE_AFFILIATE_NUMBER } from '../app/constants/affilliateConstants';
 import {
 	ADMIN_COLLECTION,
 	CUSTOMERS_COLLECTION,
+	PHONE_COOKIE,
 	USER_TYPE,
 } from '../app/constants/userConstants';
 import { getDataFromDBOne } from '../app/api/mainApi';
@@ -146,7 +147,7 @@ const Login = (props: {
 											Secure: true,
 										});
 										router.push({
-											pathname: '/home',
+											pathname: '/myhome',
 										});
 									}
 								})
@@ -182,8 +183,14 @@ const Login = (props: {
 											Secure: true,
 										});
 
+										setCookie(PHONE_COOKIE, encrypt(phone, ADMIN_ID), {
+											days: 1,
+											SameSite: 'Strict',
+											Secure: true,
+										});
+
 										router.push({
-											pathname: '/home',
+											pathname: '/myhome',
 										});
 									}
 								})
