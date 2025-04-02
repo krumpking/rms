@@ -6,7 +6,7 @@ export const AMDIN_FIELD = 'adminId';
 
 export const CURRENCIES = ['ZWL', 'USD'];
 
-export const FOODIES_BOOTH_URL = 'https://foodiesbooth.com';
+export const FOODIES_BOOTH_URL = "https://foodiesbooth.vercel.app/"//'https://foodiesbooth.com';
 
 // Main
 export const API_ROUTE = 'https://meganb-backend.herokuapp.com'; //'http://localhost:3146'//
