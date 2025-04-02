@@ -217,15 +217,15 @@ const Home: NextPage = () => {
 		} else {
 			buz = url.slice(8, url.indexOf('.foodiesbooth.vercel.app'));
 		}
-		console.log(buz);
-		if (buz !== '' && !buz.includes(':') && buz !== 'www') {
-			setIsOtherWebsite(true);
-			setBusiness(buz);
-			setLoading(false);
-		} else {
-			getMenuItems();
-			logEvent(analytics, 'welcome_page_visit');
-		}
+		// console.log(buz);
+		// if (buz !== '' && !buz.includes(':') && buz !== 'www') {
+		// 	setIsOtherWebsite(true);
+		// 	setBusiness(buz);
+		// 	setLoading(false);
+		// } else {
+		getMenuItems();
+		logEvent(analytics, 'welcome_page_visit');
+		// }
 	}, []);
 
 	const getMenuItems = async () => {
@@ -419,9 +419,10 @@ const Home: NextPage = () => {
 													<div className='flex flex-row space-x-2'>
 														<button
 															onClick={() => {
-																router.push(
-																	`https://${v.websiteName}.${FOODIES_BOOTH_URL}`
-																);
+																alert("Website no longer available");
+																// router.push(
+																// 	`https://${v.websiteName}.${FOODIES_BOOTH_URL}`
+																// );
 															}}
 															className='relative rounded-full p-2'
 															style={{ backgroundColor: PRIMARY_COLOR }}
@@ -443,9 +444,10 @@ const Home: NextPage = () => {
 														</button>
 														<button
 															onClick={() => {
-																router.push(
-																	`https://${v.websiteName}.${FOODIES_BOOTH_URL}`
-																);
+																alert("Website no longer available")
+																// router.push(
+																// 	`https://${v.websiteName}.${FOODIES_BOOTH_URL}`
+																// );
 															}}
 															className='relative rounded-full p-2'
 															style={{ backgroundColor: PRIMARY_COLOR }}
