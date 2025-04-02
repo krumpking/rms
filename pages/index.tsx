@@ -217,15 +217,15 @@ const Home: NextPage = () => {
 		} else {
 			buz = url.slice(8, url.indexOf('.foodiesbooth.vercel.app'));
 		}
-
-		// if (buz !== '' && !buz.includes(':') && buz !== 'www') {
-		// 	setIsOtherWebsite(true);
-		// 	setBusiness(buz);
-		// 	setLoading(false);
-		// } else {
-		getMenuItems();
-		logEvent(analytics, 'welcome_page_visit');
-		// }
+		console.log(buz);
+		if (buz !== '' && !buz.includes(':') && buz !== 'www') {
+			setIsOtherWebsite(true);
+			setBusiness(buz);
+			setLoading(false);
+		} else {
+			getMenuItems();
+			logEvent(analytics, 'welcome_page_visit');
+		}
 	}, []);
 
 	const getMenuItems = async () => {
