@@ -217,7 +217,7 @@ const Home: NextPage = () => {
 		} else {
 			buz = url.slice(8, url.indexOf('.foodiesbooth.vercel.app'));
 		}
-
+		console.log(buz);
 		if (buz !== '' && !buz.includes(':') && buz !== 'www') {
 			setIsOtherWebsite(true);
 			setBusiness(buz);
