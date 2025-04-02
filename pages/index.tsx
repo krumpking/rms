@@ -215,7 +215,7 @@ const Home: NextPage = () => {
 		if (url.includes('localhost')) {
 			buz = url.slice(7, url.indexOf('.localhost'));
 		} else {
-			buz = url.slice(8, url.indexOf('.foodiesbooth.com'));
+			buz = url.slice(8, url.indexOf('.foodiesbooth.vercel.app'));
 		}
 
 		if (buz !== '' && !buz.includes(':') && buz !== 'www') {
